@@ -123,10 +123,10 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v1.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v1.2</small></div>
     <nav>
       <button data-m="pitches">구종</button>
-      <button data-m="ars">구속</button>
+      <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
       <button data-m="line1" id="navB">B팀</button>
       <button data-m="log">중계</button>
@@ -2085,7 +2085,8 @@ const PITCHES=[
 ['슬라이더',0.88,0.32,-0.12,2.6],['스위퍼',0.85,0.52,-0.05,2.2],['커브',0.78,0.16,-0.52,2],['너클커브',0.81,0.12,-0.46,2.4],
 ['체인지업',0.86,-0.18,-0.26,2.4],['스플리터',0.90,-0.05,-0.40,3],['포크',0.86,0,-0.48,3],['서클체인지',0.85,-0.26,-0.22,2.4],
 ['슬러브',0.84,0.36,-0.32,2.2],['너클볼',0.70,0,-0.12,1.5],['팜볼',0.75,-0.08,-0.30,2],['스크루볼',0.82,-0.36,-0.26,2.4],
-['슈트',0.95,-0.26,-0.05,2.4],['자이로볼',0.90,0.03,-0.16,2.8]].map(([n,s,bx,by,k])=>({n,s,bx,by,k,on:true}));
+['슈트',0.95,-0.26,-0.05,2.4],['자이로볼',0.90,0.03,-0.16,2.8],
+['종슬라이더',0.89,0.07,-0.44,2.6],['킥체인지업',0.85,-0.08,-0.44,2.6]].map(([n,s,bx,by,k])=>({n,s,bx,by,k,on:true}));
 (function(){const on=LS.get('dny_pitches',null);if(on)PITCHES.forEach((p,i)=>p.on=on[i]!==false)})();
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
@@ -2133,7 +2134,14 @@ function mkP(d){const sp=matchSpecial(d.name,'P');const s=sp||d;
   return{name:d.name,hand:s.hand==='L'?'L':'R',velo:+s.velo||145,control:+s.control||65,stuff:+s.stuff||65,stamina:+s.stamina||60,
     arm:sp?(sp.arm||'over'):(d.arm||'over'),veloAvg:sp?false:!!d.veloAvg,arsenal:sp?null:(d.arsenal||null),era:sp?null:d.era,role:sp?'':(d.role||''),
     special:!!sp,spKey:sp?sp.name:null,id:++UID,pc:0,st:{outs:0,h:0,r:0,er:0,k:0,bb:0,hr:0}}}
-const _mkP0=mkP;mkP=d=>applyOvr(_mkP0(d));
+const _mkP0=mkP;mkP=d=>applyHand(applyOvr(_mkP0(d)),'p');
+const _mkH0=mkH;mkH=d=>{const b=applyHand(_mkH0(d),'b');b.curHand=decideHand(b);return b};
+/* ===== 좌/우 직접 설정 ===== */
+let HAND_OVR=LS.get('dny_hand',{})||{};
+const saveHand=()=>{LS.set('dny_hand',HAND_OVR);if(typeof cloudPush==='function')cloudPush('hand',HAND_OVR)};
+function applyHand(o,k){if(!o)return o;if(o._hand0===undefined)o._hand0=o.hand;const v=HAND_OVR[k+':'+o.name];o.hand=v||o._hand0;return o}
+function decideHand(b){let p=null;try{p=G&&!G.over?fieldTeam().pitcher:null}catch(e){}
+  if(b.hand==='S')return p&&p.hand==='L'?'R':'L';return b.hand||(R()<.5?'R':'L')}
 function buildTeam(i){const r=S.rosters[i];
   const nm=S.names[i]||'AB'[i]+'팀';
   return{name:nm,uni:uniOf(nm,i?'#e8483f':'#2f7df6'),key:i,color:i?'#e8483f':'#2f7df6',cap:i?'#6e1611':'#0f2f6b',
@@ -2161,7 +2169,7 @@ function splitLine(l){const o=[];let c='',q=false;for(let i=0;i<l.length;i++){co
   if(q){if(ch==='"'){if(l[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
   else if(ch==='"')q=true;else if(ch===','||ch==='\t'){o.push(c.trim());c=''}else c+=ch}o.push(c.trim());return o}
 const ARS_MAP={'직구':'포심','포심':'포심','패스트볼':'포심','투심':'투심','싱커':'싱커','커터':'커터','슬라이더':'슬라이더','스위퍼':'스위퍼','커브':'커브','너클커브':'너클커브',
-  '체인지업':'체인지업','스플리터':'스플리터','포크':'포크','포크볼':'포크','서클체인지':'서클체인지','슬러브':'슬러브','너클볼':'너클볼','팜볼':'팜볼','스크루볼':'스크루볼','슈트':'슈트','자이로볼':'자이로볼'};
+  '체인지업':'체인지업','스플리터':'스플리터','포크':'포크','포크볼':'포크','서클체인지':'서클체인지','슬러브':'슬러브','너클볼':'너클볼','팜볼':'팜볼','스크루볼':'스크루볼','슈트':'슈트','자이로볼':'자이로볼','종슬라이더':'종슬라이더','종슬':'종슬라이더','버티컬슬라이더':'종슬라이더','킥체인지업':'킥체인지업','킥체인지':'킥체인지업'};
 function parseArsenal(v){const o=[];String(v||'').replace(/([가-힣A-Za-z]+)\s*(\d{2,3})/g,(m,n,k)=>{const nm=ARS_MAP[n]||n;if(PITCHES.some(p=>p.n===nm))o.push({n:nm,v:+k})});return o}
 // CSV 한 장 → 선수 행 목록 (구단/팀 열이 있으면 여러 구단을 모두 읽음)
 function parseCSV(text){
@@ -2482,6 +2490,7 @@ function startGame(){UID=0;const tA=buildTeam(0),tB=buildTeam(1);rollSpecials([t
   const away=S.first===0?tA:tB,home=S.first===0?tB:tA;
   G={teams:[tA,tB],away,home,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],innings:S.innings,log:[],over:false,halt:true};
   [tA,tB].forEach(t=>{t.pitchLog=[t.pitcher];t.pitcher.entryLead=0;t.pitcher.blown=false;t.lineup.forEach(b=>b.appeared=true)});
+  try{G.over=false;const b0=curBatter();b0.curHand=decideHand(b0)}catch(e){}
   away.ls=[0];home.ls=[];G.paP=[];renderPList();bgKey='';showReveal();updateHUD()}
 const ipTxt=o=>`${Math.floor(o/3)}${o%3?` ${o%3}/3`:''}`;
 const eraTxt=p=>p.st.outs?(p.st.er*27/p.st.outs).toFixed(2):(p.st.er?'∞':'-');
@@ -2597,7 +2606,7 @@ function walk(hbp){const b=curBatter(),p=fieldTeam().pitcher,B=G.bases,sc=[];b.s
   if(sc.length)score(sc,b,true);const nm=hbp?'몸에 맞는 공':'볼넷';
   log(`${b.name}: ${nm}${sc.length?' (밀어내기 +1점)':''}`);finishPitch(G.walkoff?`끝내기 ${nm}!`:(hbp?nm+'!':nm),hbp?'k':'ball',true,sc.length?'밀어내기 +1점':(hbp?'사구 · 1루 진루':''))}
 function finishPitch(txt,cls,paEnd,sub){if(st.wpNote){sub=st.wpNote+(sub?' · '+sub:'');st.wpNote=''}showBanner(txt,cls,sub);st.mode='post';st.paEnd=paEnd;st.until=NOW+(paEnd?1.6:0.95);showPinfo();updateHUD()}
-function nextBatter(){G.paP=[];renderPList();const t=batTeam();t.idx=(t.idx+1)%9;G.balls=0;G.strikes=0;const b=curBatter();b.curHand=b.hand||(R()<.5?'R':'L')}
+function nextBatter(){G.paP=[];renderPList();const t=batTeam();t.idx=(t.idx+1)%9;G.balls=0;G.strikes=0;const b=curBatter();b.curHand=decideHand(b)}
 function afterPost(){if(G.over)return endGame();if(st.paEnd)nextBatter();if(G.outs>=3)return endHalf();
   st.mode='ready';st.camMode='pitch';st.ballAnim=null;updateHUD()}
 function endHalf(){const last=G.inning>=G.innings;
@@ -2695,7 +2704,7 @@ function showSetup(){G=null;st.mode='idle';st.camMode='pitch';st.ballAnim=null;b
   <div class="row"><span class="lbl" style="width:auto">팀 열이 없으면</span><div class="seg" id="sgT"><button data-v="0">A팀에</button><button data-v="1">B팀에</button></div></div>
   <div class="status" id="csvs"></div>
   <div class="row"><button class="btn sm gray" id="bTpl">CSV 양식</button><button class="btn sm gray" id="bEA">A 라인업</button><button class="btn sm gray" id="bEB">B 라인업</button></div>
-  <div class="row"><button class="btn sm gray" id="bArs">⚾ 투수 구종·구속 편집</button></div>
+  <div class="row"><button class="btn sm gray" id="bArs">⚾ 선수 편집 (좌우·구종·구속)</button></div>
   <div class="row"><button class="btn sm" id="bReg">★ 등록 선수 관리 (${SPECIALS.length}명)</button><button class="btn sm gray" id="bCar">📊 누적 기록실</button></div>
   <p class="note">경기마다 팀별로 등록 선수가 0~3명(타자 최대 2·투수 최대 1) 선발 라인업에 깜짝 합류해요. 확률 0명 60% · 1명 27% · 2명 10% · 3명 3%. 라인업에 등록 선수 이름을 직접 입력해도 고유 스탯이 적용돼요.</p>
   <div class="row" style="margin-top:12px"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
@@ -2845,27 +2854,51 @@ function baseArs(d){const sp=matchSpecial(d.name,'P');
   return{arm:(sp&&sp.arm)||d.arm||'over',ars:[{n:'포심',v:+((sp||d).velo)||145}]}}
 const curArs=d=>ARS_OVR[d.name]?JSON.parse(JSON.stringify(ARS_OVR[d.name])):baseArs(d);
 function livePitchers(i){if(G){const t=[G.away,G.home].find(t=>t.key===i)||G.teams[i];return[t.pitcher,...t.bullpen,...(t.pitchLog||[]).filter(p=>p!==t.pitcher)]}return S.rosters[i].pitchers}
-function arsModal(i){i=i||0;const ARM={over:'오버핸드',side:'사이드암',under:'언더핸드'};
+const KSEG=(kind)=>`<div class="seg" id="kseg" style="margin-bottom:6px"><button data-k="pit" class="${kind!=='bat'?'on':''}">투수 (구종·구속·좌우)</button><button data-k="bat" class="${kind==='bat'?'on':''}">타자 (좌타·우타)</button></div>`;
+const pHandOf=d=>HAND_OVR['p:'+d.name]||(d._hand0!==undefined?d._hand0:(matchSpecial(d.name,'P')||d).hand)||'R';
+function liveBatters(i){if(G){const t=[G.away,G.home].find(t=>t.key===i)||G.teams[i];return[...t.lineup,...t.bench]}return[...S.rosters[i].lineup,...S.rosters[i].bench]}
+function batHandModal(i){const HN={R:'우타',L:'좌타',S:'양타'};
+  const nameOf=k=>G?([G.away,G.home].find(t=>t.key===k)||G.teams[k]).name:S.names[k];
+  const list=liveBatters(i).filter((p,j,a)=>p&&a.findIndex(q=>q&&q.name===p.name)===j);
+  const base=d=>(d._hand0!==undefined?d._hand0:(matchSpecial(d.name,'H')||d).hand)||'';
+  modal(`<h3>선수 편집</h3>${KSEG('bat')}
+   <div class="seg" id="atab"><button data-v="0" class="${i===0?'on':''}">${esc(nameOf(0))}</button><button data-v="1" class="${i===1?'on':''}">${esc(nameOf(1))}</button></div>
+   <p class="note">타석 방향을 고르면 바로 저장돼요. 경기 중이면 지금 타석에도 바로 적용돼요. 양타는 상대 투수와 반대쪽 타석에 서요. '기본'은 데이터 값(없으면 타석마다 무작위)이에요.</p>
+   <div style="overflow-x:auto"><table class="pt lu"><tr><th class="l">타자</th><th>포지션</th><th>기본</th><th>타석</th></tr>
+   ${list.map((d,j)=>{const v=HAND_OVR['b:'+d.name]||'',b=base(d);return`<tr><td class="l">${esc(d.name)}${v?' <small style="color:#ffd23f">●</small>':''}</td><td>${esc(posK(posCode(d.pos))||d.pos||'-')}</td><td>${HN[b]||'무작위'}</td>
+     <td><select data-bh="${j}" class="mini" style="width:74px"><option value="">기본</option>${Object.entries(HN).map(([k,n])=>`<option value="${k}" ${v===k?'selected':''}>${n}</option>`).join('')}</select></td></tr>`}).join('')}</table></div>
+   <div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{
+   el.querySelector('#kseg').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!=='bat')arsModal(i)};
+   el.querySelector('#atab').onclick=e=>{const b=e.target.closest('button');if(b)batHandModal(+b.dataset.v)};
+   el.querySelectorAll('[data-bh]').forEach(sel=>sel.onchange=()=>{const d=list[+sel.dataset.bh],k='b:'+d.name;if(sel.value)HAND_OVR[k]=sel.value;else delete HAND_OVR[k];saveHand();
+     if(G)[G.away,G.home].forEach(t=>[...t.lineup,...t.bench].forEach(b=>{if(b&&b.name===d.name){applyHand(b,'b');b.curHand=decideHand(b)}}));
+     batHandModal(i)});
+   el.querySelector('#cl').onclick=()=>{closeModal();if(!G&&$('#overlay').classList.contains('on'))showSetup()}})}
+function arsModal(i,kind){i=i||0;if(kind==='bat')return batHandModal(i);const ARM={over:'오버핸드',side:'사이드암',under:'언더핸드'};
   const list=livePitchers(i).filter((p,j,a)=>p&&a.findIndex(q=>q&&q.name===p.name)===j);
   const nameOf=k=>G?([G.away,G.home].find(t=>t.key===k)||G.teams[k]).name:S.names[k];
   const card=(d,j)=>{const a=curArs(d),ed=!!ARS_OVR[d.name];
     return`<div class="reg" data-j="${j}"><div class="row" style="align-items:center"><b style="flex:2">${esc(d.name)}${ed?' <small style="color:#ffd23f">● 수정됨</small>':''}</b>
-      <select data-arm style="flex:1">${Object.entries(ARM).map(([k,v])=>`<option value="${k}" ${a.arm===k?'selected':''}>${v}</option>`).join('')}</select></div>
+      <select data-hand style="flex:none;width:62px;padding:6px 3px">${[['R','우투'],['L','좌투']].map(([k,v])=>`<option value="${k}" ${pHandOf(d)===k?'selected':''}>${v}</option>`).join('')}</select><select data-arm style="flex:1;min-width:0">${Object.entries(ARM).map(([k,v])=>`<option value="${k}" ${a.arm===k?'selected':''}>${v}</option>`).join('')}</select></div>
       <div class="row" style="font-size:11px;color:#9fd0d5;margin:4px 0 -2px"><span style="flex:1">구종</span><span style="width:58px;text-align:center">구속 km/h</span><span style="width:46px;text-align:center">구사율 %</span><span style="width:34px"></span></div>
       ${a.ars.map((x,q)=>`<div class="row" style="align-items:center"><select data-pn="${q}" style="flex:1;min-width:0;padding:6px 4px">${PITCHES.map(p=>`<option ${p.n===x.n?'selected':''}>${p.n}</option>`).join('')}</select>
         <input type="number" inputmode="numeric" data-pv="${q}" value="${x.v}" min="60" max="175" style="flex:none;width:58px;padding:6px 3px;text-align:center"><input type="number" data-pu="${q}" value="${x.u??''}" placeholder="${Math.round(100/a.ars.length)}" min="0" max="100" inputmode="numeric" style="flex:none;width:46px;padding:6px 3px;text-align:center"><button class="btn sm red" data-pd="${q}" style="flex:none;padding:6px 9px" ${a.ars.length<2?'disabled':''}>✕</button></div>`).join('')}
       ${(()=>{const set=a.ars.filter(x=>x.u!=null&&x.u!=='');const sum=set.reduce((t,x)=>t+(+x.u),0);return set.length?`<p class="note" style="margin:2px 0;${Math.round(sum)!==100?'color:#ffb37a':''}">구사율 합계 ${Math.round(sum)}%${Math.round(sum)!==100?' — 합이 100이 아니면 비율대로 나눠 던져요':''}${set.length<a.ars.length?' · 빈 칸은 0%':''}</p>`:''})()}
       <div class="row"><button class="btn sm gray" data-add ${a.ars.length>=5?'disabled':''}>+ 구종</button><button class="btn sm gray" data-rs ${ed?'':'disabled'}>원래대로</button></div></div>`};
-  modal(`<h3>투수 구종·구속 편집</h3>
+  modal(`<h3>선수 편집</h3>${KSEG('pit')}
    <div class="seg" id="atab"><button data-v="0" class="${i===0?'on':''}">${esc(nameOf(0))}</button><button data-v="1" class="${i===1?'on':''}">${esc(nameOf(1))}</button></div>
-   <p class="note">구종, 평균 구속(km/h), 구사율(%)을 바꾸면 바로 저장돼요. 구사율을 비워 두면 모든 구종을 같은 비율로 던져요. 같은 이름의 투수에게 다음 경기에도 계속 적용되고, 경기 중이면 지금 던지는 투수에게도 바로 적용돼요. 최대 5개 구종.</p>
+   <p class="note">좌투·우투, 투구폼, 구종, 평균 구속(km/h), 구사율(%)을 바꾸면 바로 저장돼요. 구사율을 비워 두면 모든 구종을 같은 비율로 던져요. 같은 이름의 투수에게 다음 경기에도 계속 적용되고, 경기 중이면 지금 던지는 투수에게도 바로 적용돼요. 최대 5개 구종.</p>
    ${list.map(card).join('')||'<p class="note">투수가 없어요</p>'}
    <div class="row"><button class="btn sm red" id="aRA">전체 원래대로</button><button class="btn sm" id="cl">닫기</button></div>`,el=>{
    const commit=(d,a)=>{if(a)ARS_OVR[d.name]=a;else delete ARS_OVR[d.name];saveOvr();
      if(G)[G.away,G.home].forEach(t=>[t.pitcher,...t.bullpen,...(t.pitchLog||[])].forEach(p=>{if(p&&p.name===d.name)applyOvr(p)}))};
+   el.querySelector('#kseg').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k==='bat')batHandModal(i)};
    el.querySelector('#atab').onclick=e=>{const b=e.target.closest('button');if(b)arsModal(+b.dataset.v)};
    el.querySelectorAll('.reg').forEach(c=>{const d=list[+c.dataset.j];const get=()=>curArs(d);
      c.querySelector('[data-arm]').onchange=e=>{const a=get();a.arm=e.target.value;commit(d,a)};
+     c.querySelector('[data-hand]').onchange=e=>{const k='p:'+d.name,base=(d._hand0!==undefined?d._hand0:(matchSpecial(d.name,'P')||d).hand)||'R';if(e.target.value!==base)HAND_OVR[k]=e.target.value;else delete HAND_OVR[k];saveHand();
+       if(G){[G.away,G.home].forEach(t=>[t.pitcher,...t.bullpen,...(t.pitchLog||[])].forEach(p=>{if(p&&p.name===d.name)applyHand(p,'p')}));try{const b=curBatter();if(b.hand==='S')b.curHand=decideHand(b)}catch(er){}}
+       arsModal(i)};
      c.querySelectorAll('[data-pn]').forEach(s=>s.onchange=()=>{const a=get();a.ars[+s.dataset.pn].n=s.value;commit(d,a)});
      c.querySelectorAll('[data-pv]').forEach(s=>s.onchange=()=>{let v=Math.round(+s.value);if(!(v>=60&&v<=175)){v=Math.max(60,Math.min(175,v||140));s.value=v}const a=get();a.ars[+s.dataset.pv].v=v;commit(d,a)});
      c.querySelectorAll('[data-pu]').forEach(s=>s.onchange=()=>{const a=get();let v=s.value===''?null:Math.max(0,Math.min(100,Math.round(+s.value)));a.ars[+s.dataset.pu].u=v;commit(d,a);arsModal(i)});
@@ -2887,7 +2920,7 @@ function preLineup(i,sortK){const r=S.rosters[i];sortK=sortK||'cp';
     return sortK==='c'?B.c-A.c:sortK==='p'?B.p-A.p:sortK==='avg'?(parseFloat(B.avg)||0)-(parseFloat(A.avg)||0):sortK==='hr'?(+B.hr||0)-(+A.hr||0):(B.c+B.p)-(A.c+A.p)});
   const swapOpts=benchSorted.map(({d,j})=>{const v=hView(d);return`<option value="${j}">${v.sp?'★':''}${esc(d.name)} · ${d.pos?posK(posCode(d.pos)||d.pos)+' · ':''}컨${v.c} 파${v.p}${v.avg!=='-'?' · '+v.avg:''}</option>`}).join('');
   const lrow=(d,j)=>{const v=hView(d);return`<tr><td><b style="color:var(--gold)">${j+1}</b></td>
-    <td class="l">${v.sp?'<span class=star>★</span>':''}${esc(d.name)}</td>
+    <td class="l">${v.sp?'<span class=star>★</span>':''}${esc(d.name)} <small style="color:#8fc3c9">${{R:'우',L:'좌',S:'양'}[HAND_OVR['b:'+d.name]||(matchSpecial(d.name,'H')||d).hand]||''}</small></td>
     <td><select data-pos="${j}" class="mini" style="max-width:54px">${FIELD_POS.map(p=>`<option value="${p}" ${posCode(d.pos)===p?'selected':''}>${POSS[p]}</option>`).join('')}</select></td>
     <td>${v.avg}</td><td>${v.hr}</td><td><b>${v.c}</b></td><td><b>${v.p}</b></td>
     <td style="white-space:nowrap"><button class="mbtn" data-up="${j}" ${j?'':'disabled'}>▲</button><button class="mbtn" data-dn="${j}" ${j<8?'':'disabled'}>▼</button></td>
@@ -2906,7 +2939,7 @@ function preLineup(i,sortK){const r=S.rosters[i];sortK=sortK||'cp';
    <h4>벤치</h4><div class="seg" id="bsort">${[['cp','종합'],['c','컨택'],['p','파워'],['avg','타율'],['hr','홈런']].map(([k,l])=>`<button data-v="${k}" class="${sortK===k?'on':''}">${l}</button>`).join('')}</div>
    <div style="overflow-x:auto"><table class="pt lu"><tr><th class="l">선수</th><th>포지션</th><th>타율</th><th>홈런</th><th>컨</th><th>파</th><th>투입</th></tr>${benchSorted.map(brow).join('')||'<tr><td colspan="7">없음</td></tr>'}</table></div>
    <h4>투수 (선발 지정)</h4><div style="overflow-x:auto"><table class="pt lu"><tr><th></th><th class="l">투수</th><th>ERA</th><th>구종·구속</th></tr>${r.pitchers.map(prow).join('')}</table></div>
-   <div class="row"><button class="btn sm gray" id="ars">⚾ 구종·구속 편집</button><button class="btn sm gold" id="cl">완료</button></div>`,el=>{
+   <div class="row"><button class="btn sm gray" id="ars">⚾ 좌우·구종 편집</button><button class="btn sm gold" id="cl">완료</button></div>`,el=>{
    const re=()=>preLineup(i,sortK);
    el.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const j=+b.dataset.up;[r.lineup[j-1],r.lineup[j]]=[r.lineup[j],r.lineup[j-1]];re()});
    el.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{const j=+b.dataset.dn;[r.lineup[j+1],r.lineup[j]]=[r.lineup[j],r.lineup[j+1]];re()});
@@ -3002,13 +3035,15 @@ async function cloudPush(k,data){if(!CLOUD.ok||!CLOUD.ref[k])return;if(CLOUD.bus
 async function cloudInit(){try{if(!window.claude||!claude.use)return;
   const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]);if(!db||!user)return;
   const id=await user.id();if(!id)return;
-  CLOUD.ref.career=db.doc('data/users/'+id+'/career');CLOUD.ref.ars=db.doc('data/users/'+id+'/ars');
+  CLOUD.ref.career=db.doc('data/users/'+id+'/career');CLOUD.ref.ars=db.doc('data/users/'+id+'/ars');CLOUD.ref.hand=db.doc('data/users/'+id+'/hand');
   const [c,a]=await Promise.all([CLOUD.ref.career.get(),CLOUD.ref.ars.get()]);CLOUD.ok=true;
   const loc=loadCareer();let cd=null;try{cd=c.exists?JSON.parse(c.data().json):null}catch(e){}
   if(cd&&cd.bat&&(cd.games||0)>=(loc.games||0))LS.set(CAREER_KEY,cd);else if(loc.games)cloudPush('career',loc);
   let ad=null;try{ad=a.exists?JSON.parse(a.data().json):null}catch(e){}
   if(ad){for(const k in ARS_OVR)delete ARS_OVR[k];Object.assign(ARS_OVR,ad);LS.set('dny_ars',ARS_OVR)}else if(Object.keys(ARS_OVR).length)cloudPush('ars',ARS_OVR);
-  if(G)[G.away,G.home].forEach(t=>[t.pitcher,...t.bullpen,...(t.pitchLog||[])].forEach(p=>p&&applyOvr(p)))
+  if(G)[G.away,G.home].forEach(t=>[t.pitcher,...t.bullpen,...(t.pitchLog||[])].forEach(p=>p&&applyOvr(p)));
+  try{const h=await CLOUD.ref.hand.get();let hd=null;try{hd=h.exists?JSON.parse(h.data().json):null}catch(e){}
+    if(hd){for(const k in HAND_OVR)delete HAND_OVR[k];Object.assign(HAND_OVR,hd);LS.set('dny_hand',HAND_OVR)}else if(Object.keys(HAND_OVR).length)cloudPush('hand',HAND_OVR)}catch(e){}
 }catch(e){}}
 
 /* ===== 희생번트 ===== */
