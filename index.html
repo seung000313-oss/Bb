@@ -123,7 +123,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v1.4</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v1.5</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2090,10 +2090,10 @@ const PITCHES=[
 (function(){const on=LS.get('dny_pitches',null);if(on)PITCHES.forEach((p,i)=>p.on=on[i]!==false)})();
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
-// ===== 밸런스 패치 v1.4 (1선발 전 경기 등판 기준, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={win:0.6732,wF:4,strikeBase:0.2714,strikeC:0.003,hbpBase:0.00139,hbpC:6.38e-05,
-  gbBase:0.4651,ldCut:0.6801,gbOut:0.8277,ifFly:0.8775,ifLD:0.629,ofRangeFB:30.3958,ofRangeLD:15.4598,ofExtra:0.04,
-  ldDist:45.5,ofXB:91.3864,ofGap:29.6511,hrOver:5.2267,wall3:0.1467,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:0.00644};
+// ===== 밸런스 패치 v1.5 (선발6·필승조1·1·마무리1 이닝 기준, 장타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
+const BAL={win:0.6866,wF:4,strikeBase:0.2325,strikeC:0.003,hbpBase:0.00197,hbpC:9.03e-05,
+  gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
+  ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:0.00292,qF:0.65};
 const POSK={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수',DH:'지명타자'};
 const FIELD_POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
 function posCode(v){const s=String(v||'').trim().toUpperCase().replace(/\s/g,'');
@@ -2543,7 +2543,7 @@ function hitOutcome(q,bat,pit){
   let dist,res='OUT',how='',fielder,great=false;const IF=['1B','2B','SS','3B','P'],OF=['LF','CF','RF'];
   if(type==='gb'){dist=22+R()*14;const n=nearest(P(dist,th),IF);
     if(R()<BAL.gbOut-ct*0.14+sf*0.06){how='GO';fielder=n.k}else{res='1B';how='GB';dist=55+R()*12;fielder=nearest(P(dist,th),OF).k}}
-  else{dist=type==='ld'?32+q*BAL.ldDist+pw*25+R()*15-sf*10:50+q*66*(0.42+0.85*pw)+R()*25-sf*10;const fr=fence(th);
+  else{const qd=BAL.qF+(1-BAL.qF)*q;dist=type==='ld'?32+qd*BAL.ldDist+pw*25+R()*15-sf*10:50+qd*66*(0.42+0.85*pw)+R()*25-sf*10;const fr=fence(th);
     if(dist>=fr){let s=dist>=fr+BAL.hrOver?4:segAt(th);if(s===3&&R()>=BAL.wall3)s=2;res=['','1B','2B','3B','HR'][s];how=s===4?'HR':'FENCE';dist=s===4?fr+16+R()*14:fr-0.6;fielder=nearest(P(dist,th),OF).k}
     else if(dist<48){fielder=nearest(P(dist,th),IF).k;if((type==='fb'&&R()<BAL.ifFly)||(type==='ld'&&R()<BAL.ifLD))how=type==='fb'?'IF':'LO';else{res='1B';how='LD'}}
     else{const n=nearest(P(dist,th),OF);fielder=n.k;const range=type==='fb'?BAL.ofRangeFB:BAL.ofRangeLD;
