@@ -123,7 +123,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v1.5</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v1.6</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2090,10 +2090,11 @@ const PITCHES=[
 (function(){const on=LS.get('dny_pitches',null);if(on)PITCHES.forEach((p,i)=>p.on=on[i]!==false)})();
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
-// ===== 밸런스 패치 v1.5 (선발6·필승조1·1·마무리1 이닝 기준, 장타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={win:0.6866,wF:4,strikeBase:0.2325,strikeC:0.003,hbpBase:0.00197,hbpC:9.03e-05,
+// ===== 밸런스 패치 v1.6 (타구 물리 판정, 선발6·필승조1·1·마무리1 이닝 기준, 홈런·2루타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
+const BAL={win:0.6847,wF:4,strikeBase:0.2311,strikeC:0.003,hbpBase:0.00193,hbpC:8.84e-05,
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
-  ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:0.00292,qF:0.65};
+  ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:6.8e-06,qF:0.65,
+  evB:105,evQ:45,evP:30,evS:12,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.6964,dragV:0.15,tK:0.9,hrM:0,ifV:6.6171,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:11.4463,run1:4.35,runB:3.6,safe:0,safe3:0.8006,rollK:0.9};
 const POSK={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수',DH:'지명타자'};
 const FIELD_POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
 function posCode(v){const s=String(v||'').trim().toUpperCase().replace(/\s/g,'');
@@ -2342,13 +2343,12 @@ function drawScene(){
   for(let th=-84;th<-45;th+=3)poly([P(bnd(th),th,0),P(bnd(th+3),th+3,0),P(bnd(th+3),th+3,3.4),P(bnd(th),th,3.4)],'#1c5a3a');
   for(let th=45;th<84;th+=3)poly([P(bnd(th),th,0),P(bnd(th+3),th+3,0),P(bnd(th+3),th+3,3.4),P(bnd(th),th,3.4)],'#1c5a3a');
   // 컬러 펜스
-  for(const s of SEG){for(let th=s[0];th<s[1]-0.01;th+=1.5){const t2=Math.min(s[1],th+1.5);
-      poly([P(fence(th),th,0),P(fence(t2),t2,0),P(fence(t2),t2,3.4),P(fence(th),th,3.4)],SEGC[s[2]])}
-    polyS([P(fence(s[0]),s[0],3.4),P(fence(s[0]),s[0],0)],'rgba(0,0,0,.5)',1)}
+  for(let th=-45;th<45-0.01;th+=1.5){const t2=Math.min(45,th+1.5);
+    poly([P(fence(th),th,0),P(fence(t2),t2,0),P(fence(t2),t2,3.4),P(fence(th),th,3.4)],'#1f5f43')}
   const top=[];for(let th=-45;th<=45;th+=1.5)top.push(P(fence(th),th,3.4));polyS(top,'#ffe066',2);
-  for(const s of SEG){const c=(s[0]+s[1])/2;const p=pt(P(fence(c)-0.3,c,1.7));if(!p)continue;const fs=p.k*(s[2]===4&&s[1]-s[0]>10?1.9:1.3);if(fs<6)continue;
-    ctx.font=`${fs}px "Black Han Sans"`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=Math.max(1.5,fs/6);ctx.strokeStyle='rgba(0,0,0,.65)';
-    const tx=s[2]===4&&s[1]-s[0]>10?'HOME RUN':SEGL[s[2]];ctx.strokeText(tx,p.x,p.y);ctx.fillStyle='#fff';ctx.fillText(tx,p.x,p.y)}
+  for(const c of [-45,-22.5,0,22.5,45]){const p=pt(P(fence(c)-0.3,c,1.7));if(!p)continue;const fs=p.k*1.25;if(fs<6)continue;
+    ctx.font=`${fs}px "Black Han Sans"`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=Math.max(1.5,fs/6);ctx.strokeStyle='rgba(0,0,0,.6)';
+    const tx=Math.round(fence(c))+'m';ctx.strokeText(tx,p.x,p.y);ctx.fillStyle='#fff';ctx.fillText(tx,p.x,p.y)}
   // 폴
   for(const s of [-1,1]){const b=pt(P(95,45*s,0)),t=pt(P(95,45*s,26));if(b&&t){ctx.strokeStyle='#ffe066';ctx.lineWidth=Math.max(1.5,t.k*0.35);ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(t.x,t.y);ctx.stroke()}}
 }
@@ -2536,23 +2536,81 @@ function syncButtons(){const ok=!!(G&&!G.halt&&st.mode==='ready'&&!anyOpen());co
 function doFoul(){markPitch('S','파울');if(G.strikes<2)G.strikes++;st.ballAnim='foul';st.foulT0=NOW;st.foulDir=R()<.5?-1:1;finishPitch('파울','foul',false,'')}
 
 function nearest(land,keys){return keys.map(k=>({k,d:Math.hypot(FP[k][0]-land[0],FP[k][2]-land[2])})).sort((a,b)=>a.d-b.d)[0]}
+/* ===== 타구 물리 판정 (펜스 구간 판정 없음) =====
+   타구 속도(EV)·발사각(LA)·방향(th)으로 비거리와 체공시간을 구하고,
+   야수가 그 시간 안에 타구 지점까지 갈 수 있는지, 공을 잡아 베이스로 던지는 시간과
+   타자가 각 베이스까지 뛰는 시간을 비교해 안타 종류를 정한다. */
+function bipJudge(q,pw,ct,sf,K,R,N){
+  const g=9.81;
+  const th=Math.max(-44,Math.min(44,(R()*2-1)*44));
+  // 타구 속도: 타이밍 품질·파워가 높을수록, 구위가 셀수록 낮게
+  const ev=Math.max(60,K.evB+K.evQ*q+K.evP*pw-K.evS*sf+N()*K.evSd);
+  // 발사각: 파워 히터일수록 띄우고, 타이밍이 나쁠수록 극단(땅볼·뜬공)으로
+  const la=K.laB+K.laP*pw+N()*K.laSd*(1.35-0.55*q);
+  const v=ev/3.6,lr=Math.max(-0.6,Math.min(1.45,la*D2R));
+  const IF=['1B','2B','SS','3B','P'],OF=['LF','CF','RF'];
+  const runT=b=>K.run1-ct*0.25+(b-1)*K.runB;            // 타자 도달 시간(1루~홈)
+  const BASE=[null,[19.4,0,19.4],[0,0,38.8],[-19.4,0,19.4],[0,0,0]];
+  const thr=(from,b)=>Math.hypot(from[0]-BASE[b][0],from[2]-BASE[b][2])/K.thrV+0.35;
+  // 안타 뒤 몇 루까지 가는지: 공을 잡은 시점+송구 시간과 주루 시간 비교
+  const extent=(ret,from)=>{let b=1;for(const k of [2,3]){if(runT(k)+K.safe+(k===3?K.safe3:0)+N()*0.35<ret+thr(from,k))b=k;else break}return b};
+  if(la<K.gbLA){ // 땅볼
+    const vg=v*Math.cos(lr)*0.62;                         // 지면 속도(감속 포함 평균)
+    let best=null;
+    for(const k of IF){const f=FP[k];if(k==='P'&&Math.abs(th)>12)continue;
+      const fr=Math.hypot(f[0],f[2]),fth=Math.atan2(f[0],f[2])/D2R;
+      const lat=Math.abs(Math.sin((th-fth)*D2R))*fr;      // 타구 경로까지의 수직 거리
+      const tReach=fr/vg;                                 // 공이 그 깊이에 오는 시간
+      const can=K.ifV*Math.max(0,tReach-K.ifReact)*K.rangeIF;
+      if(lat<=can+0.6){const tf=tReach+0.25,tThrow=Math.hypot(f[0]-19.4,f[2]-19.4)/K.thrV+0.45;
+        const tot=tf+tThrow; if(!best||tot<best.tot)best={k,tot,lat,can}}}
+    if(best){const beat=runT(1)+N()*0.25<best.tot;          // 내야안타
+      if(!beat)return{th,dist:Math.hypot(FP[best.k][0],FP[best.k][2]),type:'gb',res:'OUT',how:'GO',fielder:best.k,T:0.6+Math.hypot(FP[best.k][0],FP[best.k][2])/vg*0.5,h:0.8,ev,la};
+      return{th,dist:22+R()*8,type:'gb',res:'1B',how:'IFH',fielder:best.k,T:0.9,h:0.8,ev,la}}
+    // 내야를 빠져나간 땅볼: 외야수가 잡아 송구
+    const roll=Math.min(fence(th)-3,30+vg*2.6);const L=P(roll,th);const n=nearest(L,OF);
+    const ret=roll/vg*0.9+Math.max(0,n.d/K.ofV-roll/vg*0.9)*0.6+0.5;
+    const b=Math.abs(th)>38&&vg>22?extent(ret+0.6,L):1;
+    return{th,dist:roll,type:'gb',res:['','1B','2B','3B'][b],how:'GB',fielder:n.k,T:0.9+roll/45,h:0.8,ev,la}}
+  // 뜬공·직선타
+  const type=la<K.ldLA?'ld':'fb';
+  const vac=v*v*Math.sin(2*lr)/g;
+  const dist=Math.max(4,vac*K.dK*(1-K.dragV*v/50));     // 공기저항: 빠른 공일수록 손실 비율 증가
+  const hang=2*v*Math.sin(lr)/g*K.tK;
+  const apex=Math.pow(v*Math.sin(lr),2)/(2*g)*K.tK;
+  const fr=fence(th);
+  if(dist>=fr+K.hrM){ // 홈런: 펜스를 넘긴 비거리
+    const n=nearest(P(fr,th),OF);
+    if(dist<fr+2.5&&R()<(n.k==='CF'?0.15:0.10))return{th,dist:fr-0.6,type,res:'OUT',how:'FO',fielder:n.k,great:true,T:hang,h:apex,ev,la};
+    return{th,dist,type,res:'HR',how:'HR',fielder:n.k,T:hang,h:Math.max(apex,12),ev,la}}
+  const L=P(Math.min(dist,fr-0.5),th);
+  // 포구 판정: 가장 빨리 도달하는 야수
+  let bestF=null;
+  for(const k of IF.concat(OF)){const f=FP[k],d=Math.hypot(f[0]-L[0],f[2]-L[2]);const isOF=OF.includes(k);
+    const sp=(isOF?K.ofV*(k==='CF'?1.06:1):K.ifV)*(isOF?K.rangeOF:K.rangeIF),react=isOF?K.ofReact:K.ifReact;
+    const margin=sp*Math.max(0,hang-react)-d; if(!bestF||margin>bestF.m)bestF={k,m:margin,d}}
+  const pc=1/(1+Math.exp(-bestF.m/K.catchS));
+  if(R()<pc){const isIF=IF.includes(bestF.k);return{th,dist:Math.min(dist,fr-0.6),type,res:'OUT',how:isIF?(type==='fb'?'IF':'LO'):'FO',fielder:bestF.k,T:hang,h:apex,ev,la}}
+  // 못 잡은 타구: 떨어진 뒤 굴러가는 거리, 펜스에 맞으면 튕겨 나옴
+  const wall=dist>=fr-0.5;
+  const roll=wall?-2.5:Math.min(fr-1-dist,(v*Math.cos(lr))*K.rollK);
+  const fin=P(Math.max(5,Math.min(dist,fr-0.5)+roll),th);
+  const n=nearest(fin,OF);
+  const ret=Math.max(hang+ (wall?0.8:0.3), n.d/(K.ofV*K.rangeOF)+K.ofReact)+0.45;
+  let b=extent(ret,fin);
+  // 외야수 정면 단타 처리(짧은 타구는 1루타)
+  if(dist<45)b=1;
+  const res=['','1B','2B','3B'][b];
+  // 호수비: 외야 안타 중 일부를 잡아냄(기존 규칙 유지)
+  if(OF.includes(n.k)&&!wall&&bestF.m>-6&&R()<(n.k==='CF'?0.15:0.10))return{th,dist:Math.min(dist,fr-0.6),type,res:'OUT',how:'FO',fielder:n.k,great:true,T:hang,h:apex,ev,la};
+  return{th,dist:Math.min(dist,fr-0.6),type,res,how:wall?'FENCE':'OFHIT',fielder:n.k,T:hang,h:apex,ev,la};
+}
+
+const BN=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())};
 function hitOutcome(q,bat,pit){
   const fat=fatigue(pit),sf=pit.stuff*(1-.25*fat)/100,pw=bat.power/100,ct=bat.contact/100;
   if(R()<0.05-q*0.08)return{foul:true};
-  const th=-44+R()*88,lr=R();const type=lr<BAL.gbBase-q*0.15+sf*0.06?'gb':lr<BAL.ldCut?'ld':'fb';
-  let dist,res='OUT',how='',fielder,great=false;const IF=['1B','2B','SS','3B','P'],OF=['LF','CF','RF'];
-  if(type==='gb'){dist=22+R()*14;const n=nearest(P(dist,th),IF);
-    if(R()<BAL.gbOut-ct*0.14+sf*0.06){how='GO';fielder=n.k}else{res='1B';how='GB';dist=55+R()*12;fielder=nearest(P(dist,th),OF).k}}
-  else{const qd=BAL.qF+(1-BAL.qF)*q;dist=type==='ld'?32+qd*BAL.ldDist+pw*25+R()*15-sf*10:50+qd*66*(0.42+0.85*pw)+R()*25-sf*10;const fr=fence(th);
-    if(dist>=fr){let s=dist>=fr+BAL.hrOver?4:segAt(th);if(s===3&&R()>=BAL.wall3)s=2;res=['','1B','2B','3B','HR'][s];how=s===4?'HR':'FENCE';dist=s===4?fr+16+R()*14:fr-0.6;fielder=nearest(P(dist,th),OF).k}
-    else if(dist<48){fielder=nearest(P(dist,th),IF).k;if((type==='fb'&&R()<BAL.ifFly)||(type==='ld'&&R()<BAL.ifLD))how=type==='fb'?'IF':'LO';else{res='1B';how='LD'}}
-    else{const n=nearest(P(dist,th),OF);fielder=n.k;const range=type==='fb'?BAL.ofRangeFB:BAL.ofRangeLD;
-      if(n.d<range*0.6||(n.d<range&&R()<(range-n.d)/(range*0.4))||R()<BAL.ofExtra)how='FO';
-      else{res=dist>BAL.ofXB||n.d>BAL.ofGap?'2B':'1B';how='OFHIT'}}}
-  if(res!=='OUT'&&['LF','CF','RF'].includes(fielder)&&R()<(fielder==='CF'?0.15:0.10)){great=true;res={'1B':'OUT','2B':'1B','3B':'2B','HR':'3B'}[res];if(res==='OUT')how='FO';if(how==='HR'){how='FENCE';dist=fence(th)-0.6}}
-  const T=type==='gb'?0.9+dist/45:type==='ld'?0.8+dist/60:2.0+dist/95;
-  const hh=type==='gb'?0.8:type==='ld'?4+R()*3:how==='HR'?30+R()*8:16+R()*14;
-  return{th,dist,type,res,how,fielder,great,T,h:hh,land:P(dist,th)}}
+  const h=bipJudge(q,pw,ct,sf,BAL,R,BN);h.land=P(h.dist,h.th);h.great=!!h.great;return h}
 function hitPos(h,u){const L=h.land;let y;
   if(h.type==='gb')y=0.15+Math.abs(Math.sin(u*Math.PI*3))*(1-u)*1.6;
   else{const ye=h.how==='HR'?9:h.how==='FENCE'?1.8:h.res==='OUT'?1.6:0.3;y=lerp(1,ye,u)+4*h.h*u*(1-u)}
@@ -2580,9 +2638,10 @@ function applyHit(){const h=st.hit;if(h.how==='BUNT')return applyBunt(h);const b
       if(G.outs<3&&B[1]&&!B[2]&&R()<.35){B[2]=B[1];B[1]=null}}
     else{G.outs++;pit.st.outs++;txt=h.how==='IF'?'내야 플라이':'직선타 아웃'}}
   else{const n={'1B':1,'2B':2,'3B':3,'HR':4}[h.res];b.st.ab++;b.st.h++;bt.hits++;pit.st.h++;if(n===4){b.st.hr++;pit.st.hr++}if(n===2)b.st.d2++;if(n===3)b.st.d3++;
-    sc=advanceHit(n,me);txt={1:'안타!',2:'2루타!',3:'3루타!',4:'홈런!!'}[n];cls=n===4?'hr':'hit'}
+    sc=advanceHit(n,me);txt=n===1&&h.how==='IFH'?'내야안타!':{1:'안타!',2:'2루타!',3:'3루타!',4:'홈런!!'}[n];cls=n===4?'hr':'hit'}
   if(h.great)sub=({LF:'좌익수',CF:'중견수',RF:'우익수'}[h.fielder]||'외야수')+' 호수비! ';
   const runs=sc.length;if(runs){score(sc,b,rbi);sub+=`+${runs}점`}
+  if(h.ev)sub+=`${sub?' · ':''}${Math.round(h.ev)}km/h ${Math.round(h.la)}°${h.res==='HR'?' '+Math.round(h.dist)+'m':''}`;
   if(G.walkoff)txt='끝내기 '+txt.replace('!!','').replace('!','')+'!';
   log(`${b.name}: ${txt}${h.great?' (호수비)':''}${runs?` +${runs}점`:''}`);
   finishPitch(txt,cls,true,sub)}
@@ -2655,8 +2714,8 @@ function render(){if(!ctx)return;ctx.setTransform(DPR,0,0,DPR,0,0);
   if(st.ballAnim==='hit'&&st.hit&&isField){const u=clamp((NOW-st.hitT0)/st.hit.T,0,1);ball(hitPos(st.hit,u),3.2)}
   if(!isField&&G)batter(curBatter(),batT.uni);
   $('#camlabel').textContent=isField?'FIELD CAM':'PITCH CAM'}
-function frame(ts){NOW=ts/1000;try{update();render();syncButtons()}catch(e){console.error(e)}requestAnimationFrame(frame)}
-function resize(){const r=$('#stage').getBoundingClientRect();W=Math.max(200,r.width);H=Math.max(200,r.height);DPR=Math.min(2,window.devicePixelRatio||1);
+let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons()}catch(e){console.error(e)}requestAnimationFrame(frame)}
+function resize(){const r=cv.getBoundingClientRect();W=Math.max(200,r.width);H=Math.max(200,r.height);DPR=Math.min(2,window.devicePixelRatio||1);
   cv.width=W*DPR;cv.height=H*DPR;bg.width=W*DPR;bg.height=H*DPR;bgKey=''}
 
 /* ================= HUD ================= */
@@ -3103,7 +3162,7 @@ function pitchModal(){modal(`<h3>구종 인덱스</h3><p class="note">구종 정
 function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:14px;line-height:1.6">
  <b>진행</b> — [투구] 버튼(키보드 Enter)을 눌러야 공을 던져요.<br><b>타격</b> — 공이 노란 스트라이크 존에 들어올 때 SWING!(Space) 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울. 파울로는 삼진이 안 돼요. 존 밖 공은 치기 어려워요.<br>
  <b>투구폼</b> — 사이드암은 낮고 옆에서 나와 횡변화가 크고, 언더핸드는 무릎 높이에서 떠오르듯 들어와요.<br><b>투구</b> — 투수별 구종(CSV)이 있으면 그 구종 중에서, 없으면 체크된 구종 중 무작위. 몸쪽으로 크게 빠진 공에 맞으면 <b>몸에 맞는 공</b>(1루 진루, 사사구 기록). 투수의 구속·제구·구위·체력이 반영되고, 투구수가 늘면 체력이 떨어져 제구와 구위가 나빠져요.<br>
- <b>펜스</b> — 공이 닿은 펜스 색으로 결과 결정: <span style="color:#5aa2ff">파랑 1루타</span> · <span style="color:#ffd23f">노랑 2루타</span> · <span style="color:#c08bff">보라 3루타</span> · <span style="color:#ff6b6b">빨강 홈런</span>. 좌중간·우중간 사선 펜스의 가운데 1/3과 중앙 HOME RUN 구역이 홈런, 우측 펜스는 전부 1루타.<br>
+ <b>타구 판정</b> — 펜스 색 구간 판정은 없어요. 타이밍·파워·투수 구위로 <b>타구 속도</b>와 <b>발사각</b>이 정해지고, 방향과 함께 비거리·체공 시간을 계산해요. 펜스(좌우 95m·중앙 110m)를 넘기면 홈런, 야수가 체공 시간 안에 도달하면 아웃, 못 잡으면 공을 잡아 던지는 시간과 타자 주루 시간을 비교해 1·2·3루타가 결정돼요. 땅볼도 내야수가 따라잡는지·송구가 빠른지로 아웃/내야안타를 판정해요.<br>
  <b>투구 위치</b> — 타석마다 들어온 공의 위치가 존 위에 번호로 표시돼요(노랑=스트라이크·헛스윙·파울, 초록=볼, 파랑=타격).<br><b>수비</b> — 넓은 수비 범위(전체 수비 성공률 +4%p 상향). 외야수는 10%(중견수는 15%) 확률로 호수비(한 단계 감소).<br>
  <b>병살·태그업</b> — 1루 주자 + 2아웃 미만 땅볼은 75% 병살. 3루 주자 + 2아웃 미만 외야 플라이는 90% 득점.<br>
  <b>스퀴즈</b> — [작전]에서 선택(3루 주자, 2아웃 전). 성공 58%(득점·타자 아웃·다른 주자 진루), 번트 파울 22%, 헛스윙 8%(3루 주자 협살), 홈 승부 아웃 7%, 올 세이프 5%.<br><b>희생번트</b> — [작전]에서 선택(주자 1루·2루·1,2루, 3루 비었을 때). 다음 투구에 번트: 성공 55%(주자 한 베이스씩 진루), 번트 파울 39%(2스트라이크면 스리번트 삼진), 병살 3%, 선행주자 아웃 3%.<br><b>기록 저장</b> — 경기가 끝난 뒤 [기록 저장]을 누르면 타자·투수 기록이 누적돼요(이 브라우저에 저장). 상단 [기록실]에서 확인.<br><b>교체</b> — 투구 사이 [작전] 버튼으로 수비팀은 투수 교체, 공격팀은 대타 기용. 교체된 선수는 재출전 불가.<br>
@@ -3119,7 +3178,7 @@ $('#stage').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#btnTactic').onclick=tacticModal;
 $('#btnPitch').addEventListener('pointerdown',e=>{e.preventDefault();doPitch()});
 window.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();doSwing()}else if(e.code==='Enter'||e.code==='KeyP'){e.preventDefault();doPitch()}});
-window.addEventListener('resize',resize);
+window.addEventListener('resize',resize);try{new ResizeObserver(()=>{const r=cv.getBoundingClientRect();if(Math.abs(r.width-W)>0.5||Math.abs(r.height-H)>0.5)resize()}).observe(cv)}catch(e){}
 cv=$('#cv');ctx=cv.getContext('2d');bg=document.createElement('canvas');bgctx=bg.getContext('2d');
 resize();updateHUD();loadDefaultDB().finally(()=>{updateHUD();showSetup();recFromHash()});cloudInit();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{bgKey=''});
