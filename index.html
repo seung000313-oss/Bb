@@ -128,7 +128,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v2.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v2.2</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2096,7 +2096,7 @@ const PITCHES=[
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
 // ===== 밸런스 패치 v1.8 (타구 물리 판정·체공시간↓·코너 외야 범위↓, 선발6·필승조1·1·마무리1 이닝 기준, 홈런·2루타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={win:0.6813,wF:4,strikeBase:0.2319,strikeC:0.003,hbpBase:0.002,hbpC:9.15e-05,
+const BAL={win:0.6813,wF:4,strikeBase:0.17,cntB:0.04,tkK:0.5,tk0:0.68,strikeC:0.003,hbpBase:0.002,hbpC:9.15e-05,
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
   ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:3.04e-05,qF:0.65,
   evB:105,evQ:45,evP:30,evS:12,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.6932,dragV:0.15,tK:0.78,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0,safe3:0.4145,rollK:0.9,cornerR:0.85,ifThr:19.5};
@@ -2383,6 +2383,13 @@ function uniOf(name,fallback){for(const [re,u] of UNIS)if(re.test(name||''))retu
   return{jersey:'#ffffff',trim:fallback||'#2f7df6',sleeve:fallback||'#2f7df6',pants:'#ffffff',sock:fallback||'#2f7df6',cap:fallback||'#2f7df6'}}
 
 /* ===== 2D 리그: 관절 좌표(키=1, y 위쪽, x는 앞쪽 +) ===== */
+const MO={"PB":{"ftT":[-0.1,0],"ftG":[0.1,0],"knT":[-0.09,0.26],"knG":[0.09,0.26],"hip":[0,0.48],"neck":[0,0.78],"head":[0,0.89],"shT":[-0.1,0.76],"shG":[0.1,0.76],"elT":[-0.13,0.62],"elG":[0.13,0.62],"haT":[-0.03,0.66],"haG":[0.03,0.66]},"PK":{"ftT":[-0.1,0],"ftG":[0.1,0.3],"knT":[-0.09,0.26],"knG":[0.06,0.52],"hip":[-0.02,0.5],"neck":[-0.03,0.8],"head":[-0.03,0.91],"shT":[-0.11,0.78],"shG":[0.07,0.78],"elT":[-0.12,0.67],"elG":[0.1,0.67],"haT":[-0.01,0.71],"haG":[0.01,0.71]},"PSTRIDE":{"ftT":[-0.12,0],"ftG":[0.18,0.08],"knT":[-0.11,0.25],"knG":[0.15,0.29],"hip":[0,0.45],"neck":[-0.02,0.76],"head":[-0.02,0.87],"shT":[-0.11,0.74],"shG":[0.09,0.75],"elT":[-0.2,0.62],"elG":[0.17,0.72],"haT":[-0.27,0.53],"haG":[0.24,0.73]},"PCOCK":{"ftT":[-0.13,0],"ftG":[0.2,-0.03],"knT":[-0.12,0.24],"knG":[0.17,0.22],"hip":[0.02,0.42],"neck":[0,0.72],"head":[0,0.83],"shT":[-0.11,0.71],"shG":[0.1,0.73],"elT":[-0.24,0.8],"elG":[0.22,0.72],"haT":[-0.24,0.98],"haG":[0.3,0.7]},"PREL":{"ftT":[-0.13,0],"ftG":[0.2,-0.03],"knT":[-0.12,0.24],"knG":[0.17,0.22],"hip":[0.02,0.42],"neck":[0.02,0.72],"head":[0.03,0.82],"shT":[-0.11,0.71],"shG":[0.1,0.73],"elT":[-0.15,0.85],"elG":[0.15,0.62],"haT":[-0.06,0.96],"haG":[0.08,0.62]},"PFOL":{"ftT":[-0.08,0.15],"ftG":[0.18,0],"knT":[-0.1,0.3],"knG":[0.15,0.22],"hip":[0.04,0.4],"neck":[0.06,0.62],"head":[0.08,0.72],"shT":[-0.05,0.64],"shG":[0.12,0.66],"elT":[0.06,0.48],"elG":[0.18,0.6],"haT":[0.18,0.3],"haG":[0.12,0.55]},"PFIN":{"ftT":[0.02,0.2],"ftG":[0.18,0],"knT":[-0.03,0.33],"knG":[0.15,0.22],"hip":[0.05,0.42],"neck":[0.05,0.66],"head":[0.06,0.77],"shT":[-0.05,0.64],"shG":[0.12,0.66],"elT":[0.04,0.5],"elG":[0.18,0.6],"haT":[0.14,0.38],"haG":[0.12,0.55]},"PFIELD":{"ftT":[-0.15,0],"ftG":[0.15,0],"knT":[-0.14,0.22],"knG":[0.14,0.22],"hip":[0,0.4],"neck":[0,0.68],"head":[0,0.79],"shT":[-0.1,0.66],"shG":[0.1,0.66],"elT":[-0.14,0.52],"elG":[0.14,0.52],"haT":[-0.08,0.44],"haG":[0.08,0.44]},"ST":{"ftB":[-0.07,0],"ftF":[0.08,0],"knB":[-0.05,0.26],"knF":[0.08,0.26],"hip":[0,0.5],"neck":[-0.02,0.8],"head":[0,0.905],"shB":[-0.06,0.78],"shF":[0.03,0.78],"elB":[-0.17,0.71],"elF":[-0.03,0.65],"ha":[-0.1,0.8],"bat":1.95},"LOAD":{"ftB":[-0.08,0],"ftF":[0.04,0.09],"knB":[-0.06,0.27],"knF":[0.08,0.33],"hip":[-0.03,0.5],"neck":[-0.05,0.8],"head":[-0.03,0.91],"shB":[-0.09,0.79],"shF":[0,0.78],"elB":[-0.2,0.73],"elF":[-0.06,0.67],"ha":[-0.14,0.83],"bat":2.15},"STRIDE":{"ftB":[-0.08,0],"ftF":[0.2,0.03],"knB":[-0.06,0.27],"knF":[0.17,0.26],"hip":[-0.02,0.48],"neck":[-0.05,0.8],"head":[-0.03,0.91],"shB":[-0.09,0.79],"shF":[0,0.78],"elB":[-0.21,0.72],"elF":[-0.06,0.67],"ha":[-0.16,0.82],"bat":2.3},"LAUNCH":{"ftB":[-0.08,0],"ftF":[0.25,0],"knB":[-0.06,0.27],"knF":[0.21,0.25],"hip":[0.02,0.47],"neck":[0.0,0.77],"head":[0.02,0.88],"shB":[-0.06,0.76],"shF":[0.06,0.76],"elB":[-0.12,0.66],"elF":[0.04,0.66],"ha":[-0.04,0.7],"bat":1.0},"CONTACT":{"ftB":[-0.08,0.02],"ftF":[0.26,0],"knB":[-0.04,0.24],"knF":[0.22,0.26],"hip":[0.05,0.47],"neck":[0.04,0.77],"head":[0.06,0.88],"shB":[-0.02,0.75],"shF":[0.09,0.75],"elB":[-0.01,0.63],"elF":[0.13,0.63],"ha":[0.12,0.61],"bat":0.05},"FOLLOW":{"ftB":[-0.04,0.06],"ftF":[0.26,0],"knB":[0.0,0.22],"knF":[0.23,0.26],"hip":[0.06,0.48],"neck":[0.07,0.78],"head":[0.09,0.89],"shB":[0.02,0.77],"shF":[0.11,0.76],"elB":[0.1,0.84],"elF":[0.19,0.81],"ha":[0.05,0.88],"bat":2.7},"FINISH":{"ftB":[0.02,0.1],"ftF":[0.26,0],"knB":[0.04,0.25],"knF":[0.23,0.26],"hip":[0.06,0.48],"neck":[0.07,0.78],"head":[0.09,0.89],"shB":[0.02,0.77],"shF":[0.11,0.76],"elB":[0.06,0.86],"elF":[0.19,0.81],"ha":[-0.02,0.9],"bat":3.2},"READY":{"ftT":[-0.14,0],"ftG":[0.14,0],"knT":[-0.13,0.22],"knG":[0.13,0.22],"hip":[0,0.42],"neck":[0,0.7],"head":[0,0.81],"shT":[-0.1,0.69],"shG":[0.1,0.69],"elT":[-0.14,0.55],"elG":[0.14,0.55],"haT":[-0.07,0.48],"haG":[0.07,0.48]},"CROUCH":{"ftT":[-0.17,0],"ftG":[0.17,0],"knT":[-0.17,0.18],"knG":[0.17,0.18],"hip":[0,0.34],"neck":[0.02,0.6],"head":[0.03,0.71],"shT":[-0.09,0.59],"shG":[0.11,0.59],"elT":[-0.12,0.43],"elG":[0.16,0.43],"haT":[-0.05,0.33],"haG":[0.09,0.32]},"RUNA":{"ftT":[-0.2,0.1],"ftG":[0.16,0],"knT":[-0.17,0.3],"knG":[0.17,0.25],"hip":[0,0.46],"neck":[0.07,0.75],"head":[0.1,0.86],"shT":[-0.0,0.74],"shG":[0.1,0.74],"elT":[0.14,0.66],"elG":[-0.08,0.6],"haT":[0.2,0.75],"haG":[-0.14,0.5]},"RUNB":{"ftT":[0.16,0],"ftG":[-0.2,0.1],"knT":[0.17,0.25],"knG":[-0.17,0.3],"hip":[0,0.46],"neck":[0.07,0.75],"head":[0.1,0.86],"shT":[-0.0,0.74],"shG":[0.1,0.74],"elT":[-0.1,0.6],"elG":[0.18,0.66],"haT":[-0.16,0.5],"haG":[0.24,0.75]},"REACHUP":{"ftT":[-0.12,0],"ftG":[0.14,0.04],"knT":[-0.1,0.25],"knG":[0.13,0.28],"hip":[0,0.47],"neck":[0.02,0.76],"head":[0.03,0.87],"shT":[-0.09,0.74],"shG":[0.1,0.76],"elT":[-0.14,0.62],"elG":[0.15,0.92],"haT":[-0.06,0.66],"haG":[0.14,1.06]},"REACHLOW":{"ftT":[-0.17,0],"ftG":[0.17,0],"knT":[-0.16,0.16],"knG":[0.2,0.14],"hip":[-0.02,0.28],"neck":[0.08,0.48],"head":[0.12,0.57],"shT":[0.0,0.5],"shG":[0.13,0.47],"elT":[0.06,0.3],"elG":[0.2,0.27],"haT":[0.16,0.1],"haG":[0.22,0.07]},"DIVE":{"ftT":[-0.42,0.1],"ftG":[-0.38,0.2],"knT":[-0.24,0.14],"knG":[-0.22,0.2],"hip":[-0.05,0.2],"neck":[0.24,0.24],"head":[0.35,0.27],"shT":[0.2,0.2],"shG":[0.25,0.27],"elT":[0.33,0.17],"elG":[0.42,0.3],"haT":[0.4,0.15],"haG":[0.56,0.33]},"THROW":{"ftT":[-0.13,0],"ftG":[0.2,-0.03],"knT":[-0.12,0.24],"knG":[0.17,0.22],"hip":[0.02,0.44],"neck":[0,0.72],"head":[0,0.83],"shT":[-0.11,0.71],"shG":[0.1,0.73],"elT":[-0.24,0.8],"elG":[0.22,0.72],"haT":[-0.24,0.98],"haG":[0.3,0.7]}};
+// Catmull-Rom 스플라인: 키프레임 사이를 멈춤 없이 이어 줌
+const cr=(a,b,c,d,t)=>{const t2=t*t,t3=t2*t;return .5*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3)};
+function keySpline(keys,u){u=clamp(u,0,1);let i=0;while(i<keys.length-2&&u>keys[i+1][0])i++;
+  const [t1,B]=keys[i],[t2,C]=keys[i+1],A=(keys[i-1]||keys[i])[1],D=(keys[i+2]||keys[i+1])[1],t=clamp((u-t1)/((t2-t1)||1),0,1),o={};
+  for(const k in B){const b=B[k],c=C[k]??b,a=A[k]??b,d=D[k]??c;o[k]=Array.isArray(b)?[cr(a[0],b[0],c[0],d[0],t),cr(a[1],b[1],c[1],d[1],t)]:(b==null?b:cr(a,b,c,d,t))}return o}
+const runJ=ph=>lerpJ(MO.RUNA,MO.RUNB,.5-.5*Math.cos(ph*Math.PI));
 const lerpJ=(A,B,t)=>{const o={};for(const k in A){const a=A[k],b=B[k]===undefined?a:B[k];o[k]=Array.isArray(a)?[lerp(a[0],b[0],t),lerp(a[1],b[1],t)]:lerp(a,b,t)}return o};
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 function keyBlend(keys,u){// keys: [[t,pose],...]
@@ -2409,8 +2416,8 @@ const PSLOT={
 const PFOL={...PB,hip:[.04,.4],neck:[.06,.62],head:[.08,.72],ftT:[-.08,.15],knT:[-.1,.3],ftG:[.18,0],knG:[.15,.22],haT:[.18,.3],elT:[.06,.48],haG:[.12,.55],elG:[.18,.6],shT:[-.05,.64],shG:[.12,.66]};
 function pitchPose(arm,u,phase){// phase: 'idle'|'wind'|'follow'
   const s=PSLOT[arm]||PSLOT.over;const cock={...PCOCK,...s.cock},rel={...cock,...s.rel,elG:[.15,.62],haG:[.08,.62]};
-  if(phase==='wind')return keyBlend([[0,PB],[.4,PK],[.8,cock],[1,rel]],u);
-  if(phase==='follow')return keyBlend([[0,rel],[1,PFOL]],u);
+  if(phase==='wind')return keySpline([[0,PB],[.3,PK],[.55,MO.PSTRIDE],[.8,cock],[1,rel]],u);
+  if(phase==='follow')return keySpline([[0,rel],[.3,PFOL],[.65,MO.PFIN],[1,PB]],u);
   return PB}
 const READY={ftT:[-.14,0],ftG:[.14,0],knT:[-.13,.22],knG:[.13,.22],hip:[0,.42],neck:[0,.7],head:[0,.81],shT:[-.1,.69],shG:[.1,.69],elT:[-.14,.55],elG:[.14,.55],haT:[-.07,.48],haG:[.07,.48]};
 
@@ -2456,9 +2463,10 @@ function fig(wp,u,o){o=o||{};const f=pt(wp);if(!f)return;const tp=pt([wp[0],wp[1
   let J=READY,facing=1;
   if(o.pose==='pitch'){const pit=o.pit;facing=pit&&pit.hand==='L'?-1:1;const arm=pit?pit.arm:'over';
     if(st.mode==='windup'){J=pitchPose(arm,clamp(1-(st.until-NOW)/0.55,0,1),'wind')}
-    else if(st.mode==='flight'||(st.mode==='post'&&NOW-st.fs<0.8)){J=pitchPose(arm,clamp((NOW-st.fs)/0.45,0,1),'follow')}
+    else if(st.mode==='flight'||(st.mode==='post'&&NOW-st.fs<1.0)||(st.mode==='inplay'&&NOW-st.fs<1.0)){J=pitchPose(arm,clamp((NOW-st.fs)/1.0,0,1),'follow')}
     else J=PB}
-  else if(o.pose==='run'){J=BAT.run;facing=o.facing||1}
+  else if(o.pose==='run'){J=runJ(o.ph!=null?o.ph:NOW*3.2);facing=o.facing||1}
+  else if(o.J){J=o.J;facing=o.facing||1}
   else if(o.pose==='stand'){J=PB}
   drawRig(f.x,f.y,h,J,u,{facing,glow:o.glow})}
 
@@ -2466,18 +2474,18 @@ function batter(b,u){const side=b.curHand==='R'?-1:1;const wp=[side*0.95,0,0.75]
   const h=f.y-tp.y;let J;
   const s=st.swingAt>0?(NOW-st.swingAt)/0.3:9;
   if(st.buntNext||(st.buntAt&&NOW-st.buntAt<1.2))J=BAT.bunt;
-  else if(s<1.3)J=keyBlend([[0,BAT.load],[.18,BAT.load],[.55,BAT.contact],[1,BAT.follow],[1.3,BAT.follow]],s);
-  else if(s<1.7)J=lerpJ(BAT.follow,BAT.stance,ease((s-1.3)/.4));
+  else if(s<1.3)J=keySpline([[0,BAT.load],[.2,MO.STRIDE],[.4,MO.LAUNCH],[.55,BAT.contact],[.9,BAT.follow],[1.3,MO.FINISH]],s/1.3);
+  else if(s<1.7)J=lerpJ(MO.FINISH,BAT.stance,ease((s-1.3)/.4));
   else if(st.mode==='windup')J=lerpJ(BAT.stance,BAT.load,ease(clamp(1-(st.until-NOW)/0.55,0,1)));
   else if(st.mode==='flight')J=BAT.load;
   else{const bob=Math.sin(NOW*2.2)*.008;J={...BAT.stance,ha:[BAT.stance.ha[0],BAT.stance.ha[1]+bob],bat:BAT.stance.bat+Math.sin(NOW*2.2)*.05}}
   drawRig(f.x,f.y,h,J,u,{facing:-side,bat:true,helmet:true})}
 
-function ball(p,scale){const q=pt(p);if(!q)return;const sh=pt([p[0],0.01,p[2]]);
-  if(sh){ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(sh.x,sh.y,Math.max(1.5,q.k*0.05*scale),Math.max(.8,q.k*0.02*scale),0,0,7);ctx.fill()}
+function ball(p,scale,spin){const q=pt(p);if(!q)return;const sh=pt([p[0],0.01,p[2]]);const hy=Math.max(0,p[1]),sk=1+hy*0.05;
+  if(sh){ctx.fillStyle=`rgba(0,0,0,${0.35/(1+hy*0.12)})`;ctx.beginPath();ctx.ellipse(sh.x,sh.y,Math.max(1.5,sh.k*0.05*scale*sk),Math.max(.8,sh.k*0.02*scale*sk),0,0,7);ctx.fill()}
   const r=Math.max(2.4,0.037*q.k*scale);
   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(q.x,q.y,r,0,7);ctx.fill();
-  if(r>5){ctx.strokeStyle='#e03131';ctx.lineWidth=Math.max(1,r*0.12);ctx.beginPath();ctx.arc(q.x-r*0.9,q.y,r*0.7,-0.9,0.9);ctx.stroke();ctx.beginPath();ctx.arc(q.x+r*0.9,q.y,r*0.7,Math.PI-0.9,Math.PI+0.9);ctx.stroke()}
+  if(r>5){ctx.save();if(spin){ctx.translate(q.x,q.y);ctx.rotate(spin);ctx.translate(-q.x,-q.y)}ctx.strokeStyle='#e03131';ctx.lineWidth=Math.max(1,r*0.12);ctx.beginPath();ctx.arc(q.x-r*0.9,q.y,r*0.7,-0.9,0.9);ctx.stroke();ctx.beginPath();ctx.arc(q.x+r*0.9,q.y,r*0.7,Math.PI-0.9,Math.PI+0.9);ctx.stroke();ctx.restore()}
   ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(q.x,q.y,r,0,7);ctx.stroke()}
 
 /* ================= 게임 상태 ================= */
@@ -2485,7 +2493,7 @@ let G=null;
 const st={mode:'idle',until:0,pitch:null,fs:0,swung:false,whiff:false,swingAt:-9,hit:null,hitT0:0,camMode:'pitch',ballAnim:null,foulT0:0,foulDir:1,paEnd:false,cp:[0,32,-34],cl:[0,0,52]};
 const tot=t=>t.ls.reduce((a,b)=>a+(b||0),0);
 const batTeam=()=>G.half?G.home:G.away, fieldTeam=()=>G.half?G.away:G.home, curBatter=()=>batTeam().lineup[batTeam().idx];
-const pLimit=p=>25+p.stamina*0.75;
+const pLimit=p=>25+p.stamina*(typeof capBoost==='function'&&capBoost(p)?1.2:1)*0.75;
 const fatigue=p=>clamp((p.pc-pLimit(p)*0.55)/(pLimit(p)*0.45),0,1.6);
 const anyOpen=()=>$('#modal').classList.contains('on')||$('#overlay').classList.contains('on');
 const halfTxt=()=>`${G.inning}회${G.half?'말':'초'}`;
@@ -2507,7 +2515,7 @@ function startPitch(){const pit=fieldTeam().pitcher;pit.pc++;let ptp,baseV;
   else{const en=PITCHES.filter(p=>p.on);ptp=pick(en.length?en:PITCHES);baseV=pit.velo*ptp.s*(0.985+R()*0.03)}
   const fat=fatigue(pit),ctl=effCtl(pit)*(1-.35*fat);
   if(FASTB.includes(ptp.n)&&hasTrait(pit,'파이어볼러')&&tOn(pit,'파이어볼러'))baseV+=5;
-  const strikeP=clamp(BAL.strikeBase+ctl*BAL.strikeC,0.3,0.84);let tx,ty;
+  const tkr=batTeam().tk??0.55;const strikeP=clamp(BAL.strikeBase+ctl*BAL.strikeC+BAL.cntB*G.balls+BAL.tkK*Math.max(0,tkr-BAL.tk0),0.2,0.9);let tx,ty;
   if(R()<strikeP){tx=(R()*2-1)*0.21;ty=0.47+R()*0.56;if(hasTrait(pit,'매덕스')&&R()<0.25){const e=R();if(e<.5)tx=(R()<.5?-1:1)*(0.17+R()*0.04);else ty=R()<.5?0.47+R()*0.05:0.98+R()*0.05}}
   else{const s=R(),o=0.07+R()*0.28;if(s<.3){tx=-0.22-o;ty=0.45+R()*0.6}else if(s<.6){tx=0.22+o;ty=0.45+R()*0.6}else if(s<.85){tx=(R()*2-1)*0.3;ty=0.45-o}else{tx=(R()*2-1)*0.3;ty=1.05+o}}
   const side=curBatter().curHand==='R'?-1:1;let hbp=false;
@@ -2529,7 +2537,7 @@ function pitchPos(p,t){const ax=p.tx-p.bx,ay=p.ty-p.by,tk=Math.pow(Math.max(t,0)
 function doSwing(){if(!G||G.halt||anyOpen()||st.buntNext)return;
   if(st.mode!=='windup'&&st.mode!=='flight'){if(st.mode==='ready')st.swingAt=NOW;return}
   if(st.mode==='windup')return;
-  if(st.swung)return;st.swung=true;st.swingAt=NOW;
+  if(st.swung)return;st.swung=true;st.swingAt=NOW;{const t=batTeam();t.tk=(t.tk??0.55)*0.9}
   const p=st.pitch,b=curBatter(),pit=fieldTeam().pitcher,dt=NOW-(st.fs+p.D);
   if(dt>0.2){st.whiff=true;return}
   const w=BAL.win*(0.10+effC(b)*0.0012)*(1.1-effS(pit)*0.002),wF=w*BAL.wF,ad=Math.abs(dt);
@@ -2625,10 +2633,16 @@ function hitOutcome(q,bat,pit,opt){
   if((h.res==='1B'||h.res==='2B')&&G.strikes>=2&&hasTrait(bat,'출루왕')&&R()<0.08){h.res=h.res==='1B'?'2B':'3B';h.trait='출루왕'}
   if(h.res==='HR'&&hasTrait(bat,'거포')&&R()<0.05){h.dist+=35;h.outPark=true;h.trait='거포'}
   h.land=P(h.dist,h.th);h.great=!!h.great;return h}
-function hitPos(h,u){const L=h.land;let y;
-  if(h.type==='gb')y=0.15+Math.abs(Math.sin(u*Math.PI*3))*(1-u)*1.6;
-  else{const ye=h.how==='HR'?9:h.how==='FENCE'?1.8:h.res==='OUT'?1.6:0.3;y=lerp(1,ye,u)+4*h.h*u*(1-u)}
-  return[L[0]*u,y,L[2]*u]}
+function hitPos(h,u){const L=h.land;u=clamp(u,0,1);
+  if(h.type==='gb'){// 바운드: 높이 45%·간격 70%씩 감소, 잔디 마찰로 감속
+    const sx=1-Math.pow(1-u,1.7);let y=0.12,t0=0,hh=h.how==='BUNT'?0.18:clamp(0.35+(h.la||0)*0.05,0.25,1.1),Lg=h.how==='BUNT'?0.3:0.22;
+    while(t0<1&&hh>0.02){const t1=Math.min(1,t0+Lg);if(u<=t1){const v=(u-t0)/(t1-t0);y+=4*hh*v*(1-v);break}t0=t1;hh*=0.45;Lg*=0.7}
+    return[L[0]*sx,y,L[2]*sx]}
+  // 공중: 공기저항으로 수평 감속(꼭짓점이 뒤로), 낙하가 더 가파름
+  const k=h.type==='ld'?1.6:h.how==='HR'?1.0:1.25,sx=(1-Math.exp(-k*u))/(1-Math.exp(-k));
+  const ye=h.how==='HR'?9:h.how==='FENCE'?1.8:h.res==='OUT'?1.6:0.3,a=1,b=0.72,mx=Math.pow(a/(a+b),a)*Math.pow(b/(a+b),b);
+  const y=lerp(1,ye,u)+h.h*Math.pow(u,a)*Math.pow(1-u,b)/mx;
+  return[L[0]*sx,y,L[2]*sx]}
 function startHit(o){if(o.how!=='BUNT')markPitch('X','타격');else markPitch('X','번트');st.hit=o;st.hitT0=NOW;st.mode='inplay';st.until=NOW+o.T+0.45;st.camMode='field';st.ballAnim='hit';st.cp=[0,32,-34];st.cl=[0,0,52];showPinfo()}
 
 // list = 득점한 주자들 {b:타자, p:출루 당시 투수} → 실점/자책점은 그 주자를 내보낸 투수에게
@@ -2668,7 +2682,7 @@ function renderPList(){const el=$('#plist');if(!el)return;const L=(G&&G.paP)||[]
   el.innerHTML=L.slice().reverse().slice(0,6).map((q,i)=>{const no=L.length-i;return`<div><i class="pk ${q.k}">${no}</i><b>${esc(q.lbl)}</b> <span>${q.v}km/h ${esc(q.n)}</span><em>${q.cnt}</em></div>`}).join('');el.style.display=L.length?'block':'none'}
 function wpAdv(){const p=st.pitch;if(!p||!p.wp||p.wpDone)return;p.wpDone=true;const B=G.bases;if(!(B[0]||B[1]||B[2]))return;
   const sc=B[2]?[B[2]]:[];G.bases=[null,B[0],B[1]];log(`${R()<.7?'폭투':'포일'} — 주자 한 베이스씩 진루${sc.length?' +1점':''}`);st.wpNote=sc.length?'폭투 +1점':'폭투·주자 진루';if(sc.length)score(sc,null,false);updateHUD()}
-function judgeTake(){const p=st.pitch;if(stealRes())return;wpAdv();
+function judgeTake(){const p=st.pitch;{const t=batTeam();t.tk=(t.tk??0.55)*0.9+0.1}if(stealRes())return;wpAdv();
   if(p.zone){markPitch('S','스트라이크');G.strikes++;if(G.strikes>=3)return strikeout(true);finishPitch('STRIKE','strike',false,'')}
   else if(p.hbp){markPitch('B','몸에 맞는 공');return walk(true)}
   else{markPitch('B','볼');G.balls++;if(G.balls>=4)return walk();finishPitch('BALL','ball',false,'')}}
@@ -2710,12 +2724,20 @@ function render(){if(!ctx)return;ctx.setTransform(DPR,0,0,DPR,0,0);
     for(let i=0;i<3;i++){st.cl[i]=lerp(st.cl[i],tl[i],0.08);st.cp[i]=lerp(st.cp[i],tp[i],0.08)}
     lookAt(st.cp.slice(),st.cl.slice(),Math.min(W*0.95,H*0.8),0.5);drawScene()}
   const objs=[];const isField=st.camMode==='field';const hu=st.hit?clamp((NOW-st.hitT0)/st.hit.T,0,1):0;
-  for(const k in FP){if(k==='P'||(!isField&&k==='C'))continue;let p=FP[k];
-    if(isField&&st.hit&&st.hit.fielder===k){const L=st.hit.land,tgt=st.hit.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];const e=clamp(hu*1.25,0,1);p=[lerp(p[0],tgt[0],e),0,lerp(p[2],tgt[2],e)]}
-    objs.push({z:toC(p)[2],d:()=>fig(p,fieldT.uni,{glow:isField&&st.hit&&st.hit.fielder===k&&st.hit.great})})}
+  const crouch=st.mode==='flight'?1:st.mode==='windup'?ease(clamp(1-(st.until-NOW)/0.55,0,1)):0;
+  for(const k in FP){if(k==='P'||(!isField&&k==='C'))continue;let p=FP[k],J=crouch>0?lerpJ(MO.READY,MO.CROUCH,crouch):MO.READY,fc=1;
+    if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land,tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
+      // 반응 0.12 → 가속 → 등속, 잡는 타구는 공과 동시에 도착
+      const a=clamp((hu-.12)/.88,0,1),e=h.res==='OUT'?a*a*(3-2*a)*.35+a*.65:clamp(a*1.2,0,1);const p0=p;p=[lerp(p0[0],tgt[0],e),0,lerp(p0[2],tgt[2],e)];
+      const run=Math.hypot(p[0]-p0[0],p[2]-p0[2]),sp=toC(tgt),s0=toC(p0);fc=(sp&&s0&&sp[0]<s0[0])?-1:1;
+      J=Math.hypot(tgt[0]-p0[0],tgt[2]-p0[2])>0.6&&e<.98?runJ(run/0.9):MO.READY;
+      const catchJ=h.great?MO.DIVE:h.type==='gb'?MO.REACHLOW:MO.REACHUP;
+      if(h.res==='OUT'&&hu>.8)J=lerpJ(J,catchJ,ease(clamp((hu-.8)/.2,0,1)));
+      if(h.res==='OUT'&&hu>=1){const t=NOW-st.hitT0-h.T;J=h.type==='gb'&&!h.great?lerpJ(catchJ,MO.THROW,ease(clamp(t/.3,0,1))):catchJ}}
+    const pp=p,JJ=J,ff=fc;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{J:JJ,facing:ff,glow:isField&&st.hit&&st.hit.fielder===k&&st.hit.great})})}
   const pp=FP.P;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{pose:'pitch',pit:G?fieldTeam().pitcher:null})});
   if(G)G.bases.forEach((r,i)=>{if(r){const p=[BASES[i][0]+(i===0?0.8:i===2?-0.8:0.8),0,BASES[i][2]+(i===1?-0.8:0)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'stand'})})}});
-  if(isField&&G){const b=curBatter(),side=b.curHand==='R'?-1:1;const p=[lerp(side*0.85,BASES[0][0],hu*0.9),0,lerp(0,BASES[0][2],hu*0.9)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'run',facing:1})})}
+  if(isField&&G){const b=curBatter(),side=b.curHand==='R'?-1:1;const p=[lerp(side*0.85,BASES[0][0],hu*0.9),0,lerp(0,BASES[0][2],hu*0.9)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'run',facing:1,ph:hu*27.4*0.9/0.9})})}
   objs.sort((a,b)=>b.z-a.z).forEach(o=>o.d());
   if(!isField){
     const c=[[-0.22,0.45,0],[0.22,0.45,0],[0.22,1.05,0],[-0.22,1.05,0]];
@@ -2727,7 +2749,9 @@ function render(){if(!ctx)return;ctx.setTransform(DPR,0,0,DPR,0,0);
   if(st.ballAnim==='pitch'&&st.pitch&&(st.mode==='flight'||(st.mode==='post'&&!st.paEnd)||(st.mode==='post'))&&st.fs>0){
     const t=(NOW-st.fs)/st.pitch.D;if(st.mode==='flight'||t<1.15){const p=pitchPos(st.pitch,Math.min(t,1.15));if(p[2]>-0.5)ball(p,2.0)}}
   if(st.ballAnim==='foul'){const u=NOW-st.foulT0;const p=[st.pitch.tx+st.foulDir*u*6,st.pitch.ty+u*9-u*u*6,-u*7];if(u<0.9&&p[2]>-0.5)ball(p,2.0)}
-  if(st.ballAnim==='hit'&&st.hit&&isField){const u=clamp((NOW-st.hitT0)/st.hit.T,0,1);ball(hitPos(st.hit,u),3.2)}
+  if(st.ballAnim==='hit'&&st.hit&&isField){const u=clamp((NOW-st.hitT0)/st.hit.T,0,1);
+    if(u<1)for(let i=6;i>=1;i--){const q=pt(hitPos(st.hit,u-i*0.012*(0.6/st.hit.T)));if(q){ctx.fillStyle=`rgba(255,255,255,${0.32*(1-i/7)})`;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(1.4,0.037*q.k*3.2*(1-i/9)),0,7);ctx.fill()}}
+    ball(hitPos(st.hit,u),3.2,u<1?NOW*22:0)}
   if(!isField&&G)batter(curBatter(),batT.uni);
   $('#camlabel').textContent=isField?'FIELD CAM':'PITCH CAM'}
 let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons()}catch(e){console.error(e)}requestAnimationFrame(frame)}
@@ -3180,7 +3204,7 @@ window.addEventListener('pagehide',saveLive);
 /* ===== 특성 시스템 =====
    TRAIT_DATA(이름·효과 설명·보유 선수)는 특성 CSV에서 자동 생성된다(신규 특성 업데이트 시 교체).
    TRAIT_ENGINE은 특성 이름별 실제 효과와 아이콘 심벌. 엔진에 없는 특성은 기본 아이콘만 표시되고 효과는 없다. */
-/*TRAIT_DATA_BEGIN*/const TRAIT_DATA=[{"name": "만루 사나이", "desc": "주자 만루시 컨택/파워가 각각 +5/+8 상승", "holders": ["'17 이범호"]}, {"name": "대도", "desc": "주자로 1루에 출루시 일정 확률로 '도루'시도", "holders": ["'93 이종범", "'96 이종범", "'97 이종범", "'09 이종범", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'26 조수행", "'16 조수행", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'17 김주찬", "'10 김주찬", "'07 정근우", "'08 정근우", "'10 정근우", "피트 크로암스트롱", "오타니 쇼헤이", "'26 김도영", "'24 김도영", "엘리 데라크루즈"]}, {"name": "베중정", "desc": "중견수 수비 시 호수비 발동 확률 상승", "holders": ["'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "피트 크로암스트롱", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'86 이순철", "'87 이순철", "'88 이순철", "'89 이순철", "'91 이순철", "'93 이순철", "'96 이순철", "'97 이순철"]}, {"name": "대타 신화", "desc": "대타로 출장 시 컨택/파워가 +20%씩 상승하고 장타 확률 5%p 증가", "holders": ["'98 이재주", "'00 이재주", "'09 이재주", "'26 김인태", "'19 김인태"]}, {"name": "파이널보스", "desc": "경기 마지막 회에 등판 시 구위 +10", "holders": ["'05 오승환", "'06 오승환", "'11 오승환", "'12 오승환", "'13 오승환", "'09 유동훈", "'14 손승락", "메이슨 밀러", "아롤디스 채프먼", "'26 이영하", "'26 박영현"]}, {"name": "득점권의악마", "desc": "주자 득점권일 시 컨택+5", "holders": ["'26 김민석"]}, {"name": "매덕스", "desc": "전체 스트라이크 중 보더라인에 걸리는 공의 비율 25% 증가", "holders": ["'15 유희관", "'16 유희관", "'19 유희관", "'07 정우람", "'08 정우람", "'10 정우람", "'26 고영표", "'21 고영표", "'11 장원삼", "'12 장원삼", "'13 장원삼", "'14 장원삼"]}, {"name": "용규놀이", "desc": "2스트라이크 이후 커트 성공률 10% 증가", "holders": ["'09 이용규", "'07 정근우", "'08 정근우", "'10 정근우"]}, {"name": "배드볼 히터", "desc": "볼 컨택 시 안타 확률 5% 증가", "holders": ["'26 레이예스", "'10 박종윤"]}, {"name": "거포", "desc": "항상 파워가 +7 추가 상승하며 홈런 시 5% 확률로 장외홈런", "holders": ["'10 이대호", "'16 김재환", "'26 한동희", "'01 김동주", "'18 김동엽", "'18 로맥", "'02 이승엽", "'12 이승엽", "'13 이승엽", "'14 이승엽", "'99 장종훈", "'14 박병호", "'26 최정", "'07 최정", "'08 최정", "'10 최정", "'18 최정", "'22 최정", "'26 김도영", "'24 김도영", "'14 강정호", "'02 마해영", "'98 박재홍", "'00 박재홍", "'07 박재홍", "'08 박재홍", "'10 박재홍", "요르단 알바레즈", "피트 크로암스트롱", "주니어 카미네로", "피트 알론소", "벤 라이스", "카일 슈와버", "스즈키 세이야", "'01 우즈"]}, {"name": "200", "desc": "한 경기에서 타순이 돌아올 때마다 컨택률 소폭 상승", "holders": ["'14 서건창", "'19 페르난데스", "'26 최원준", "'26 레이예스"]}, {"name": "파이어볼러", "desc": "실점 위기에서 직구 최고구속+5km/h, 제구/구위 +7", "holders": ["'26 곽빈", "'26 안우진", "'07 김광현", "'08 김광현", "'10 김광현", "'18 김광현", "'22 김광현", "'14 조상우", "'26 아빌라", "캠 슐리틀러"]}, {"name": "기분파", "desc": "직전 이닝 수비성공 시 다음 타석 컨택/파워 +10", "holders": ["'26 안재석"]}, {"name": "내야 사령관", "desc": "유격수 출장 시 발동되며  수비 시 병살 확률 +7%, 타격 시 병살 확률 -7%", "holders": ["바비 위트 주니어", "엘리 데라크루즈", "'26 박찬호", "'24 박찬호", "'26 김상수", "'11 김상수", "'12 김상수", "'13 김상수", "'14 김상수", "'98 박진만", "'00 박진만", "'03 박진만", "'04 박진만", "'05 박진만", "'06 박진만", "'14 강정호", "'26 김선빈", "'09 김선빈", "'17 김선빈", "'24 김선빈", "'26 오지환", "'23 오지환", "'25 오지환"]}, {"name": "출루왕", "desc": "2스트라이크 이후 장타율 8% 증가", "holders": ["'26 오스틴", "'23 오스틴", "'25 오스틴", "'26 김현수", "'15 김현수", "'23 김현수", "'25 김현수"]}];/*TRAIT_DATA_END*/
+/*TRAIT_DATA_BEGIN*/const TRAIT_DATA=[{"name": "만루 사나이", "desc": "주자 만루시 컨택/파워가 각각 +5/+8 상승", "holders": ["'17 이범호"]}, {"name": "대도", "desc": "주자로 1루에 출루시 일정 확률로 '도루'시도", "holders": ["'93 이종범", "'96 이종범", "'97 이종범", "'09 이종범", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'26 조수행", "'16 조수행", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'17 김주찬", "'10 김주찬", "'07 정근우", "'08 정근우", "'10 정근우", "피트 크로암스트롱", "오타니 쇼헤이", "'26 김도영", "'24 김도영", "엘리 데라크루즈"]}, {"name": "베중정", "desc": "중견수 수비 시 호수비 발동 확률 상승", "holders": ["'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "피트 크로암스트롱", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'86 이순철", "'87 이순철", "'88 이순철", "'89 이순철", "'91 이순철", "'93 이순철", "'96 이순철", "'97 이순철"]}, {"name": "대타 신화", "desc": "대타로 출장 시 컨택/파워가 +20%씩 상승하고 장타 확률 5%p 증가", "holders": ["'98 이재주", "'00 이재주", "'09 이재주", "'26 김인태", "'19 김인태"]}, {"name": "파이널보스", "desc": "경기 마지막 회에 등판 시 구위 +10", "holders": ["'05 오승환", "'06 오승환", "'11 오승환", "'12 오승환", "'13 오승환", "'09 유동훈", "'14 손승락", "메이슨 밀러", "아롤디스 채프먼", "'26 이영하", "'26 박영현"]}, {"name": "득점권의악마", "desc": "주자 득점권일 시 컨택+5", "holders": ["'26 김민석"]}, {"name": "매덕스", "desc": "전체 스트라이크 중 보더라인에 걸리는 공의 비율 25% 증가", "holders": ["'15 유희관", "'16 유희관", "'19 유희관", "'07 정우람", "'08 정우람", "'10 정우람", "'26 고영표", "'21 고영표", "'11 장원삼", "'12 장원삼", "'13 장원삼", "'14 장원삼"]}, {"name": "용규놀이", "desc": "2스트라이크 이후 커트 성공률 10% 증가", "holders": ["'09 이용규", "'07 정근우", "'08 정근우", "'10 정근우"]}, {"name": "배드볼 히터", "desc": "볼 컨택 시 안타 확률 5% 증가", "holders": ["'26 레이예스", "'10 박종윤"]}, {"name": "거포", "desc": "항상 파워가 +7 추가 상승하며 홈런 시 5% 확률로 장외홈런", "holders": ["'10 이대호", "'16 김재환", "'26 한동희", "'01 김동주", "'18 김동엽", "'18 로맥", "'02 이승엽", "'12 이승엽", "'13 이승엽", "'14 이승엽", "'99 장종훈", "'14 박병호", "'26 최정", "'07 최정", "'08 최정", "'10 최정", "'18 최정", "'22 최정", "'26 김도영", "'24 김도영", "'14 강정호", "'02 마해영", "'98 박재홍", "'00 박재홍", "'07 박재홍", "'08 박재홍", "'10 박재홍", "요르단 알바레즈", "피트 크로암스트롱", "주니어 카미네로", "피트 알론소", "벤 라이스", "카일 슈와버", "스즈키 세이야", "'01 우즈", "'09 최희섭", "'09 김상현", "'99 로마이어"]}, {"name": "200", "desc": "한 경기에서 타순이 돌아올 때마다 컨택률 소폭 상승", "holders": ["'14 서건창", "'19 페르난데스", "'26 최원준", "'26 레이예스"]}, {"name": "파이어볼러", "desc": "실점 위기에서 직구 최고구속+5km/h, 제구/구위 +7", "holders": ["'26 곽빈", "'26 안우진", "'07 김광현", "'08 김광현", "'10 김광현", "'18 김광현", "'22 김광현", "'14 조상우", "'26 아빌라", "캠 슐리틀러"]}, {"name": "기분파", "desc": "직전 이닝 수비성공 시 다음 타석 컨택/파워 +10", "holders": ["'26 안재석"]}, {"name": "내야 사령관", "desc": "유격수 출장 시 발동되며  수비 시 병살 확률 +7%, 타격 시 병살 확률 -7%", "holders": ["바비 위트 주니어", "엘리 데라크루즈", "'26 박찬호", "'24 박찬호", "'26 김상수", "'11 김상수", "'12 김상수", "'13 김상수", "'14 김상수", "'98 박진만", "'00 박진만", "'03 박진만", "'04 박진만", "'05 박진만", "'06 박진만", "'14 강정호", "'26 김선빈", "'09 김선빈", "'17 김선빈", "'24 김선빈", "'26 오지환", "'23 오지환", "'25 오지환", "'26 이재현", "'26 박성한", "'18 박성한", "'22 박성한", "'14 김하성", "'26 심우준", "'21 심우준", "'26 전민재", "'15 김재호", "'16 김재호", "'19 김재호"]}, {"name": "출루왕", "desc": "2스트라이크 이후 장타율 8% 증가", "holders": ["'26 오스틴", "'23 오스틴", "'25 오스틴", "'26 김현수", "'15 김현수", "'23 김현수", "'25 김현수"]}, {"name": "가을사나이", "desc": "역대 우승팀과 경기를 치르면 컨택/파워 1.4배 증가", "holders": ["'07 박정권", "'08 박정권", "'10 박정권", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈"]}, {"name": "통솔력", "desc": "포수로 출장 시 선발투수의 체력 1.2배 증가", "holders": ["'98 박경완", "'00 박경완", "'07 박경완", "'08 박경완", "'10 박경완", "'26 양의지", "'15 양의지", "'16 양의지", "'20 양의지", "'26 강민호", "'10 강민호", "'85 이만수"]}];/*TRAIT_DATA_END*/
 const TRAIT_BY_PLAYER=(()=>{const m={};TRAIT_DATA.forEach(t=>t.holders.forEach(h=>{(m[h]=m[h]||[]).includes(t.name)||m[h].push(t.name)}));return m})();
 const TDESC=n=>(TRAIT_DATA.find(t=>t.name===n)||{}).desc||'';
 const isLoaded=()=>!!(G&&G.bases[0]&&G.bases[1]&&G.bases[2]);
@@ -3199,7 +3223,11 @@ const TRAIT_ENGINE={
   '파이어볼러':{sym:'fire',role:'P',act:()=>!!(G&&(G.bases[1]||G.bases[2])),s:()=>7,ctl:()=>7}, // 득점권 위기: 직구 +5km/h, 제구·구위 +7
   '기분파':{sym:'mood',act:b=>!!b.moodUp,c:()=>10,p:()=>10},     // 직전 수비 이닝 무실점 → 다음 타석 컨·파 +10
   '내야 사령관':{sym:'ss',act:b=>b.pos==='SS'},                  // 유격수 출장: 수비 병살 +7%p, 타격 병살 -7%p
-  '출루왕':{sym:'obp',act:()=>!!(G&&G.strikes>=2)}};             // 2스트라이크 뒤 안타의 8%가 한 베이스 더
+  '출루왕':{sym:'obp',act:()=>!!(G&&G.strikes>=2)},
+  '가을사나이':{sym:'autumn',act:()=>!!(G&&oppChamp(batTeam())),c:b=>Math.round(b.contact*0.4),p:b=>Math.round(b.power*0.4)}, // 상대가 역대 우승팀: 컨·파 ×1.4
+  '통솔력':{sym:'lead',act:b=>b.pos==='C'}};                                // 포수 출장: 선발투수 체력 ×1.2
+function oppChamp(t){try{return/우승팀/.test(CLUB_GROUP[S.club[1-t.key]]||'')}catch(e){return false}}
+function capBoost(p){if(!G)return false;const t=G.teams.find(x=>x.pitchLog&&x.pitchLog[0]===p);return!!(t&&t.lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'통솔력')))}             // 2스트라이크 뒤 안타의 8%가 한 베이스 더
 const FASTB=['포심','투심','싱커','커터','슈트'];
 let TR_OVR=LS.get('dny_trait',{})||{};
 const saveTr=()=>{LS.set('dny_trait',TR_OVR);cloudPush('trait',TR_OVR)};
@@ -3258,6 +3286,11 @@ const HEX_SYM={
   obp:`<path d="M50 44 L74 62 L50 80 L26 62 Z" fill="#fff8e4" stroke="${INK}" stroke-width="4.5" stroke-linejoin="round"/>
     <path d="M32 38 L36 22 L44 32 L50 18 L56 32 L64 22 L68 38 Z" fill="${INK}"/>
     <text x="50" y="68" text-anchor="middle" font-size="15" font-weight="900" font-family="Arial,sans-serif" fill="${INK}">2S</text>`,
+  autumn:`<path d="M50 16 L55 34 L70 26 L65 42 L82 42 L70 54 L78 62 L60 62 L62 78 L50 68 L38 78 L40 62 L22 62 L30 54 L18 42 L35 42 L30 26 L45 34 Z" fill="#b8321f" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M50 68 V88" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M50 40 V64 M50 50 L40 44 M50 50 L60 44" stroke="${INK}" stroke-width="2" fill="none"/>`,
+  lead:`<path d="M30 30 Q50 18 70 30 L70 58 Q50 78 30 58 Z" fill="none" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M30 42 H70 M30 54 H70 M42 26 V70 M58 26 V70" stroke="${INK}" stroke-width="3.2"/>
+    <path d="M44 84 L50 76 L56 84" stroke="#b8321f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   '200':`<text x="50" y="66" text-anchor="middle" font-size="31" font-weight="900" font-family="Arial Black,Arial,sans-serif" fill="${INK}" letter-spacing="-1">200</text>
     <path d="M28 76 H72" stroke="#b8321f" stroke-width="4" stroke-linecap="round"/><path d="M30 36 L36 42 L44 32 M56 36 L62 42 L70 32" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   _:`<circle cx="50" cy="56" r="20" fill="none" stroke="${INK}" stroke-width="5"/><text x="50" y="64" text-anchor="middle" font-size="24" font-weight="900" font-family="Arial,sans-serif" fill="${INK}">?</text>`};
@@ -3285,7 +3318,7 @@ function stealRes(){const p=st.pitch;if(!p||!p.steal||p.stealDone||p.hbp)return 
 /* ===== 희생번트 ===== */
 function canBunt(){const B=G.bases;return !!(G&&!G.halt&&st.mode==='ready'&&!st.buntNext&&!B[2]&&(B[0]||B[1])&&G.outs<2)}
 function canSqueeze(){const B=G&&G.bases;return !!(G&&!G.halt&&st.mode==='ready'&&!st.buntNext&&B[2]&&G.outs<2)}
-function resolveBunt(){st.swung=true;st.buntAt=NOW;const r=R();
+function resolveBunt(){st.swung=true;st.buntAt=NOW;{const t=batTeam();t.tk=(t.tk??0.55)*0.9}const r=R();
   if(st.buntNext==='squeeze'){
     if(r<0.22){st.buntNext=false;markPitch('S','번트 파울');if(G.strikes>=2)return strikeout(false,'스리번트 삼진!');G.strikes++;st.ballAnim='foul';st.foulT0=NOW;st.foulDir=R()<.5?-1:1;return finishPitch('번트 파울','foul',false,'3루 주자 귀루')}
     if(r<0.30){st.buntNext=false;markPitch('S','번트 헛스윙');const B=G.bases,pit=fieldTeam().pitcher;B[2]=null;G.outs++;pit.st.outs++;log(`${curBatter().name}: 스퀴즈 실패 — 3루 주자 협살 아웃`);
