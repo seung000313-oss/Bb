@@ -10,7 +10,7 @@
 <style>
 :root{--gold:#ffd23f;--blue:#2f7df6;--red:#e8483f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#061517;color:#fff;font-family:'Do Hyeon',sans-serif;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:#061517;color:#fff;font-family:'Do Hyeon',sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:'Do Hyeon',sans-serif;font-size:15px;background:#06222a;color:#fff;border:2px solid #000;border-radius:8px;padding:6px 8px;min-width:0;user-select:text;-webkit-user-select:text}
 #app{max-width:520px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:linear-gradient(#0f3b40,#082427)}
@@ -123,7 +123,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v1.6</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v1.7</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2486,7 +2486,7 @@ const anyOpen=()=>$('#modal').classList.contains('on')||$('#overlay').classList.
 const halfTxt=()=>`${G.inning}회${G.half?'말':'초'}`;
 function log(t){G.log.unshift({h:(G.half?'▼':'▲')+G.inning,t})}
 
-function startGame(){UID=0;const tA=buildTeam(0),tB=buildTeam(1);rollSpecials([tA,tB]);
+function startGame(){UID=0;try{localStorage.removeItem(LIVE_KEY)}catch(e){};const tA=buildTeam(0),tB=buildTeam(1);rollSpecials([tA,tB]);
   const away=S.first===0?tA:tB,home=S.first===0?tB:tA;
   G={teams:[tA,tB],away,home,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],innings:S.innings,log:[],over:false,halt:true};
   [tA,tB].forEach(t=>{t.pitchLog=[t.pitcher];t.pitcher.entryLead=0;t.pitcher.blown=false;t.lineup.forEach(b=>b.appeared=true)});
@@ -2665,7 +2665,7 @@ function walk(hbp){const b=curBatter(),p=fieldTeam().pitcher,B=G.bases,sc=[];b.s
   if(sc.length)score(sc,b,true);const nm=hbp?'몸에 맞는 공':'볼넷';
   log(`${b.name}: ${nm}${sc.length?' (밀어내기 +1점)':''}`);finishPitch(G.walkoff?`끝내기 ${nm}!`:(hbp?nm+'!':nm),hbp?'k':'ball',true,sc.length?'밀어내기 +1점':(hbp?'사구 · 1루 진루':''))}
 function finishPitch(txt,cls,paEnd,sub){if(st.wpNote){sub=st.wpNote+(sub?' · '+sub:'');st.wpNote=''}showBanner(txt,cls,sub);st.mode='post';st.paEnd=paEnd;st.until=NOW+(paEnd?1.6:0.95);showPinfo();updateHUD()}
-function nextBatter(){G.paP=[];renderPList();const t=batTeam();t.idx=(t.idx+1)%9;G.balls=0;G.strikes=0;const b=curBatter();b.curHand=decideHand(b)}
+function nextBatter(){G.paP=[];renderPList();setTimeout(saveLive,0);const t=batTeam();t.idx=(t.idx+1)%9;G.balls=0;G.strikes=0;const b=curBatter();b.curHand=decideHand(b)}
 function afterPost(){if(G.over)return endGame();if(st.paEnd)nextBatter();if(G.outs>=3)return endHalf();
   st.mode='ready';st.camMode='pitch';st.ballAnim=null;updateHUD()}
 function endHalf(){const last=G.inning>=G.innings;
@@ -2844,7 +2844,7 @@ function showReveal(){const tm=[G.away,G.home];
 function showChange(){overlay(`<div class="big">CHANGE!</div><p class="center" style="font-family:'Black Han Sans';font-size:22px;color:#ffe066">${halfTxt()} ${esc(batTeam().name)} 공격</p>
   <p class="center" style="font-size:17px">${esc(G.away.name)} ${tot(G.away)} : ${tot(G.home)} ${esc(G.home.name)}</p><p class="center note">폰을 ${esc(batTeam().name)} 플레이어에게 넘겨주세요</p>
   <div class="row"><button class="btn gold" id="ok" style="font-size:22px">준비 완료</button></div>`,el=>el.querySelector('#ok').onclick=()=>{closeOverlay();G.halt=false;st.mode='ready';bgKey='';updateHUD()})}
-function endGame(){G.over=true;G.halt=true;st.mode='idle';decideGame();updateHUD();const a=tot(G.away),h=tot(G.home);
+function endGame(){try{localStorage.removeItem(LIVE_KEY)}catch(e){};G.over=true;G.halt=true;st.mode='idle';decideGame();updateHUD();const a=tot(G.away),h=tot(G.home);
   const all=[...G.away.lineup,...G.away.used,...G.away.bench,...G.home.lineup,...G.home.used,...G.home.bench].filter(b=>b.st&&b.st.pa);
   const mvp=all.sort((x,y)=>(y.st.h+y.st.hr*2+y.st.rbi)-(x.st.h+x.st.hr*2+x.st.rbi))[0];
   const win=a===h?'무승부':(a>h?G.away:G.home).name+' 승리!';
@@ -3105,6 +3105,30 @@ async function cloudInit(){try{if(!window.claude||!claude.use)return;
     if(hd){for(const k in HAND_OVR)delete HAND_OVR[k];Object.assign(HAND_OVR,hd);LS.set('dny_hand',HAND_OVR)}else if(Object.keys(HAND_OVR).length)cloudPush('hand',HAND_OVR)}catch(e){}
 }catch(e){}}
 
+
+/* ===== 진행 중 경기 자동 저장 · 이어하기 ===== */
+const LIVE_KEY='dny_live_v1';
+function graphEnc(root){const ids=new Map();let n=0;
+  const enc=v=>{if(v===null||typeof v!=='object')return typeof v==='function'||typeof v==='undefined'?null:v;
+    if(ids.has(v))return{$r:ids.get(v)};const id=n++;ids.set(v,id);
+    if(Array.isArray(v))return{$i:id,$a:v.map(enc)};const o={};for(const k in v){const x=v[k];if(typeof x==='function'||x instanceof Node)continue;o[k]=enc(x)}return{$i:id,$o:o}};
+  return enc(root)}
+function graphDec(root){const tab={};
+  const dec=v=>{if(v===null||typeof v!=='object')return v;if('$r' in v)return tab[v.$r];
+    if('$a' in v){const a=[];tab[v.$i]=a;v.$a.forEach(x=>a.push(dec(x)));return a}
+    const o={};tab[v.$i]=o;for(const k in v.$o)o[k]=dec(v.$o[k]);return o};
+  return dec(root)}
+let _liveT=0;
+function saveLive(){try{if(!G||G.over){localStorage.removeItem(LIVE_KEY);return}
+  localStorage.setItem(LIVE_KEY,JSON.stringify({at:Date.now(),uid:UID,innings:S.innings,g:graphEnc(G)}))}catch(e){}}
+function liveInfo(){try{const d=JSON.parse(localStorage.getItem(LIVE_KEY)||'null');if(!d)return null;const g=graphDec(d.g);if(!g||g.over)return null;return{d,g}}catch(e){return null}}
+function resumeLive(){const L=liveInfo();if(!L)return false;G=L.g;UID=Math.max(UID,L.d.uid||0);if(L.d.innings)S.innings=L.d.innings;
+  st.mode='ready';st.camMode='pitch';st.ballAnim=null;st.hit=null;st.pitch=null;st.buntNext=false;G.halt=false;bgKey='';
+  closeOverlay();closeModal&&closeModal();updateHUD();renderPList();if(typeof renderLog==='function')renderLog();
+  showBanner('이어하기','ball',`${G.inning}회${G.half?'말':'초'} ${G.outs}아웃`);return true}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveLive()});
+window.addEventListener('pagehide',saveLive);
+
 /* ===== 희생번트 ===== */
 function canBunt(){const B=G.bases;return !!(G&&!G.halt&&st.mode==='ready'&&!st.buntNext&&!B[2]&&(B[0]||B[1])&&G.outs<2)}
 function canSqueeze(){const B=G&&G.bases;return !!(G&&!G.halt&&st.mode==='ready'&&!st.buntNext&&B[2]&&G.outs<2)}
@@ -3180,7 +3204,13 @@ $('#btnPitch').addEventListener('pointerdown',e=>{e.preventDefault();doPitch()})
 window.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();doSwing()}else if(e.code==='Enter'||e.code==='KeyP'){e.preventDefault();doPitch()}});
 window.addEventListener('resize',resize);try{new ResizeObserver(()=>{const r=cv.getBoundingClientRect();if(Math.abs(r.width-W)>0.5||Math.abs(r.height-H)>0.5)resize()}).observe(cv)}catch(e){}
 cv=$('#cv');ctx=cv.getContext('2d');bg=document.createElement('canvas');bgctx=bg.getContext('2d');
-resize();updateHUD();loadDefaultDB().finally(()=>{updateHUD();showSetup();recFromHash()});cloudInit();
+resize();updateHUD();loadDefaultDB().finally(()=>{updateHUD();showSetup();recFromHash();
+  const L=liveInfo();if(L){const g=L.g,a=g.away,h=g.home;
+    modal(`<h3>진행 중이던 경기</h3><p class="note" style="font-size:16px">${esc(a.name)} <b>${tot(a)}</b> : <b>${tot(h)}</b> ${esc(h.name)}<br>${g.inning}회${g.half?'말':'초'} ${g.outs}아웃</p>
+      <p class="note">페이지가 다시 열려도 경기는 타석마다 자동 저장돼요.</p>
+      <div class="row"><button class="btn gold" id="lv1">이어하기</button><button class="btn gray" id="lv0">새 경기</button></div>`,el=>{
+      el.querySelector('#lv1').onclick=()=>{closeModal();resumeLive()};
+      el.querySelector('#lv0').onclick=()=>{try{localStorage.removeItem(LIVE_KEY)}catch(e){};closeModal()}})}});cloudInit();
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{bgKey=''});
 requestAnimationFrame(frame);
 </script>
