@@ -128,7 +128,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v2.2</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v2.3</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2096,7 +2096,7 @@ const PITCHES=[
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
 // ===== 밸런스 패치 v1.8 (타구 물리 판정·체공시간↓·코너 외야 범위↓, 선발6·필승조1·1·마무리1 이닝 기준, 홈런·2루타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={win:0.6813,wF:4,strikeBase:0.17,cntB:0.04,tkK:0.5,tk0:0.68,strikeC:0.003,hbpBase:0.002,hbpC:9.15e-05,
+const BAL={win:0.6813,wF:4,strikeBase:0.17,cntB:0.04,tkK:0.8,tk0:0.62,strikeC:0.003,hbpBase:0.002,hbpC:9.15e-05,
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
   ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:3.04e-05,qF:0.65,
   evB:105,evQ:45,evP:30,evS:12,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.6932,dragV:0.15,tK:0.78,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0,safe3:0.4145,rollK:0.9,cornerR:0.85,ifThr:19.5};
