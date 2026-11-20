@@ -128,7 +128,7 @@ textarea{width:100%;height:140px;font-size:12px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v2.4</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v2.5</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2389,6 +2389,19 @@ const cr=(a,b,c,d,t)=>{const t2=t*t,t3=t2*t;return .5*((2*b)+(-a+c)*t+(2*a-5*b+4
 function keySpline(keys,u){u=clamp(u,0,1);let i=0;while(i<keys.length-2&&u>keys[i+1][0])i++;
   const [t1,B]=keys[i],[t2,C]=keys[i+1],A=(keys[i-1]||keys[i])[1],D=(keys[i+2]||keys[i+1])[1],t=clamp((u-t1)/((t2-t1)||1),0,1),o={};
   for(const k in B){const b=B[k],c=C[k]??b,a=A[k]??b,d=D[k]??c;o[k]=Array.isArray(b)?[cr(a[0],b[0],c[0],d[0],t),cr(a[1],b[1],c[1],d[1],t)]:(b==null?b:cr(a,b,c,d,t))}return o}
+// 키네틱 체인: 하체→몸통→팔→손→배트 순으로 시간차(근위→원위)
+const CHAIN={hip:.07,knB:.06,knF:.06,knT:.06,knG:.06,ftB:.05,ftF:.05,ftT:.05,ftG:.05,neck:.035,head:.03,shB:.035,shF:.035,shT:.035,shG:.035,elB:0,elF:0,elT:0,elG:0,ha:-.02,haT:-.025,haG:-.01,bat:-.045};
+function chainJ(fn,u,k){const cache={},o={};const get=off=>cache[off]||(cache[off]=fn(u+off*k));const base=get(0);for(const j in base){const off=CHAIN[j]||0;o[j]=off?get(off)[j]:base[j]}return o}
+// 스프링-댐퍼: 관절마다 질량감(손·배트는 가볍게 휘고, 발은 땅에 붙음)
+const SPR={},WJ={ftB:70,ftF:70,ftT:70,ftG:70,knB:48,knF:48,knT:48,knG:48,hip:42,neck:36,head:30,shB:38,shF:38,shT:38,shG:38,elB:32,elF:32,elT:30,elG:32,ha:30,haT:26,haG:30,bat:30};
+function springJ(id,T,wk,z){wk=wk||1;z=z||0.72;let s=SPR[id];const now=NOW;
+  if(!s||now-s.t>0.3||now<s.t){SPR[id]={t:now,p:JSON.parse(JSON.stringify(T)),v:{}};return T}
+  const dt=Math.min(now-s.t,1/30);s.t=now;if(dt<=0)return s.p;const o={};
+  for(const j in T){const w=(WJ[j]||36)*wk,tv=T[j];if(tv==null){o[j]=tv;continue}const n=Math.max(1,Math.ceil(dt*w/0.25)),h=dt/n;
+    if(Array.isArray(tv)){const p=s.p[j]||tv.slice(),v=s.v[j]||[0,0];for(let a=0;a<2;a++){for(let t=0;t<n;t++){const acc=w*w*(tv[a]-p[a])-2*z*w*v[a];v[a]+=acc*h;p[a]+=v[a]*h}}s.p[j]=p;s.v[j]=v;o[j]=[p[0],p[1]]}
+    else{let p=s.p[j]??tv,v=s.v[j]||0;for(let t=0;t<n;t++){const acc=w*w*(tv-p)-2*z*w*v;v+=acc*h;p+=v*h}s.p[j]=p;s.v[j]=v;o[j]=p}}
+  return o}
+const LEAD=0.045; // 스프링 지연만큼 목표 자세를 앞당겨 샘플(컨택·릴리스 타이밍 유지)
 const runJ=ph=>lerpJ(MO.RUNA,MO.RUNB,.5-.5*Math.cos(ph*Math.PI));
 const lerpJ=(A,B,t)=>{const o={};for(const k in A){const a=A[k],b=B[k]===undefined?a:B[k];o[k]=Array.isArray(a)?[lerp(a[0],b[0],t),lerp(a[1],b[1],t)]:lerp(a,b,t)}return o};
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
@@ -2462,23 +2475,24 @@ function fig(wp,u,o){o=o||{};const f=pt(wp);if(!f)return;const tp=pt([wp[0],wp[1
   const h=f.y-tp.y;if(h<4){ctx.fillStyle=u.trim;ctx.fillRect(f.x-1.5,f.y-4,3,4);return}
   let J=READY,facing=1;
   if(o.pose==='pitch'){const pit=o.pit;facing=pit&&pit.hand==='L'?-1:1;const arm=pit?pit.arm:'over';
-    if(st.mode==='windup'){J=pitchPose(arm,clamp(1-(st.until-NOW)/0.55,0,1),'wind')}
-    else if(st.mode==='flight'||(st.mode==='post'&&NOW-st.fs<1.0)||(st.mode==='inplay'&&NOW-st.fs<1.0)){J=pitchPose(arm,clamp((NOW-st.fs)/1.0,0,1),'follow')}
-    else J=PB}
-  else if(o.pose==='run'){J=runJ(o.ph!=null?o.ph:NOW*3.2);facing=o.facing||1}
-  else if(o.J){J=o.J;facing=o.facing||1}
+    if(st.mode==='windup'){const u=clamp(1-(st.until-NOW-LEAD)/0.55,0,1);J=chainJ(x=>pitchPose(arm,clamp(x,0,1),'wind'),u,1)}
+    else if(st.mode==='flight'||(st.mode==='post'&&NOW-st.fs<1.0)||(st.mode==='inplay'&&NOW-st.fs<1.0)){const u=clamp((NOW+LEAD-st.fs)/1.0,0,1);J=chainJ(x=>pitchPose(arm,clamp(x,0,1),'follow'),u,0.5)}
+    else J=PB;J=springJ('P',J,1.25,0.7)}
+  else if(o.pose==='run'){J=runJ(o.ph!=null?o.ph:NOW*3.2);facing=o.facing||1;if(o.sid)J=springJ(o.sid,J,1.8,0.8)}
+  else if(o.J){J=o.J;facing=o.facing||1;if(o.sid)J=springJ(o.sid,J,1.7,0.75)}
   else if(o.pose==='stand'){J=PB}
   drawRig(f.x,f.y,h,J,u,{facing,glow:o.glow})}
 
 function batter(b,u){const side=b.curHand==='R'?-1:1;const wp=[side*0.95,0,0.75];const f=pt(wp),tp=pt([wp[0],1.85,wp[2]]);if(!f||!tp)return;
   const h=f.y-tp.y;let J;
-  const s=st.swingAt>0?(NOW-st.swingAt)/0.3:9;
+  const s=st.swingAt>0?(NOW+LEAD-st.swingAt)/0.3:9;
   if(st.buntNext||(st.buntAt&&NOW-st.buntAt<1.2))J=BAT.bunt;
-  else if(s<1.3)J=keySpline([[0,BAT.load],[.2,MO.STRIDE],[.4,MO.LAUNCH],[.55,BAT.contact],[.9,BAT.follow],[1.3,MO.FINISH]],s/1.3);
+  else if(s<1.3)J=chainJ(x=>keySpline([[0,BAT.load],[.2,MO.STRIDE],[.4,MO.LAUNCH],[.55,BAT.contact],[.9,BAT.follow],[1.3,MO.FINISH]],clamp(x,0,1)),s/1.3,1);
   else if(s<1.7)J=lerpJ(MO.FINISH,BAT.stance,ease((s-1.3)/.4));
   else if(st.mode==='windup')J=lerpJ(BAT.stance,BAT.load,ease(clamp(1-(st.until-NOW)/0.55,0,1)));
   else if(st.mode==='flight')J=BAT.load;
   else{const bob=Math.sin(NOW*2.2)*.008;J={...BAT.stance,ha:[BAT.stance.ha[0],BAT.stance.ha[1]+bob],bat:BAT.stance.bat+Math.sin(NOW*2.2)*.05}}
+  J=springJ('B',J,1.3,0.68);
   drawRig(f.x,f.y,h,J,u,{facing:-side,bat:true,helmet:true})}
 
 function ball(p,scale,spin){const q=pt(p);if(!q)return;const sh=pt([p[0],0.01,p[2]]);const hy=Math.max(0,p[1]),sk=1+hy*0.05;
@@ -2501,6 +2515,7 @@ function log(t){G.log.unshift({h:(G.half?'▼':'▲')+G.inning,t})}
 
 function startGame(){UID=0;try{localStorage.removeItem(LIVE_KEY)}catch(e){};const tA=buildTeam(0),tB=buildTeam(1);rollSpecials([tA,tB]);
   const away=S.first===0?tA:tB,home=S.first===0?tB:tA;
+  try{[tA,tB].forEach(applyTraitCaps)}catch(e){}
   G={teams:[tA,tB],away,home,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],innings:S.innings,log:[],over:false,halt:true};
   [tA,tB].forEach(t=>{t.pitchLog=[t.pitcher];t.pitcher.entryLead=0;t.pitcher.blown=false;t.lineup.forEach(b=>b.appeared=true)});
   try{G.over=false;const b0=curBatter();b0.curHand=decideHand(b0)}catch(e){}
@@ -2515,7 +2530,9 @@ function startPitch(){const pit=fieldTeam().pitcher;pit.pc++;let ptp,baseV;
   else{const en=PITCHES.filter(p=>p.on);ptp=pick(en.length?en:PITCHES);baseV=pit.velo*ptp.s*(0.985+R()*0.03)}
   const fat=fatigue(pit),ctl=effCtl(pit)*(1-.35*fat);
   if(FASTB.includes(ptp.n)&&hasTrait(pit,'파이어볼러')&&tOn(pit,'파이어볼러'))baseV+=5;
+  if(hasTrait(pit,'팔색조')&&pit.arsenal&&pit.arsenal.length&&R()<0.10){const own=pit.arsenal.map(a=>a.n),pool=PITCHES.filter(p=>!own.includes(p.n));if(pool.length){const fb=Math.max(...pit.arsenal.map(a=>+a.v||0))||pit.velo||140;ptp=pick(pool);baseV=fb*ptp.s*(0.97+R()*0.04);st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'팔색조: '+ptp.n}}
   const curveK=/커브/.test(ptp.n)&&hasTrait(pit,'커브깎는 노인');if(curveK)baseV+=3;
+  const slvK=/슬라이더|스위퍼/.test(ptp.n)&&hasTrait(pit,'슬러브?');if(slvK)baseV+=3;
   const tkr=batTeam().tk??0.55;const strikeP=clamp(BAL.strikeBase+ctl*BAL.strikeC+BAL.cntB*G.balls+BAL.tkK*Math.max(0,tkr-BAL.tk0),0.2,0.9);let tx,ty;
   if(R()<strikeP){tx=(R()*2-1)*0.21;ty=0.47+R()*0.56;if(hasTrait(pit,'매덕스')&&R()<0.25){const e=R();if(e<.5)tx=(R()<.5?-1:1)*(0.17+R()*0.04);else ty=R()<.5?0.47+R()*0.05:0.98+R()*0.05}}
   else{const s=R(),o=0.07+R()*0.28;if(s<.3){tx=-0.22-o;ty=0.45+R()*0.6}else if(s<.6){tx=0.22+o;ty=0.45+R()*0.6}else if(s<.85){tx=(R()*2-1)*0.3;ty=0.45-o}else{tx=(R()*2-1)*0.3;ty=1.05+o}}
@@ -2523,7 +2540,7 @@ function startPitch(){const pit=fieldTeam().pitcher;pit.pc++;let ptp,baseV;
   if(R()<BAL.hbpBase+(100-ctl)*BAL.hbpC+fat*0.012*BAL.hbpBase/0.012){hbp=true;tx=side*(0.5+R()*0.12);ty=0.65+R()*0.55}
   const sgn=pit.hand==='L'?-1:1;
   const velo=Math.round(baseV*(1-0.05*fat));
-  const arm=pit.arm||'over';let bx=ptp.bx*sgn*MOVE*(0.8+R()*0.4),by=ptp.by*MOVE*(0.8+R()*0.4);if(curveK){bx*=1.15;by*=1.25}
+  const arm=pit.arm||'over';let bx=ptp.bx*sgn*MOVE*(0.8+R()*0.4),by=ptp.by*MOVE*(0.8+R()*0.4);if(curveK){bx*=1.15;by*=1.25}if(slvK){bx*=1.2;by*=1.1}
   // 사이드암: 낮고 바깥쪽 릴리스 + 팔쪽 횡변화↑ / 언더핸드: 무릎 높이 릴리스 + 떠오르는 궤적·팔쪽 변화
   const rel=arm==='under'?[-0.8*sgn,0.55,17.0]:arm==='side'?[-1.0*sgn,1.2,17.1]:[-0.5*sgn,1.85,17.2];
   if(arm==='side'){bx-=0.16*sgn;by+=0.03}else if(arm==='under'){bx-=0.12*sgn;by+=0.16}
@@ -2626,13 +2643,13 @@ const BN=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2
 function hitOutcome(q,bat,pit,opt){
   const fat=fatigue(pit),sf=effS(pit)*(1-.25*fat)/100,pw=effP(bat)/100,ct=effC(bat)/100;
   if(R()<0.05-q*0.08)return{foul:true};
-  const cf=fieldTeam().lineup.find(x=>x.pos==='CF'),K=cf&&hasTrait(cf,'베중정')?Object.assign({},BAL,{gcCF:0.25}):BAL;
+  const cf=fieldTeam().lineup.find(x=>x.pos==='CF'),K=cf&&hasTrait(cf,'센터라인 지배자')?Object.assign({},BAL,{gcCF:0.25}):BAL;
   const h=bipJudge(q,pw,ct,sf,K,R,BN);
-  if(h.great&&K.gcCF&&h.fielder==='CF')h.trait='베중정';
+  if(h.great&&K.gcCF&&h.fielder==='CF')h.trait='센터라인 지배자';
   if(h.res==='1B'&&bat.pinchPA&&hasTrait(bat,'대타 신화')&&R()<0.05){h.res='2B';h.trait='대타 신화'}
-  if(opt&&opt.ball&&h.res==='OUT'&&!h.great&&hasTrait(bat,'배드볼 히터')&&R()<0.05){h.res='1B';h.how='OFHIT';h.trait='배드볼 히터'}
+  if(opt&&opt.ball&&h.res==='OUT'&&!h.great&&hasTrait(bat,'배드볼 히터')&&R()<0.15){h.res='1B';h.how='OFHIT';h.trait='배드볼 히터'}
   if(h.res==='OUT'&&h.how==='GO'&&hasTrait(bat,'암울타')&&R()<0.12){h.res='1B';h.how='IFH';h.trait='암울타'}
-  if((h.res==='1B'||h.res==='2B')&&G.strikes>=2&&hasTrait(bat,'출루왕')&&R()<0.08){h.res=h.res==='1B'?'2B':'3B';h.trait='출루왕'}
+  if(h.res==='OUT'&&!h.great&&G.strikes>=2&&hasTrait(bat,'출루왕')&&R()<0.08){h.res='1B';h.how=h.how==='GO'?'IFH':'OFHIT';h.trait='출루왕'}
   if(h.res==='HR'&&hasTrait(bat,'거포')&&R()<0.05){h.dist+=35;h.outPark=true;h.trait='거포'}
   h.land=P(h.dist,h.th);h.great=!!h.great;return h}
 function hitPos(h,u){const L=h.land;u=clamp(u,0,1);
@@ -2737,10 +2754,10 @@ function render(){if(!ctx)return;ctx.setTransform(DPR,0,0,DPR,0,0);
       const catchJ=h.great?MO.DIVE:h.type==='gb'?MO.REACHLOW:MO.REACHUP;
       if(h.res==='OUT'&&hu>.8)J=lerpJ(J,catchJ,ease(clamp((hu-.8)/.2,0,1)));
       if(h.res==='OUT'&&hu>=1){const t=NOW-st.hitT0-h.T;J=h.type==='gb'&&!h.great?lerpJ(catchJ,MO.THROW,ease(clamp(t/.3,0,1))):catchJ}}
-    const pp=p,JJ=J,ff=fc;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{J:JJ,facing:ff,glow:isField&&st.hit&&st.hit.fielder===k&&st.hit.great})})}
+    const pp=p,JJ=J,ff=fc;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{sid:'F'+k,J:JJ,facing:ff,glow:isField&&st.hit&&st.hit.fielder===k&&st.hit.great})})}
   const pp=FP.P;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{pose:'pitch',pit:G?fieldTeam().pitcher:null})});
   if(G)G.bases.forEach((r,i)=>{if(r){const p=[BASES[i][0]+(i===0?0.8:i===2?-0.8:0.8),0,BASES[i][2]+(i===1?-0.8:0)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'stand'})})}});
-  if(isField&&G){const b=curBatter(),side=b.curHand==='R'?-1:1;const p=[lerp(side*0.85,BASES[0][0],hu*0.9),0,lerp(0,BASES[0][2],hu*0.9)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'run',facing:1,ph:hu*27.4*0.9/0.9})})}
+  if(isField&&G){const b=curBatter(),side=b.curHand==='R'?-1:1;const p=[lerp(side*0.85,BASES[0][0],hu*0.9),0,lerp(0,BASES[0][2],hu*0.9)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{sid:'RB',pose:'run',facing:1,ph:hu*27.4*0.9/0.9})})}
   objs.sort((a,b)=>b.z-a.z).forEach(o=>o.d());
   if(!isField){
     const c=[[-0.22,0.45,0],[0.22,0.45,0],[0.22,1.05,0],[-0.22,1.05,0]];
@@ -2988,7 +3005,7 @@ function traitModal(i,f){i=i||0;f=f||'B';
   modal(`<h3>선수 편집</h3>${KSEG('trt')}
    <div class="seg" id="atab"><button data-v="0" class="${i===0?'on':''}">${esc(nameOf(0))}</button><button data-v="1" class="${i===1?'on':''}">${esc(nameOf(1))}</button></div>
    <div class="seg" id="ftab"><button data-f="B" class="${f==='B'?'on':''}">타자</button><button data-f="P" class="${f==='P'?'on':''}">투수</button></div>
-   <p class="note">특성이 없는 선수는 1개, 특성이 1개인 선수는 1개 더(최대 2개) 고를 수 있어요. 기본 특성이 2개면 더 넣을 수 없어요. 고르면 바로 저장되고 경기 중에도 바로 적용돼요.</p>
+   <p class="note">같은 특성은 한 팀에 타자 3명·투수 4명까지예요(고유 특성 보유자가 이미 그 이상이면 1명만 더). 특성이 없는 선수는 1개, 특성이 1개인 선수는 1개 더(최대 2개) 고를 수 있어요. 기본 특성이 2개면 더 넣을 수 없어요. 고르면 바로 저장되고 경기 중에도 바로 적용돼요.</p>
    ${list.map(row).join('')||'<p class="note">선수가 없어요</p>'}
    <div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{
    el.querySelector('#kseg').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!=='trt')goK(b.dataset.k,i)};
@@ -2998,11 +3015,12 @@ function traitModal(i,f){i=i||0;f=f||'B';
    el.querySelector('#cl').onclick=()=>{closeModal();if(G)updateHUD();if(!G&&$('#overlay').classList.contains('on'))showSetup()}})}
 function traitPick(i,f,d){const b=baseTraits(d.name),cur=TR_OVR[d.name];
   const opts=TRAIT_DATA.map(t=>t.name).filter(t=>TRAIT_ENGINE[t]&&tRole(t)===f&&!b.includes(t));
+  const roster=(f==='P'?livePitchers(i):liveBatters(i)).filter(Boolean),cnt=t=>roster.filter(p=>traitsOf(p).includes(t)).length,okT=t=>capOK(roster,t,d);
   modal(`<h3>특성 선택 — ${esc(d.name)}</h3>
    <p class="note">${b.length?`보유 특성: ${b.map(esc).join(', ')} · 하나를 더 고르세요`:'하나를 고르세요'}</p>
-   <div class="tgrid">${opts.map(t=>`<button class="tcell ${cur===t?'on':''}" data-t="${esc(t)}">${hexIcon(t,54,cur===t)}<b>${esc(t)}</b><small>${esc(TDESC(t))}</small></button>`).join('')}</div>
+   <div class="tgrid">${opts.map(t=>`<button class="tcell ${cur===t?'on':''}" data-t="${esc(t)}" ${okT(t)||cur===t?'':'disabled style="opacity:.35"'}>${hexIcon(t,54,cur===t)}<b>${esc(t)}</b><small>${esc(TDESC(t))}</small><small style="color:#ffd98a">팀 ${cnt(t)}/${TCAP[f]}${okT(t)||cur===t?'':' · 한도'}</small></button>`).join('')}</div>
    <div class="row">${cur?'<button class="btn sm red" id="tclr">선택 해제</button>':''}<button class="btn sm gray" id="tbk">뒤로</button></div>`,el=>{
-   el.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{TR_OVR[d.name]=x.dataset.t;saveTr();if(G)updateHUD();traitModal(i,f)});
+   el.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{if(x.disabled)return;TR_OVR[d.name]=x.dataset.t;saveTr();if(G){G.teams.forEach(applyTraitCaps);updateHUD()}traitModal(i,f)});
    const c=el.querySelector('#tclr');if(c)c.onclick=()=>{delete TR_OVR[d.name];saveTr();if(G)updateHUD();traitModal(i,f)};
    el.querySelector('#tbk').onclick=()=>traitModal(i,f)})}
 function arsModal(i,kind){i=i||0;if(kind==='bat')return batHandModal(i);if(kind==='trt')return traitModal(i);const ARM={over:'오버핸드',side:'사이드암',under:'언더핸드'};
@@ -3207,18 +3225,18 @@ window.addEventListener('pagehide',saveLive);
 /* ===== 특성 시스템 =====
    TRAIT_DATA(이름·효과 설명·보유 선수)는 특성 CSV에서 자동 생성된다(신규 특성 업데이트 시 교체).
    TRAIT_ENGINE은 특성 이름별 실제 효과와 아이콘 심벌. 엔진에 없는 특성은 기본 아이콘만 표시되고 효과는 없다. */
-/*TRAIT_DATA_BEGIN*/const TRAIT_DATA=[{"name": "만루 사나이", "desc": "주자 만루시 컨택/파워가 각각 +5/+8 상승", "holders": ["'17 이범호", "'95 심정수", "'03 심정수", "'04 심정수", "'05 심정수", "'06 심정수", "'26 최형우", "'11 최형우", "'12 최형우", "'13 최형우", "'14 최형우", "'17 최형우", "'24 최형우", "'96 이호준", "'97 이호준", "'07 이호준", "'10 이호준", "'26 나성범", "'20 나성범", "'24 나성범", "'02 김한수", "'05 김한수", "'06 김한수"]}, {"name": "대도", "desc": "주자로 1루에 출루시 일정 확률로 '도루'시도", "holders": ["'93 이종범", "'96 이종범", "'97 이종범", "'09 이종범", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'26 조수행", "'16 조수행", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'17 김주찬", "'10 김주찬", "'07 정근우", "'08 정근우", "'10 정근우", "피트 크로암스트롱", "오타니 쇼헤이", "'26 김도영", "'24 김도영", "엘리 데라크루즈", "'83 김일권", "'86 김일권", "'87 김일권", "'26 오재원", "'15 오재원", "'16 오재원", "'19 오재원", "'26 박민우", "'20 박민우", "'26 황성빈", "'26 신민재", "'23 신민재", "'25 신민재"]}, {"name": "베중정", "desc": "중견수 수비 시 호수비 발동 확률 상승", "holders": ["'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "피트 크로암스트롱", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'86 이순철", "'87 이순철", "'88 이순철", "'89 이순철", "'91 이순철", "'93 이순철", "'96 이순철", "'97 이순철", "'07 김강민", "'08 김강민", "'10 김강민", "'18 김강민", "'22 김강민", "'26 배정대", "'21 배정대", "'26 최지훈", "'22 최지훈", "'26 김호령", "'17 김호령", "'24 김호령", "마이클 해리스 2세"]}, {"name": "대타 신화", "desc": "대타로 출장 시 컨택/파워가 +20%씩 상승하고 장타 확률 5%p 증가", "holders": ["'98 이재주", "'00 이재주", "'09 이재주", "'26 김인태", "'19 김인태", "'10 최동수", "'14 이성열", "'17 서동욱", "'14 서동욱", "'14 박헌도", "'18 정의윤"]}, {"name": "파이널보스", "desc": "경기 마지막 회에 등판 시 구위 +10", "holders": ["'05 오승환", "'06 오승환", "'11 오승환", "'12 오승환", "'13 오승환", "'09 유동훈", "'14 손승락", "메이슨 밀러", "아롤디스 채프먼", "'26 이영하", "'26 박영현", "'96 임창용", "'97 임창용", "'02 임창용", "'05 임창용", "'14 임창용", "'17 임창용", "'99 구대성", "'95 진필중", "'01 진필중", "'26 고우석", "'23 고우석", "'26 정해영", "'24 정해영"]}, {"name": "득점권의악마", "desc": "주자 득점권일 시 컨택+5", "holders": ["'26 김민석", "'02 양준혁", "'05 양준혁", "'06 양준혁", "'96 장성호", "'97 장성호", "'09 장성호", "'07 이진영", "'08 이진영", "'02 박한이", "'05 박한이", "'06 박한이", "'11 박한이", "'12 박한이", "'13 박한이", "'14 박한이", "'26 채은성"]}, {"name": "매덕스", "desc": "전체 투구 중 보더라인에 걸리는 스트라이크의 비율 25% 증가", "holders": ["'15 유희관", "'16 유희관", "'19 유희관", "'07 정우람", "'08 정우람", "'10 정우람", "'26 고영표", "'21 고영표", "'11 장원삼", "'12 장원삼", "'13 장원삼", "'14 장원삼", "'26 양현종", "'09 양현종", "'17 양현종", "'24 양현종", "'15 장원준", "'16 장원준", "'10 장원준", "'15 니퍼트", "'16 니퍼트", "'19 린드블럼", "'84 최동원", "'86 선동열", "'87 선동열", "'88 선동열", "'89 선동열", "'91 선동열", "'93 선동열", "'99 송진우", "'11 윤성환", "'12 윤성환", "'13 윤성환", "'14 윤성환", "'99 이상군", "'98 정민태", "'00 정민태", "'03 정민태", "'04 정민태", "'95 장호연"]}, {"name": "용규놀이", "desc": "2스트라이크 이후 커트 성공률 30% 증가", "holders": ["'09 이용규", "'07 정근우", "'08 정근우", "'10 정근우", "'26 손아섭", "'10 손아섭", "'26 김지찬", "'26 홍창기", "'23 홍창기", "'25 홍창기", "'26 문성주", "'23 문성주", "'25 문성주", "'17 이명기", "'20 이명기", "'85 장효조", "'92 장효조", "'15 민병헌", "'16 민병헌", "'10 정훈"]}, {"name": "배드볼 히터", "desc": "볼 컨택 시 안타 확률 5% 증가", "holders": ["'26 레이예스", "'10 박종윤", "'26 안치홍", "'09 안치홍", "'17 안치홍", "'26 페라자", "'26 에레디아", "'24 소크라테스", "'26 강백호", "'21 강백호"]}, {"name": "거포", "desc": "항상 파워가 +7 추가 상승하며 홈런 시 5% 확률로 장외홈런", "holders": ["'10 이대호", "'16 김재환", "'26 한동희", "'01 김동주", "'18 김동엽", "'18 로맥", "'02 이승엽", "'12 이승엽", "'13 이승엽", "'14 이승엽", "'99 장종훈", "'14 박병호", "'26 최정", "'07 최정", "'08 최정", "'10 최정", "'18 최정", "'22 최정", "'26 김도영", "'24 김도영", "'14 강정호", "'02 마해영", "'98 박재홍", "'00 박재홍", "'07 박재홍", "'08 박재홍", "'10 박재홍", "요르단 알바레즈", "피트 크로암스트롱", "주니어 카미네로", "피트 알론소", "벤 라이스", "카일 슈와버", "스즈키 세이야", "'01 우즈", "'09 최희섭", "'09 김상현", "'99 로마이어", "애런 저지", "'26 노시환", "'09 나지완", "'17 나지완", "'26 한유섬", "'18 한유섬", "'22 한유섬", "'83 김봉연", "'86 김봉연", "'87 김봉연", "'88 김봉연"]}, {"name": "200", "desc": "한 경기에서 타순이 돌아올 때마다 컨택률 소폭 상승", "holders": ["'14 서건창", "'19 페르난데스", "'26 최원준", "'26 레이예스", "'26 박건우", "'15 박건우", "'16 박건우", "'19 박건우", "'26 구자욱", "'26 전준우", "'10 전준우", "'26 고승민", "'26 윤동희"]}, {"name": "파이어볼러", "desc": "실점 위기에서 직구 최고구속+5km/h, 제구/구위 +7", "holders": ["'26 곽빈", "'26 안우진", "'07 김광현", "'08 김광현", "'10 김광현", "'18 김광현", "'22 김광현", "'14 조상우", "'26 아빌라", "캠 슐리틀러", "제이콥 미즈로우스키", "'15 니퍼트", "'16 니퍼트", "'86 선동열", "'87 선동열", "'88 선동열", "'89 선동열", "'91 선동열", "'93 선동열", "'84 최동원", "'10 엄정욱", "'26 문동주", "'26 김서현", "'09 한기주", "'26 정우주"]}, {"name": "기분파", "desc": "직전 이닝 본인이 수비성공 시 다음 타석 컨택/파워 +10", "holders": ["'26 안재석", "'05 박석민", "'11 박석민", "'12 박석민", "'13 박석민", "'14 박석민", "'20 박석민", "'01 홍성흔", "'15 홍성흔", "'16 홍성흔", "'10 홍성흔", "'26 허경민", "'15 허경민", "'16 허경민", "'19 허경민", "'21 황재균", "'10 황재균", "'03 이택근", "'04 이택근", "'14 이택근"]}, {"name": "내야 사령관", "desc": "유격수 출장 시 발동되며 수비 시 병살 확률 +7%, 타격 시 병살 확률 -7%", "holders": ["바비 위트 주니어", "엘리 데라크루즈", "'26 박찬호", "'24 박찬호", "'26 김상수", "'11 김상수", "'12 김상수", "'13 김상수", "'14 김상수", "'98 박진만", "'00 박진만", "'03 박진만", "'04 박진만", "'05 박진만", "'06 박진만", "'14 강정호", "'26 김선빈", "'09 김선빈", "'17 김선빈", "'24 김선빈", "'26 오지환", "'23 오지환", "'25 오지환", "'26 이재현", "'26 박성한", "'18 박성한", "'22 박성한", "'14 김하성", "'26 심우준", "'21 심우준", "'26 전민재", "'15 김재호", "'16 김재호", "'19 김재호", "'94 류지현", "'90 김재박", "'92 김민재", "'26 김주원", "'26 하주석"]}, {"name": "출루왕", "desc": "2스트라이크 이후 장타율 8% 증가", "holders": ["'26 오스틴", "'23 오스틴", "'25 오스틴", "'26 김현수", "'15 김현수", "'23 김현수", "'25 김현수", "'22 추신수", "'26 문보경", "'23 문보경", "'25 문보경", "'15 최주환", "'16 최주환", "'19 최주환", "'22 최주환", "'03 정성훈", "'04 정성훈", "'07 박재상", "'08 박재상", "'10 박재상"]}, {"name": "가을사나이", "desc": "역대 우승팀과 경기를 치르면 컨택/파워 1.4배 증가", "holders": ["'07 박정권", "'08 박정권", "'10 박정권", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'94 김재현", "'07 김재현", "'08 김재현", "'10 김재현", "'15 오재일", "'16 오재일", "'19 오재일", "'07 조동화", "'08 조동화", "'10 조동화", "'02 임재철", "'94 박종호", "'98 박종호", "'00 박종호", "'03 박종호", "'05 박종호", "'06 박종호"]}, {"name": "통솔력", "desc": "포수로 출장 시 선발투수의 체력 1.2배 증가", "holders": ["'98 박경완", "'00 박경완", "'07 박경완", "'08 박경완", "'10 박경완", "'26 양의지", "'15 양의지", "'16 양의지", "'20 양의지", "'26 강민호", "'10 강민호", "'85 이만수", "'02 진갑용", "'05 진갑용", "'06 진갑용", "'11 진갑용", "'12 진갑용", "'13 진갑용", "'14 진갑용", "'90 김동수", "'94 김동수", "'03 김동수", "'04 김동수", "'26 박동원", "'23 박동원", "'25 박동원", "'14 박동원", "'26 장성우", "'21 장성우", "'10 장성우", "'26 최재훈", "'15 최재훈", "'16 최재훈"]}, {"name": "대주자", "desc": "주자로 투입시 2루에서도 도루를 시도하며, 1루에서 도루 시 성공률 +20%", "holders": ["'05 강명구", "'06 강명구", "'11 강명구", "'13 강명구", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'95 정수근", "'01 정수근", "'98 정수성", "'04 정수성", "'17 유재신", "'26 김성윤", "'26 오태곤", "'22 오태곤", "'26 홍현빈"]}, {"name": "암울타", "desc": "타격 시 내야땅볼의 내야안타/실책 발생 확률 증가", "holders": ["'26 안상현", "'22 안상현", "'23 정주현", "'26 박계범", "'17 김주형", "'26 이도윤"]}, {"name": "커브깎는 노인", "desc": "커브 구종 보유시 꺾이는 각과 속도가 더욱 날카로워짐", "holders": ["'15 윤명준", "'16 윤명준", "'19 윤명준", "제이콥 미즈로우스키", "'99 정민철", "'07 김원형", "'08 김원형", "'93 이대진", "'96 이대진", "'97 이대진", "소니 그레이", "'85 김시진", "'26 구창모", "'20 구창모", "'26 임찬규", "'23 임찬규", "'25 임찬규"]}, {"name": "지명수비", "desc": "대수비로 투입시 병살 확률 추가5% 상승(내야사령관과 합연산), 팀 실책확률 10% 감소", "holders": ["'10 박기혁", "'26 이유찬", "'26 류지혁", "'16 류지혁", "'19 류지혁", "'02 김재걸", "'05 김재걸", "'06 김재걸", "'05 손주인", "'11 손주인", "'12 손주인", "'04 지석훈", "'20 지석훈", "'18 김성현", "'22 김성현", "'10 권용관"]}];/*TRAIT_DATA_END*/
+/*TRAIT_DATA_BEGIN*/const TRAIT_DATA=[{"name": "만루 사나이", "desc": "주자 만루시 컨택/파워가 각각 +15/+18 상승", "holders": ["'17 이범호", "'95 심정수", "'03 심정수", "'04 심정수", "'05 심정수", "'06 심정수", "'26 최형우", "'11 최형우", "'12 최형우", "'13 최형우", "'14 최형우", "'17 최형우", "'24 최형우", "'96 이호준", "'97 이호준", "'07 이호준", "'10 이호준", "'26 나성범", "'20 나성범", "'24 나성범", "'02 김한수", "'05 김한수", "'06 김한수", "'86 한대화", "'87 한대화", "'88 한대화", "'89 한대화", "'91 한대화", "'93 한대화", "'94 한대화", "'91 홍현우", "'93 홍현우", "'96 홍현우", "'97 홍현우", "'98 이숭용", "'00 이숭용", "'03 이숭용", "'04 이숭용", "'21 박경수", "'99 송지만", "'04 송지만"]}, {"name": "대도", "desc": "주자로 1루에 출루시 일정 확률로 '도루'시도", "holders": ["'93 이종범", "'96 이종범", "'97 이종범", "'09 이종범", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'26 조수행", "'16 조수행", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'17 김주찬", "'10 김주찬", "'07 정근우", "'08 정근우", "'10 정근우", "피트 크로암스트롱", "오타니 쇼헤이", "'26 김도영", "'24 김도영", "엘리 데라크루즈", "'83 김일권", "'86 김일권", "'87 김일권", "'26 오재원", "'15 오재원", "'16 오재원", "'19 오재원", "'26 박민우", "'20 박민우", "'26 황성빈", "'26 신민재", "'23 신민재", "'25 신민재", "'24 고종욱", "'14 고종욱", "'09 신종길", "'17 신종길", "'11 배영섭", "'12 배영섭", "'13 배영섭", "'96 김종국", "'97 김종국", "'09 김종국", "'01 김원섭", "'09 김원섭"]}, {"name": "센터라인 지배자", "desc": "중견수 수비 시 호수비 발동 확률 상승", "holders": ["'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "피트 크로암스트롱", "'26 박해민", "'14 박해민", "'23 박해민", "'25 박해민", "'86 이순철", "'87 이순철", "'88 이순철", "'89 이순철", "'91 이순철", "'93 이순철", "'96 이순철", "'97 이순철", "'07 김강민", "'08 김강민", "'10 김강민", "'18 김강민", "'22 김강민", "'26 배정대", "'21 배정대", "'26 최지훈", "'22 최지훈", "'26 김호령", "'17 김호령", "'24 김호령", "마이클 해리스 2세", "'17 버나디나", "'20 알테어", "'11 이영욱", "'14 이영욱", "'11 정형식", "'12 정형식", "'13 정형식", "'14 정형식", "'10 임훈"]}, {"name": "대타 신화", "desc": "대타로 출장 시 컨택/파워가 +20%씩 상승하고 장타 확률 5%p 증가", "holders": ["'98 이재주", "'00 이재주", "'09 이재주", "'26 김인태", "'19 김인태", "'10 최동수", "'14 이성열", "'17 서동욱", "'14 서동욱", "'14 박헌도", "'18 정의윤", "'10 정보명", "'99 최익성", "'03 최익성", "'11 모상기", "'12 모상기", "'26 이우성", "'24 이우성", "'26 권희동", "'20 권희동"]}, {"name": "파이널보스", "desc": "경기 마지막 회에 등판 시 구위 +10, 제구+4", "holders": ["'05 오승환", "'06 오승환", "'11 오승환", "'12 오승환", "'13 오승환", "'09 유동훈", "'14 손승락", "메이슨 밀러", "아롤디스 채프먼", "'26 이영하", "'26 박영현", "'96 임창용", "'97 임창용", "'02 임창용", "'05 임창용", "'14 임창용", "'17 임창용", "'99 구대성", "'95 진필중", "'01 진필중", "'26 고우석", "'23 고우석", "'26 정해영", "'24 정해영", "'90 김용수", "'94 김용수", "'98 정명원", "'00 정명원", "'03 조용준", "'04 조용준", "'07 정대현", "'08 정대현", "'10 정대현", "'26 김재윤", "'21 김재윤"]}, {"name": "득점권의악마", "desc": "주자 득점권일 시 컨택+15", "holders": ["'26 김민석", "'02 양준혁", "'05 양준혁", "'06 양준혁", "'96 장성호", "'97 장성호", "'09 장성호", "'07 이진영", "'08 이진영", "'02 박한이", "'05 박한이", "'06 박한이", "'11 박한이", "'12 박한이", "'13 박한이", "'14 박한이", "'26 채은성", "'11 채태인", "'12 채태인", "'13 채태인", "'14 채태인", "'95 장원진", "'01 장원진", "'95 안경현", "'01 안경현", "'10 조성환", "'26 문상철", "'21 문상철"]}, {"name": "매덕스", "desc": "전체 투구 중 보더라인에 걸리는 스트라이크의 비율 25% 증가, 제구+5", "holders": ["'15 유희관", "'16 유희관", "'19 유희관", "'07 정우람", "'08 정우람", "'10 정우람", "'26 고영표", "'21 고영표", "'11 장원삼", "'12 장원삼", "'13 장원삼", "'14 장원삼", "'26 양현종", "'09 양현종", "'17 양현종", "'24 양현종", "'15 장원준", "'16 장원준", "'10 장원준", "'15 니퍼트", "'16 니퍼트", "'19 린드블럼", "'84 최동원", "'86 선동열", "'87 선동열", "'88 선동열", "'89 선동열", "'91 선동열", "'93 선동열", "'99 송진우", "'11 윤성환", "'12 윤성환", "'13 윤성환", "'14 윤성환", "'99 이상군", "'98 정민태", "'00 정민태", "'03 정민태", "'04 정민태", "'95 장호연", "'89 이강철", "'91 이강철", "'93 이강철", "'96 이강철", "'97 이강철", "'89 조계현", "'91 조계현", "'93 조계현", "'96 조계현", "'97 조계현", "'01 조계현", "'02 배영수", "'05 배영수", "'06 배영수", "'11 배영수", "'12 배영수", "'13 배영수", "'14 배영수", "'26 우규민", "'18 켈리", "'23 켈리"]}, {"name": "용규놀이", "desc": "2스트라이크 이후 커트 성공률 30% 증가", "holders": ["'09 이용규", "'07 정근우", "'08 정근우", "'10 정근우", "'26 손아섭", "'10 손아섭", "'26 김지찬", "'26 홍창기", "'23 홍창기", "'25 홍창기", "'26 문성주", "'23 문성주", "'25 문성주", "'17 이명기", "'20 이명기", "'85 장효조", "'92 장효조", "'15 민병헌", "'16 민병헌", "'10 정훈", "'23 안익훈", "'26 정은원", "'26 김민혁", "'21 김민혁", "'26 최정원", "'99 이영우"]}, {"name": "배드볼 히터", "desc": "볼 컨택 시 안타 확률 15% 증가", "holders": ["'26 레이예스", "'10 박종윤", "'26 안치홍", "'09 안치홍", "'17 안치홍", "'26 페라자", "'26 에레디아", "'24 소크라테스", "'26 강백호", "'21 강백호", "'21 호잉", "'21 알몬테", "'10 가르시아", "'26 김헌곤", "'12 김헌곤", "'14 김헌곤", "'26 황대인"]}, {"name": "거포", "desc": "항상 파워가 +7 추가 상승하며 홈런 시 5% 확률로 장외홈런", "holders": ["'10 이대호", "'16 김재환", "'26 한동희", "'01 김동주", "'18 김동엽", "'18 로맥", "'02 이승엽", "'12 이승엽", "'13 이승엽", "'14 이승엽", "'99 장종훈", "'14 박병호", "'26 최정", "'07 최정", "'08 최정", "'10 최정", "'18 최정", "'22 최정", "'26 김도영", "'24 김도영", "'14 강정호", "'02 마해영", "'98 박재홍", "'00 박재홍", "'07 박재홍", "'08 박재홍", "'10 박재홍", "요르단 알바레즈", "피트 크로암스트롱", "주니어 카미네로", "피트 알론소", "벤 라이스", "카일 슈와버", "스즈키 세이야", "'01 우즈", "'09 최희섭", "'09 김상현", "'99 로마이어", "애런 저지", "'26 노시환", "'09 나지완", "'17 나지완", "'26 한유섬", "'18 한유섬", "'22 한유섬", "'83 김봉연", "'86 김봉연", "'87 김봉연", "'88 김봉연", "'83 김성한", "'86 김성한", "'87 김성한", "'88 김성한", "'89 김성한", "'91 김성한", "'93 김성한", "'85 김성래", "'14 나바로", "'26 데이비슨", "'26 디아즈"]}, {"name": "200", "desc": "한 경기에서 타순이 돌아올 때마다 컨택률 소폭 상승", "holders": ["'14 서건창", "'19 페르난데스", "'26 최원준", "'26 레이예스", "'26 박건우", "'15 박건우", "'16 박건우", "'19 박건우", "'26 구자욱", "'09 이현곤", "'21 유한준", "'14 유한준"]}, {"name": "파이어볼러", "desc": "실점 위기에서 직구 최고구속+5km/h, 제구/구위 +7", "holders": ["'26 곽빈", "'26 안우진", "'07 김광현", "'08 김광현", "'10 김광현", "'18 김광현", "'22 김광현", "'14 조상우", "'26 아빌라", "캠 슐리틀러", "제이콥 미즈로우스키", "'15 니퍼트", "'16 니퍼트", "'86 선동열", "'87 선동열", "'88 선동열", "'89 선동열", "'91 선동열", "'93 선동열", "'84 최동원", "'10 엄정욱", "'26 문동주", "'26 김서현", "'09 한기주", "'26 정우주", "'26 김택연", "'26 한승혁", "'26 장현식", "'24 장현식", "'25 장현식", "'26 정철원", "조시 헤이더"]}, {"name": "기분파", "desc": "직전 이닝 본인이 수비성공 시 다음 타석 컨택/파워 +10", "holders": ["'26 안재석", "'05 박석민", "'11 박석민", "'12 박석민", "'13 박석민", "'14 박석민", "'20 박석민", "'01 홍성흔", "'15 홍성흔", "'16 홍성흔", "'10 홍성흔", "'26 허경민", "'15 허경민", "'16 허경민", "'19 허경민", "'21 황재균", "'10 황재균", "'03 이택근", "'04 이택근", "'14 이택근", "'07 나주환", "'08 나주환", "'10 나주환", "'18 나주환", "'23 김민성", "'14 김민성", "'16 이원석", "'26 강승호", "'18 강승호", "'26 오윤석", "'21 오윤석"]}, {"name": "내야 사령관", "desc": "유격수 출장 시 발동되며 수비 시 병살 확률 +7%, 타격 시 병살 확률 -7%", "holders": ["바비 위트 주니어", "엘리 데라크루즈", "'26 박찬호", "'24 박찬호", "'26 김상수", "'11 김상수", "'12 김상수", "'13 김상수", "'14 김상수", "'98 박진만", "'00 박진만", "'03 박진만", "'04 박진만", "'05 박진만", "'06 박진만", "'14 강정호", "'26 김선빈", "'09 김선빈", "'17 김선빈", "'24 김선빈", "'26 오지환", "'23 오지환", "'25 오지환", "'26 이재현", "'26 박성한", "'18 박성한", "'22 박성한", "'14 김하성", "'26 심우준", "'21 심우준", "'26 전민재", "'15 김재호", "'16 김재호", "'19 김재호", "'94 류지현", "'90 김재박", "'92 김민재", "'26 김주원", "'26 하주석", "'09 홍세완", "'26 노진혁", "'20 노진혁", "'10 문규현", "'26 김휘집", "'21 신본기"]}, {"name": "출루왕", "desc": "2스트라이크 이후 컨택시 안타확률 8% 증가, 컨택+12", "holders": ["'26 오스틴", "'23 오스틴", "'25 오스틴", "'26 김현수", "'15 김현수", "'23 김현수", "'25 김현수", "'22 추신수", "'26 문보경", "'23 문보경", "'25 문보경", "'15 최주환", "'16 최주환", "'19 최주환", "'22 최주환", "'03 정성훈", "'04 정성훈", "'07 박재상", "'08 박재상", "'10 박재상", "콘도 켄스케", "'13 김태완", "'14 김태완", "츠츠고 요시토모", "'01 강봉규", "'06 강봉규", "'11 강봉규", "'12 강봉규", "'13 강봉규", "'98 김경기"]}, {"name": "가을사나이", "desc": "역대 우승팀과 경기를 치르면 컨택/파워 1.4배 증가", "holders": ["'07 박정권", "'08 박정권", "'10 박정권", "'26 정수빈", "'15 정수빈", "'16 정수빈", "'19 정수빈", "'94 김재현", "'07 김재현", "'08 김재현", "'10 김재현", "'15 오재일", "'16 오재일", "'19 오재일", "'07 조동화", "'08 조동화", "'10 조동화", "'02 임재철", "'94 박종호", "'98 박종호", "'00 박종호", "'03 박종호", "'05 박종호", "'06 박종호", "'92 박정태", "'07 정상호", "'08 정상호", "'02 조동찬", "'05 조동찬", "'06 조동찬", "'11 조동찬", "'12 조동찬", "'13 조동찬", "'14 조동찬", "'94 서용빈", "'83 김종모", "'86 김종모", "'87 김종모", "'88 김종모", "'89 김종모", "'91 김종모"]}, {"name": "통솔력", "desc": "포수로 출장 시 선발투수의 체력 1.2배 증가", "holders": ["'98 박경완", "'00 박경완", "'07 박경완", "'08 박경완", "'10 박경완", "'26 양의지", "'15 양의지", "'16 양의지", "'20 양의지", "'26 강민호", "'10 강민호", "'85 이만수", "'02 진갑용", "'05 진갑용", "'06 진갑용", "'11 진갑용", "'12 진갑용", "'13 진갑용", "'14 진갑용", "'90 김동수", "'94 김동수", "'03 김동수", "'04 김동수", "'26 박동원", "'23 박동원", "'25 박동원", "'14 박동원", "'26 장성우", "'21 장성우", "'10 장성우", "'26 최재훈", "'15 최재훈", "'16 최재훈", "'86 장채근", "'87 장채근", "'88 장채근", "'89 장채근", "'91 장채근", "'93 장채근", "'26 유강남", "'26 이지영", "'12 이지영", "'13 이지영", "'14 이지영", "'16 박세혁", "'19 박세혁", "'26 김태군", "'20 김태군", "'24 김태군"]}, {"name": "대주자", "desc": "주자로 투입시 2루에서도 도루를 시도하며, 1루에서 도루 시 성공률 +20%", "holders": ["'05 강명구", "'06 강명구", "'11 강명구", "'13 강명구", "'92 전준호", "'98 전준호", "'00 전준호", "'03 전준호", "'04 전준호", "'95 정수근", "'01 정수근", "'98 정수성", "'04 정수성", "'17 유재신", "'26 김성윤", "'26 오태곤", "'22 오태곤", "'26 홍현빈", "'26 채현우", "'00 김일경", "'03 김일경", "'04 김일경", "'26 박정우", "'24 박정우", "'20 이상호", "'26 한석현"]}, {"name": "암울타", "desc": "타격 시 내야땅볼의 내야안타/실책 발생 확률 증가", "holders": ["'26 안상현", "'22 안상현", "'23 정주현", "'26 박계범", "'17 김주형", "'26 이도윤", "'26 이해승", "'22 최경모", "'13 정병곤", "'19 정병곤", "'26 홍종표", "'24 홍종표", "'26 류현인"]}, {"name": "커브깎는 노인", "desc": "커브 구종 보유시 꺾이는 각과 속도가 더욱 날카로워짐", "holders": ["'15 윤명준", "'16 윤명준", "'19 윤명준", "제이콥 미즈로우스키", "'99 정민철", "'07 김원형", "'08 김원형", "'93 이대진", "'96 이대진", "'97 이대진", "소니 그레이", "'85 김시진", "'26 구창모", "'20 구창모", "'26 임찬규", "'23 임찬규", "'25 임찬규", "'90 정삼흠", "'94 정삼흠", "'26 백정현", "'98 김수경", "'00 김수경", "'03 김수경", "'04 김수경", "'26 원태인", "'11 차우찬", "'13 차우찬", "'14 차우찬"]}, {"name": "지명수비", "desc": "대수비로 투입시 병살 확률 추가5% 상승(내야사령관과 합연산), 팀 실책확률 10% 감소", "holders": ["'10 박기혁", "'26 이유찬", "'26 류지혁", "'16 류지혁", "'19 류지혁", "'02 김재걸", "'05 김재걸", "'06 김재걸", "'05 손주인", "'11 손주인", "'12 손주인", "'04 지석훈", "'20 지석훈", "'18 김성현", "'22 김성현", "'10 권용관", "'11 신명철", "'12 신명철", "'13 신명철", "'09 박기남", "'10 최윤석", "'02 장성국", "'14 백상원"]}, {"name": "팔색조", "desc": "10%의 확률로 보유하지 않은 구종을 던짐", "holders": ["'82 박철순", "'95 박철순", "'09 윤석민", "'14 윤석민", "'26 노경은", "'22 노경은", "'26 류현진", "'08 송은범", "'10 송은범", "'07 채병용", "'08 채병용", "'17 헥터", "'14 밴헤켄"]}, {"name": "슬러브?", "desc": "더 예리하고 빠른 스위퍼/슬라이더를 던지게 됩니다.", "holders": ["'26 네일", "'24 네일", "'26 올러", "'26 보스", "'26 최민석", "'26 고영표", "'21 고영표", "'26 잭로그", "크리스 세일", "딜런 시즈", "'14 한현희", "'26 원종현", "'20 원종현", "'26 오원석", "'22 오원석"]}];/*TRAIT_DATA_END*/
 const TRAIT_BY_PLAYER=(()=>{const m={};TRAIT_DATA.forEach(t=>t.holders.forEach(h=>{(m[h]=m[h]||[]).includes(t.name)||m[h].push(t.name)}));return m})();
 const TDESC=n=>(TRAIT_DATA.find(t=>t.name===n)||{}).desc||'';
 const isLoaded=()=>!!(G&&G.bases[0]&&G.bases[1]&&G.bases[2]);
 const TRAIT_ENGINE={
-  '만루 사나이':{sym:'grand',act:b=>isLoaded(),c:()=>5,p:()=>8},
+  '만루 사나이':{sym:'grand',act:b=>isLoaded(),c:()=>15,p:()=>18},
   '대도':{sym:'thief',act:()=>false},                         // 1루 주자일 때 투구마다 25% 도루 시도, 성공 82%
-  '베중정':{sym:'cf',act:()=>false},                          // 중견수 수비 시 호수비 15% → 25%
+  '센터라인 지배자':{sym:'cf',act:()=>false},                          // 중견수 수비 시 호수비 15% → 25%
   '대타 신화':{sym:'pinch',act:b=>!!b.pinchPA,c:b=>Math.round(b.contact*0.2),p:b=>Math.round(b.power*0.2)}, // 대타 타석: 컨·파 +20%, 단타→2루타 5%
-  '파이널보스':{sym:'boss',role:'P',act:()=>!!(G&&G.inning>=G.innings),s:()=>10},
-  '득점권의악마':{sym:'devil',act:()=>!!(G&&(G.bases[1]||G.bases[2])),c:()=>5},
-  '매덕스':{sym:'maddux',role:'P',act:()=>false},                      // 스트라이크 중 보더라인 공 비율 +25%
+  '파이널보스':{sym:'boss',role:'P',act:()=>!!(G&&G.inning>=G.innings),s:()=>10,ctl:()=>4},
+  '득점권의악마':{sym:'devil',act:()=>!!(G&&(G.bases[1]||G.bases[2])),c:()=>15},
+  '매덕스':{sym:'maddux',role:'P',act:()=>false,always:true,ctl:()=>5},                      // 스트라이크 중 보더라인 공 비율 +25%
   '용규놀이':{sym:'cut',act:()=>!!(G&&G.strikes>=2)},          // 2스트라이크 뒤 헛스윙의 30%를 커트(파울)로
   '배드볼 히터':{sym:'badball',act:()=>false},                 // 볼 컨택 시 범타의 5%가 안타로
   '거포':{sym:'slug',act:()=>false,always:true,p:()=>7},       // 홈런의 5%는 장외홈런
@@ -3226,23 +3244,31 @@ const TRAIT_ENGINE={
   '파이어볼러':{sym:'fire',role:'P',act:()=>!!(G&&(G.bases[1]||G.bases[2])),s:()=>7,ctl:()=>7}, // 득점권 위기: 직구 +5km/h, 제구·구위 +7
   '기분파':{sym:'mood',act:b=>!!b.moodUp,c:()=>10,p:()=>10},     // 직전 수비 이닝 무실점 → 다음 타석 컨·파 +10
   '내야 사령관':{sym:'ss',act:b=>b.pos==='SS'},                  // 유격수 출장: 수비 병살 +7%p, 타격 병살 -7%p
-  '출루왕':{sym:'obp',act:()=>!!(G&&G.strikes>=2)},
+  '출루왕':{sym:'obp',act:()=>!!(G&&G.strikes>=2),c:()=>12},
   '가을사나이':{sym:'autumn',act:()=>!!(G&&oppChamp(batTeam())),c:b=>Math.round(b.contact*0.4),p:b=>Math.round(b.power*0.4)}, // 상대가 역대 우승팀: 컨·파 ×1.4
   '통솔력':{sym:'lead',act:b=>b.pos==='C'},
   '대주자':{sym:'pr',act:b=>!!b.pinchRun},                        // 대주자 투입: 2루에서도 도루, 1루 도루 성공률 +20%p
   '암울타':{sym:'weak',act:()=>false},                            // 땅볼 아웃의 12%가 내야안타
   '커브깎는 노인':{sym:'curve',role:'P',act:()=>false},           // 커브: 변화 폭 +25%(세로)/+15%(가로), 구속 +3km/h
-  '지명수비':{sym:'dfs',act:b=>!!b.defSub}};                      // 대수비 투입: 병살 +5%p, 팀 실책 -10%
+  '지명수비':{sym:'dfs',act:b=>!!b.defSub},
+  '팔색조':{sym:'eight',role:'P',act:()=>false},                  // 10%: 레퍼토리에 없는 구종
+  '슬러브?':{sym:'slurve',role:'P',act:()=>false}};               // 슬라이더·스위퍼: 변화 +20%, 구속 +3km/h                      // 대수비 투입: 병살 +5%p, 팀 실책 -10%
 const prOK=b=>!!(b&&b.pinchRun&&hasTrait(b,'대주자'));
 const dfsOn=t=>t.lineup.some(x=>x&&x.defSub&&hasTrait(x,'지명수비'));                                // 포수 출장: 선발투수 체력 ×1.2
 function oppChamp(t){try{return/우승팀/.test(CLUB_GROUP[S.club[1-t.key]]||'')}catch(e){return false}}
 function capBoost(p){if(!G)return false;const t=G.teams.find(x=>x.pitchLog&&x.pitchLog[0]===p);return!!(t&&t.lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'통솔력')))}             // 2스트라이크 뒤 안타의 8%가 한 베이스 더
 const FASTB=['포심','투심','싱커','커터','슈트'];
-let TR_OVR=LS.get('dny_trait',{})||{};
+let TR_OVR=LS.get('dny_trait',{})||{};for(const k in TR_OVR)if(TR_OVR[k]==='베중정')TR_OVR[k]='센터라인 지배자';
 const saveTr=()=>{LS.set('dny_trait',TR_OVR);cloudPush('trait',TR_OVR)};
 const tRole=t=>(TRAIT_ENGINE[t]&&TRAIT_ENGINE[t].role)||'B';
 const baseTraits=n=>TRAIT_BY_PLAYER[n]||[];
-function traitsOf(o){const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseTraits(n),c=TR_OVR[n];return c&&TRAIT_ENGINE[c]&&b.length<2&&!b.includes(c)?[...b,c]:b}
+function traitsOf(o){const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseTraits(n),c=TR_OVR[n];return c&&TRAIT_ENGINE[c]&&b.length<2&&!b.includes(c)&&!(o&&o.trOff===c)?[...b,c]:b}
+const TCAP={B:3,P:4};
+// 한 팀(타자·투수 명단)에서 같은 특성 보유 인원 제한. 고유 특성 보유자가 이미 한도 이상이면 직접 고른 특성 1명까지만 허용
+function capOK(list,t,self){const nb=list.filter(p=>baseTraits(p.name).includes(t)).length,nc=list.filter(p=>p!==self&&p.name!==(self&&self.name)&&TR_OVR[p.name]===t&&!baseTraits(p.name).includes(t)&&!p.trOff).length,cap=TCAP[tRole(t)];
+  return nb>=cap?nc===0:nb+nc<cap}
+function applyTraitCaps(t){const B=[...t.lineup,...t.bench],P=[t.pitcher,...t.bullpen].filter(Boolean);
+  [B,P].forEach(list=>{list.forEach(p=>p.trOff=null);list.forEach(p=>{const c=TR_OVR[p.name];if(c&&!baseTraits(p.name).includes(c)&&!capOK(list,c,p))p.trOff=c})})}
 const isCustomT=(n,t)=>TR_OVR[n]===t&&!baseTraits(n).includes(t);
 const hasTrait=(o,t)=>traitsOf(o).includes(t);
 const tOn=(o,t)=>{const e=TRAIT_ENGINE[t];if(!e)return false;return e.always||(e.act?e.act(o):false)};
@@ -3310,6 +3336,9 @@ const HEX_SYM={
     <path d="M24 72 Q30 60 40 64" stroke="#b8321f" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M36 58 L42 64 L34 68" stroke="#b8321f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   dfs:`<path d="M30 30 Q30 20 40 20 L64 20 Q74 20 74 32 L74 58 Q74 80 50 88 Q28 80 26 58 Z" fill="${INK}"/>
     <path d="M40 46 Q40 36 50 36 Q60 36 60 46 L60 58 Q50 66 40 58 Z" fill="#e9cf7a"/><path d="M44 40 V54 M50 38 V56 M56 40 V54" stroke="${INK}" stroke-width="2"/>`,
+  eight:`<circle cx="50" cy="56" r="24" fill="none" stroke="${INK}" stroke-width="3"/>${[0,1,2,3,4,5,6,7].map(i=>{const a=i*Math.PI/4;return`<circle cx="${(50+24*Math.cos(a)).toFixed(1)}" cy="${(56+24*Math.sin(a)).toFixed(1)}" r="6.5" fill="${['#b8321f','#e08a1e','#e9cf7a','#3f8f4a','#2c6fb3','#5b3fa0','#ffffff','#3d2a10'][i]}" stroke="${INK}" stroke-width="2"/>`}).join('')}<circle cx="50" cy="56" r="9" fill="#fff8e4" stroke="${INK}" stroke-width="2.5"/>`,
+  slurve:`<path d="M20 34 C50 30 70 40 74 74" stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M20 46 C44 44 60 52 64 76" stroke="${INK}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+    <circle cx="74" cy="76" r="10" fill="#fff8e4" stroke="${INK}" stroke-width="3"/><path d="M16 26 L28 22 M14 36 L26 34" stroke="#b8321f" stroke-width="4" stroke-linecap="round"/>`,
   '200':`<text x="50" y="66" text-anchor="middle" font-size="31" font-weight="900" font-family="Arial Black,Arial,sans-serif" fill="${INK}" letter-spacing="-1">200</text>
     <path d="M28 76 H72" stroke="#b8321f" stroke-width="4" stroke-linecap="round"/><path d="M30 36 L36 42 L44 32 M56 36 L62 42 L70 32" stroke="${INK}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
   _:`<circle cx="50" cy="56" r="20" fill="none" stroke="${INK}" stroke-width="5"/><text x="50" y="64" text-anchor="middle" font-size="24" font-weight="900" font-family="Arial,sans-serif" fill="${INK}">?</text>`};
@@ -3377,7 +3406,7 @@ function tacticModal(){if(!G||G.halt)return;
   const ft=fieldTeam(),bt=batTeam(),p=ft.pitcher;
   modal(`<h3>작전 타임</h3>
    <div class="jrow"><span>수비 · ${esc(ft.name)}</span><span class="n">${esc(p.name)} ${p.pc}구 · 체력 ${Math.round(clamp(1-p.pc/pLimit(p),0,1)*100)}%</span></div>
-   <div class="row"><button class="btn red" id="tP" ${ft.bullpen.length?'':'disabled'}>투수 교체 (${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length?'':'disabled'}>대수비 (${ft.bench.length})</button></div>
+   <div class="row"><button class="btn red" id="tP" ${ft.bullpen.length?'':'disabled'}>투수 교체 (${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length?'':'disabled'}>대수비 (${ft.bench.length})</button><button class="btn" id="tF">수비 위치</button></div>
    <div class="jrow"><span>공격 · ${esc(bt.name)}</span><span class="n">${bt.idx+1}번 ${esc(curBatter().name)}</span></div>
    <div class="row"><button class="btn" id="tH" ${bt.bench.length?'':'disabled'}>대타 기용 (${bt.bench.length})</button><button class="btn" id="tR" ${bt.bench.length&&G.bases.some(Boolean)?'':'disabled'}>대주자</button><button class="btn gold" id="tB" ${canBunt()?'':'disabled'}>희생번트</button><button class="btn gold" id="tS" ${canSqueeze()?'':'disabled'}>스퀴즈</button></div>
    <p class="note">희생번트는 주자 1루·2루·1,2루(3루 비었을 때, 2아웃 전)에서만 가능해요. 다음 투구에 자동으로 번트를 대요: 성공 55% · 번트 파울 39% · 병살 3% · 선행주자 아웃 3%.<br>스퀴즈는 3루에 주자가 있고 2아웃 전일 때 가능해요: 성공(득점, 타자 아웃) 58% · 번트 파울 22% · 헛스윙(3루 주자 협살 아웃) 8% · 홈 승부 아웃(타자는 1루) 7% · 올 세이프 5%.<br>대주자는 주자 대신 들어가 그 타순·포지션을 이어받고, 대수비는 고른 수비수의 타순·포지션에 들어가요. 교체되어 나간 선수는 이번 경기에 다시 나올 수 없어요. 볼카운트는 유지돼요.</p>
@@ -3398,6 +3427,10 @@ function tacticModal(){if(!G||G.halt)return;
        modal(`<h3>대수비 — ${esc(posK(old.pos))}</h3><p class="note">${esc(old.name)} 대신</p>${benchList(ft)}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e3=>{
          e3.querySelector('#cl').onclick=closeModal;
          e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>{const q=ft.bench[+x.dataset.j];if(!swapIn(ft,old,q,'defSub'))return;ft.bench.splice(+x.dataset.j,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);closeModal();updateHUD();showBanner('대수비','strike',q.name)})})})});
+   el.querySelector('#tF').onclick=()=>{const POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
+     const draw=()=>modal(`<h3>수비 위치 — ${esc(ft.name)}</h3><p class="note">포지션을 바꾸면 그 자리에 있던 선수와 서로 맞바꿔요. 타순은 그대로예요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it"><span>${i+1}번 ${esc(q.name)} ${tIcons(q)}</span><select data-i="${i}" aria-label="${esc(q.name)} 포지션" style="font:inherit;padding:4px 6px;border-radius:8px">${POS.map(p=>`<option value="${p}" ${q.pos===p?'selected':''}>${POSK[p]}</option>`).join('')}</select></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">완료</button></div>`,e2=>{
+       e2.querySelector('#cl').onclick=()=>{closeModal();updateHUD()};
+       e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{const q=ft.lineup[+sel.dataset.i],np=sel.value,o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;draw()})});draw()};
    el.querySelector('#tS').onclick=()=>{if(!canSqueeze())return;st.buntNext='squeeze';closeModal();log(`${curBatter().name}: 스퀴즈 번트 작전`);showBanner('스퀴즈 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tB').onclick=()=>{if(!canBunt())return;st.buntNext=true;closeModal();log(`${curBatter().name}: 희생번트 작전`);showBanner('희생번트 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tP').onclick=()=>modal(`<h3>투수 교체 — ${esc(ft.name)}</h3><div class="list">${ft.bullpen.map((q,j)=>`<div class="it click" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${q.hand==='L'?'좌':'우'}</small></span><span class="r">${q.arsenal?q.arsenal.map(a=>a.n).join('/'):q.velo+'km'}${q.era!=null?` · ERA ${q.era}`:''}<br>${q.role==='SP'?'선발':'구원'} · 제${q.control} 위${q.stuff}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
