@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>동네야구 3D — 밸런스 자동 점검</title>
+<style>body{font-family:system-ui,sans-serif;background:#10171f;color:#e6edf3;margin:0;padding:16px;max-width:640px;margin:auto}
+h1{font-size:20px}table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border-bottom:1px solid #2c3a48;padding:6px;text-align:right}td:first-child,th:first-child{text-align:left}
+.ok{color:#4caf7a}.warn{color:#e9c46a}.bad{color:#d9534f}button,select{font-size:15px;padding:8px 12px;border-radius:8px;border:1px solid #34465a;background:#233142;color:#fff}
+small{color:#93a8bb}iframe{display:none}</style></head><body>
+<h1>⚾ 밸런스 자동 점검</h1>
+<p><small>배포본(index.html)의 실제 판정 코드로 타구 수십만 개와 타석을 시뮬레이션해서 안타 구성·볼넷 비율을 리그 기준과 비교해요. 업데이트할 때마다 눌러 보세요.</small></p>
+<div><select id="grp"><option>2026 KBO</option><option>역대 우승팀 (1982~2025)</option><option>올스타</option></select>
+<select id="pk"></select> <button id="go">점검 실행</button></div>
+<div id="out"><p><small>불러오는 중…</small></p></div>
+<iframe id="g" src="../index.html"></iframe>
+<script>
+const REF={'1B%':[66,73],'2B%':[16,21],'3B%':[1,3],'HR%':[6.5,11],'BABIP':[0.30,0.36],'펜스 직격/장타':[15,35],'인정2루타/2B':[2,10],'볼넷(모두 지켜볼 때)':[6,11],'4연속 볼 볼넷':[0,1.2]};
+const f=document.getElementById('g');const E=x=>f.contentWindow.eval(x);
+f.onload=()=>setTimeout(()=>{const w=f.contentWindow;try{document.getElementById('pk').innerHTML=E('PARKS').map(p=>`<option value="${p.id}">${p.name}</option>`).join('');document.getElementById('out').innerHTML='<p><small>준비 완료</small></p>'}catch(e){document.getElementById('out').textContent='게임을 불러오지 못했어요: '+e}},1500);
+document.getElementById('go').onclick=()=>{const w=f.contentWindow,grp=document.getElementById('grp').value;w.setPark(document.getElementById('pk').value);
+  const K=Object.assign({},E('BAL'),{gcCF:0,gcLF:0,gcRF:0}),Bs=E('DB').filter(r=>!r.isP&&E('CLUB_GROUP')[r.team]===grp),Ps=E('DB').filter(r=>r.isP&&E('CLUB_GROUP')[r.team]===grp);
+  if(!Bs.length||!Ps.length){document.getElementById('out').textContent='선수가 없어요';return}
+  const c={},N=200000;let H=0,fe=0,grd=0;
+  for(let i=0;i<N;i++){const b=Bs[i%Bs.length],p=Ps[(i*7)%Ps.length];const h=w.bipJudge(Math.random(),(b.power||50)/100,(b.contact||60)/100,(p.stuff||65)/100,K,Math.random,E('BN'));c[h.res]=(c[h.res]||0)+1;if(h.res!=='OUT')H++;if(h.how==='FENCE')fe++;if(h.how==='GRD')grd++}
+  // 투구: 모든 공을 지켜볼 때 볼넷 비율 (연속 볼 지수 모델 포함)
+  let bb=0,b4=0;const PA=60000;for(let i=0;i<PA;i++){const p=Ps[i%Ps.length];let B=0,S=0,br=0,mx=0;while(B<4&&S<3){let s=Math.min(.9,Math.max(.2,E('BAL').strikeBase+(p.control||65)*E('BAL').strikeC+E('BAL').cntB*B+E('BAL').tkK*Math.max(0,0.9-E('BAL').tk0)));if(br>0)s=1-(1-s)*Math.exp(-E('BAL').ballL*br);if(Math.random()<s){S++;br=0}else{B++;br++;mx=Math.max(mx,br)}}if(B>=4){bb++;if(mx>=4)b4++}}
+  const X=(c['2B']||0)+(c['3B']||0),v={'1B%':c['1B']/H*100,'2B%':(c['2B']||0)/H*100,'3B%':(c['3B']||0)/H*100,'HR%':(c.HR||0)/H*100,'BABIP':H/N,'펜스 직격/장타':fe/X*100,'인정2루타/2B':grd/(c['2B']||1)*100,'볼넷(모두 지켜볼 때)':bb/PA*100,'4연속 볼 볼넷':b4/PA*100};
+  document.getElementById('out').innerHTML=`<table><tr><th>항목</th><th>결과</th><th>기준 범위</th></tr>${Object.keys(v).map(k=>{const [a,z]=REF[k],x=v[k],cl=x>=a&&x<=z?'ok':(x>=a*0.85&&x<=z*1.15?'warn':'bad');return`<tr><td>${k}</td><td class="${cl}">${k==='BABIP'?x.toFixed(3):x.toFixed(1)}</td><td><small>${a}~${z}</small></td></tr>`}).join('')}</table><p><small>타구 ${N.toLocaleString()}개 · 타석 ${PA.toLocaleString()}개 · ${grp} · 초록=범위 안, 노랑=근접, 빨강=벗어남</small></p>`};
+</script></body></html>
