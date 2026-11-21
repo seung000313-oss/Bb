@@ -2278,7 +2278,7 @@ function decideHand(b){let p=null;try{p=G&&!G.over?fieldTeam().pitcher:null}catc
   if(b.hand==='S')return p&&p.hand==='L'?'R':'L';return b.hand||(R()<.5?'R':'L')}
 function buildTeam(i){const r=S.rosters[i];
   const nm=S.names[i]||'AB'[i]+'팀';
-  return{name:nm,uni:uniOf(nm,i?'#e8483f':'#2f7df6'),key:i,color:i?'#e8483f':'#2f7df6',cap:i?'#6e1611':'#0f2f6b',
+  return{name:nm,club:S.club[i]||null,uni:uniOf(nm,i?'#e8483f':'#2f7df6'),key:i,color:i?'#e8483f':'#2f7df6',cap:i?'#6e1611':'#0f2f6b',
     lineup:r.lineup.slice(0,9).map(mkH),bench:r.bench.map(mkH),pitcher:mkP(r.pitchers[0]),bullpen:r.pitchers.slice(1).map(mkP),
     used:[],idx:0,ls:[],hits:0,joined:[],rolled:0}}
 function rollCount(){const r=R()*100;return r<60?0:r<87?1:r<97?2:3}
@@ -3523,7 +3523,7 @@ const MGT=[[0,0],[2,.01],[4,.02],[6,.03],[20,.10]];
 function mgN(b){if(!G||!b)return 0;const t=G.teams.find(x=>x.lineup.includes(b));if(!t)return 0;return Math.min(4,t.lineup.filter(x=>x&&traitsOf(x).includes('머갈툴순')).length)}                 // 포크·스플리터: 낙차 +35%, 구속 +2km/h               // 슬라이더·스위퍼: 변화 +20%, 구속 +3km/h                      // 대수비 투입: 병살 +5%p, 팀 실책 -10%
 const prOK=b=>!!(b&&b.pinchRun&&hasTrait(b,'대주자'));
 const dfsOn=t=>t.lineup.some(x=>x&&x.defSub&&hasTrait(x,'지명수비'));                                // 포수 출장: 선발투수 체력 ×1.2
-function oppChamp(t){try{return/우승팀/.test(CLUB_GROUP[S.club[1-t.key]]||'')}catch(e){return false}}
+function oppChamp(t){try{const o=G&&G.teams?G.teams.find(x=>x&&x.key!==t.key):null,c=(o&&(o.club||(CLUB_GROUP[o.name]?o.name:null)))||S.club[1-t.key];return/우승팀/.test(CLUB_GROUP[c]||'')}catch(e){return false}}
 function capBoost(p){if(!G)return false;const t=G.teams.find(x=>x.pitchLog&&x.pitchLog[0]===p);return!!(t&&t.lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'통솔력')))}             // 2스트라이크 뒤 안타의 8%가 한 베이스 더
 const FASTB=['포심','투심','싱커','커터','슈트'];
 let TR_OVR=LS.get('dny_trait',{})||{};for(const k in TR_OVR)if(TR_OVR[k]==='베중정')TR_OVR[k]='센터라인 지배자';
