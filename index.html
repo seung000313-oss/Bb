@@ -164,7 +164,7 @@ input,select,textarea{background:#0f151c;border:1px solid #34465a}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v4.0</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v4.1</small></div>
     <nav>
       <button data-m="pitches">구종</button>
       <button data-m="ars">편집</button>
@@ -2443,7 +2443,7 @@ const PARKS=[
   feat:'가장 넓은 외야(중앙 125m). 홈런이 잘 안 나와요.',th:{sky:'night',seats:['#3b4a6b','#33405c','#2a3550'],dots:'mix',fence:'#1f5b3c',pad:'#ffe066',pole:'#ffe066',board:'center',bg:['city']}},
  {id:'daegu',name:'대구삼성라이온즈파크',city:'대구',shape:'poly',unit:'m',knots:[[-45,99.5,3.2],[-12,125,3.2],[0,122.5,3.2],[12,125,3.2],[45,99.5,3.2]],labels:[-45,-27,-6,0,6,27,45],
   feat:'팔각형 외야: 좌우중간이 직선이라 107m로 짧아 홈런이 많이 나와요.',th:{sky:'dusk',seats:['#1e5fb4','#1a52a0','#15468a'],dots:'blue',fence:'#1b4f9c',pad:'#ffffff',pole:'#ffd23f',board:'left',bg:['hills','lion']}},
- {id:'fenway',name:'펜웨이 파크',city:'보스턴',shape:'poly',unit:'ft',knots:[[-45,310*FT,11.3],[-27,379*FT,11.3],[-17,383*FT,5.2],[-10,389*FT,5.2],[8,420*FT,5.2],[20,380*FT,1.6],[32,345*FT,1.6],[40,318*FT,1.1],[45,302*FT,1.0]],labels:[-45,-27,-10,8,20,45],
+ {id:'fenway',name:'펜웨이 파크',city:'보스턴',shape:'poly',unit:'ft',knots:[[-45,310*FT,11.3],[-27,379*FT,11.3],[-17,383*FT,5.2],[-10,389*FT,5.2],[8,420*FT,5.2],[18,392*FT,1.6],[28,380*FT,1.6],[36,372*FT,1.6],[40.5,352*FT,1.6],[43.2,325*FT,1.0],[45,302*FT,1.0]],labels:[-45,-27,-10,8,28,45],
   feat:'좌측 11.3m 그린 몬스터: 짧지만 높은 벽이라 라이너는 펜스 직격 2루타. 우측 302ft 페스키 폴은 짧고 낮아 휘어 감기는 홈런이 나와요.',
   th:{sky:'night',seats:['#7a1f28','#6a1b23','#5a161e'],dots:'mix',fence:'#1d4d33',pad:'#ffffff',pole:'#ffd23f',board:'monster',bg:['citgo','brick'],special:['monster','pesky']}},
  {id:'gwangju',name:'광주-기아 챔피언스필드',city:'광주',shape:'smooth',unit:'m',knots:[[-45,99,3],[-22.5,115,3],[0,121,3],[22.5,115,3],[45,99,3]],labels:[-45,-22.5,0,22.5,45],
@@ -2507,12 +2507,19 @@ function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h
 let DOTS=[],STANDS=[];
 const DOTPAL={mix:['#f5f5f5','#ff5a5a','#ffd23f','#4dabf7','#ff8fab','#e64980','#74c0fc','#ffffff','#ffa94d','#69db7c'],blue:['#4dabf7','#1c7ed6','#ffffff','#74c0fc','#e7f5ff'],
   red:['#e03131','#ff6b6b','#ffffff','#c92a2a','#ffd8a8'],orange:['#ff922b','#fd7e14','#ffffff','#212529','#ffd8a8']};
-function buildStands(){const th0=PARK?PARK.th:{seats:['#3e4d70','#34425f','#2b3653'],dots:'mix'};
-  const r=mulberry(7),pal=DOTPAL[th0.dots]||DOTPAL.mix,base=t=>Math.abs(t)<=45?Math.max(2.4,wallH(t)):2.4;DOTS=[];
-  for(let i=0;i<1100;i++){const th=-82+r()*164,s=r(),rr=bnd(th)+1.5+s*38;DOTS.push({w:[rr*Math.sin(th*D2R),base(th)+0.4+s*22.3,rr*Math.cos(th*D2R)],c:pal[Math.floor(r()*pal.length)]})}
+// v4.0.1: 관중석은 기존처럼 여러 색, 홈 팀 응원 구역(1루 쪽 외야)에만 홈 팀 색이 몰려 있게
+const SEAT0=['#3e4d70','#34425f','#2b3653'];
+const mixC=(a,b,t)=>{const p=x=>[1,3,5].map(k=>parseInt(x.slice(k,k+2),16)),A=p(a),B=p(b);return'#'+A.map((v,k)=>Math.round(v+(B[k]-v)*t).toString(16).padStart(2,'0')).join('')};
+const HOMEZ=th=>th>=15&&th<=66;
+function buildStands(){let u=null;try{u=(G&&G.home&&G.home.uni)||null}catch(e){}const ok=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);
+  const hc=u?[u.trim,u.cap,u.sleeve,u.jersey].filter(ok):[],hpal=hc.length?[...hc,...hc,'#ffffff']:null,main=hc[0]||null;
+  const r=mulberry(7),pal=DOTPAL.mix,base=t=>Math.abs(t)<=45?Math.max(2.4,wallH(t)):2.4;DOTS=[];
+  for(let i=0;i<1100;i++){const th=-82+r()*164,s=r(),rr=bnd(th)+1.5+s*38,home=hpal&&HOMEZ(th)&&r()<0.8;
+    DOTS.push({w:[rr*Math.sin(th*D2R),base(th)+0.4+s*22.3,rr*Math.cos(th*D2R)],c:home?hpal[Math.floor(r()*hpal.length)]:pal[Math.floor(r()*pal.length)]})}
   const o=[];for(let th=-84;th<84;th+=4){const t2=th+4;for(let j=2;j>=0;j--){
     const b0=base(th+2),y0=b0+j*7.5,y1=y0+7.5;const a=bnd(th)+1+j*13,b=bnd(t2)+1+j*13;
-    o.push({o:Math.abs(th+2),pts:[P(a,th,y0),P(b,t2,y0),P(b+13,t2,y1),P(a+13,th,y1)],c:th0.seats[j]})}}
+    const c=main&&HOMEZ(th+2)?mixC(SEAT0[j],main,0.45):SEAT0[j];
+    o.push({o:Math.abs(th+2),pts:[P(a,th,y0),P(b,t2,y0),P(b+13,t2,y1),P(a+13,th,y1)],c})}}
   STANDS=o.sort((x,y)=>x.o-y.o)}
 
 function skyFill(th){let g=ctx.createLinearGradient(0,0,0,H*0.62);
@@ -2862,7 +2869,7 @@ function startGame(){UID=0;try{localStorage.removeItem(LIVE_KEY)}catch(e){};cons
   G={teams:[tA,tB],away,home,inning:1,half:0,outs:0,balls:0,strikes:0,bases:[null,null,null],innings:S.innings,log:[],over:false,halt:true};
   [tA,tB].forEach(t=>{t.pitchLog=[t.pitcher];t.pitcher.entryLead=0;t.pitcher.blown=false;t.lineup.forEach(b=>b.appeared=true)});
   try{G.over=false;const b0=curBatter();b0.curHand=decideHand(b0)}catch(e){}
-  away.ls=[0];home.ls=[];G.paP=[];renderPList();bgKey='';showReveal();updateHUD()}
+  away.ls=[0];home.ls=[];G.paP=[];renderPList();buildStands();bgKey='';showReveal();updateHUD()}
 const ipTxt=o=>`${Math.floor(o/3)}${o%3?` ${o%3}/3`:''}`;
 const eraTxt=p=>p.st.outs?(p.st.er*27/p.st.outs).toFixed(2):(p.st.er?'∞':'-');
 function pitchTable(t){return`<div style="overflow-x:auto"><table class="pt"><tr><th class="l">투수</th><th>이닝</th><th>피<br>안타</th><th>피<br>홈런</th><th>삼진</th><th>사<br>사구</th><th>실점</th><th>자책</th><th>ERA</th><th>투구<br>수</th><th>결과</th></tr>
@@ -3166,7 +3173,7 @@ function modal(html,bind){$('#mdp').innerHTML=html;$('#modal').classList.add('on
 function closeModal(){$('#modal').classList.remove('on')}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 
-function showSetup(){G=null;st.mode='idle';st.camMode='pitch';st.ballAnim=null;bgKey='';updateHUD();
+function showSetup(){G=null;try{buildStands()}catch(e){}st.mode='idle';st.camMode='pitch';st.ballAnim=null;bgKey='';updateHUD();
   overlay(`<div class="title">동네야구 3D<small>RETRO BASEBALL DUEL</small></div>
   <h4>팀 설정</h4>
   <div class="row"><span class="lbl">A팀</span><input id="nA" list="clubs" value="${esc(S.names[0])}" maxlength="12" style="flex:2"><select id="cA">${clubOpts(0)}</select></div>
@@ -3377,7 +3384,7 @@ function traitModal(i,f){i=i||0;f=f||'B';
    <div class="status" id="tmsg"></div>
    ${list.map(row).join('')||'<p class="note">선수가 없어요</p>'}
    <div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{
-   el.querySelector('#tauto').onclick=()=>{const n=autoPickTeam(i,f);traitModal(i,f);const m=$('#tmsg');if(m)m.textContent=n?`추천 특성 ${n}명에게 배치했어요. 칸을 눌러 바꿀 수 있어요.`:'배치할 선수가 없어요 (모두 직접 고른 특성이 있거나 칸이 꽉 찼어요).'};
+   el.querySelector('#tauto').onclick=()=>{const n=autoPickTeam(i,f);traitModal(i,f);const m=$('#tmsg');if(m)m.textContent=n?`특성 ${n}개를 빈칸에 배치했어요(선발 → 스탯 좋은 후보 순). 칸을 눌러 바꿀 수 있어요.`:'채울 빈칸이 없어요 (칸이 꽉 찼거나 팀 한도에 걸렸어요).'};
    el.querySelector('#tclrA').onclick=()=>{list.forEach(d=>delete TR_OVR[d.name]);saveTr();if(G){G.teams.forEach(applyTraitCaps);updateHUD()}traitModal(i,f)};
    el.querySelector('#kseg').onclick=e=>{const b=e.target.closest('button');if(b&&b.dataset.k!=='trt')goK(b.dataset.k,i)};
    el.querySelector('#atab').onclick=e=>{const b=e.target.closest('button');if(b)traitModal(+b.dataset.v,f)};
@@ -3587,7 +3594,7 @@ let _liveT=0;
 function saveLive(){try{if(!G||G.over){localStorage.removeItem(LIVE_KEY);return}
   localStorage.setItem(LIVE_KEY,JSON.stringify({at:Date.now(),uid:UID,innings:S.innings,park:PARK&&PARK.id,g:graphEnc(G)}))}catch(e){}}
 function liveInfo(){try{const d=JSON.parse(localStorage.getItem(LIVE_KEY)||'null');if(!d)return null;const g=graphDec(d.g);if(!g||g.over)return null;return{d,g}}catch(e){return null}}
-function resumeLive(){const L=liveInfo();if(!L)return false;G=L.g;UID=Math.max(UID,L.d.uid||0);if(L.d.innings)S.innings=L.d.innings;if(L.d.park)setPark(L.d.park);
+function resumeLive(){const L=liveInfo();if(!L)return false;G=L.g;UID=Math.max(UID,L.d.uid||0);if(L.d.innings)S.innings=L.d.innings;if(L.d.park)setPark(L.d.park);else buildStands();
   st.mode='ready';st.camMode='pitch';st.ballAnim=null;st.hit=null;st.pitch=null;st.buntNext=false;G.halt=false;bgKey='';
   closeOverlay();closeModal&&closeModal();updateHUD();renderPList();if(typeof renderLog==='function')renderLog();
   showBanner('이어하기','ball',`${G.inning}회${G.half?'말':'초'} ${G.outs}아웃`);return true}
@@ -3694,13 +3701,19 @@ function capOK(list,t,self){const nb=list.filter(p=>baseTraits(p.name).includes(
 function applyTraitCaps(t){const B=[...t.lineup,...t.bench],P=[t.pitcher,...t.bullpen].filter(Boolean);
   [B,P].forEach(list=>{list.forEach(p=>p.trOffs=[]);list.forEach(p=>custT(p.name).forEach(c=>{if(!baseTraits(p.name).includes(c)&&(!capOK(list,c,p)||!pitchOK(p,c)||!restrictOK(p,c)))p.trOffs.push(c)}))})}
 const isCustomT=(n,t)=>custT(n).includes(t)&&!baseTraits(n).includes(t);
-// 특성 일괄배치: 직접 고른 특성이 없고 빈 칸이 있는 선수에게 추천 1순위 특성을 1개씩
+// 특성 일괄배치(v4.0.1): 빈칸이 없도록 모든 칸을 채움. 팀 한도·제한에 걸리면 우선순위:
+// 선발 출전 선수 > 스탯 좋은 후보 > 일반 후보 > 스탯 나쁜 후보 (투수: 현재/선발투수 > 구위+제구 순)
 function autoPickTeam(i,f){const roster=(f==='P'?livePitchers(i):liveBatters(i)).filter(Boolean),list=roster.filter((p,j,a)=>a.findIndex(q=>q.name===p.name)===j);
-  const lu=G?([G.away,G.home].find(t=>t.key===i)||G.teams[i]).lineup:S.rosters[i].lineup;let n=0;
-  const pool=TRAIT_DATA.map(t=>t.name).filter(t=>TRAIT_ENGINE[t]&&!NO_PICK.includes(t)&&tRole(t)===f);
-  for(const d of list){if(custT(d.name).length||traitsOf(d).length>=MAXT)continue;const have=traitsOf(d);
-    const t=recTraits(d,f,pool.filter(t=>!have.includes(t)&&capOK(roster,t,d)&&pitchOK(d,t)&&restrictOK(d,t)),{bench:f==='B'&&!lu.some(x=>x&&x.name===d.name),closer:f==='P'&&d.cl})[0];
-    if(t){TR_OVR[d.name]=[t];n++}}
+  const tm=G?([G.away,G.home].find(t=>t.key===i)||G.teams[i]):null,lu=tm?tm.lineup:S.rosters[i].lineup;
+  const starter=d=>f==='B'?lu.some(x=>x&&x.name===d.name):(tm?tm.pitcher&&tm.pitcher.name===d.name:d.role==='SP'),stat=d=>f==='B'?(+d.contact||0)+(+d.power||0):(+d.stuff||0)+(+d.control||0);
+  const order=list.slice().sort((a,b)=>(starter(b)-starter(a))||(stat(b)-stat(a)));
+  const pool=TRAIT_DATA.map(t=>t.name).filter(t=>TRAIT_ENGINE[t]&&!NO_PICK.includes(t)&&tRole(t)===f);let n=0;
+  for(const d of order){let guard=0;
+    while(traitsOf(d).length<MAXT&&guard++<MAXT){const have=traitsOf(d),bench=f==='B'&&!lu.some(x=>x&&x.name===d.name);
+      const ok=pool.filter(t=>!have.includes(t)&&capOK(roster,t,d)&&pitchOK(d,t)&&restrictOK(d,t));if(!ok.length)break;
+      const o={bench,closer:f==='P'&&d.cl},sc=t=>recScore(d,t,o);ok.sort((a,b)=>sc(b)-sc(a));   // 추천 점수 높은 것부터, 추천이 없으면 남은 것 중에서
+      const t=ok[0],a=custT(d.name).slice();a.push(t);TR_OVR[d.name]=a;n++;
+      if(!traitsOf(d).includes(t)){a.pop();if(a.length)TR_OVR[d.name]=a;else delete TR_OVR[d.name];break}}}
   saveTr();if(G){G.teams.forEach(applyTraitCaps);updateHUD()}return n}
 const hasTrait=(o,t)=>traitsOf(o).includes(t);
 const tOn=(o,t)=>{const e=TRAIT_ENGINE[t];if(!e)return false;return e.always||(e.act?e.act(o):false)};
