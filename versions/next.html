@@ -127,7 +127,6 @@ textarea{width:100%;height:140px;font-size:12px}
 .panel .playbar{position:sticky;bottom:-14px;margin:10px -14px -14px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:inherit;background-color:rgba(12,30,34,.96);z-index:2}
 nav .more{position:relative}#moreMenu{position:absolute;right:6px;top:44px;z-index:40;display:none;flex-direction:column;gap:4px;background:#1a2531;border:1px solid #34465a;border-radius:8px;padding:6px;box-shadow:0 8px 20px rgba(0,0,0,.5)}#moreMenu.on{display:flex}#moreMenu button{font-family:'Black Han Sans';font-size:15px;color:#e6edf3;background:#233142;border:1px solid #34465a;border-radius:6px;padding:9px 16px;text-align:left}
 nav button{min-height:34px;min-width:36px;padding:4px 7px!important;font-size:12px!important}nav{overflow:visible!important;flex-shrink:0}.top{gap:4px}.logo{font-size:19px!important;min-width:0;overflow:hidden}.logo .ver{font-size:8px!important;margin-left:2px!important}nav button[data-m=line0],nav button[data-m=line1]{max-width:58px;overflow:hidden;text-overflow:ellipsis}
-.mcpix{display:none}
 </style>
 <style id="thV4">
 /* ===== v4.0 테마: 차분한 야구장 스코어북 톤 (네온·형광 그라데이션 제거, 폰트 유지) ===== */
@@ -226,9 +225,6 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 .panel .seg button{color:#e0e0e0!important}
 .tslot{background:#555!important;border:2px solid #000!important;border-radius:0!important;color:#ffff55!important}
 .big{color:#ffff55!important}
-/* 도트 글씨: 타이틀·판정 콜·GAME SET */
-.mcpix{display:block!important}.mcorig{display:none!important}
-.logo .mcpix{display:inline-block!important;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -2324,22 +2320,8 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 function mulberry(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const norm=s=>String(s||'').replace(/[\s·.\-_]/g,'').toLowerCase();
 let THEME='v4';
-/* 마인크래프트 로고풍 도트 글씨: 작은 캔버스에 글자를 그려 픽셀화한 뒤 확대 + 계단식 그림자 */
-function mcPixCanvas(txt,col,h,scale){h=h||12;scale=scale||4;const fam='"Black Han Sans","Do Hyeon",sans-serif',m=document.createElement('canvas').getContext('2d');m.font=h+'px '+fam;
-  const w=Math.max(4,Math.ceil(m.measureText(txt).width)+2),H=h+4,c=document.createElement('canvas');c.width=w;c.height=H;const x=c.getContext('2d');x.font=h+'px '+fam;x.textBaseline='top';x.fillStyle='#fff';x.fillText(txt,1,1);
-  const d=x.getImageData(0,0,w,H).data,on=(i,j)=>i>=0&&j>=0&&i<w&&j<H&&d[(j*w+i)*4+3]>120;
-  const o=document.createElement('canvas'),S=scale,sh=2;o.width=(w+sh)*S;o.height=(H+sh)*S;const y=o.getContext('2d');
-  const rgb=String(col).match(/\d+/g)||[255,255,85],lt=a=>`rgb(${rgb.slice(0,3).map(v=>Math.min(255,Math.round(+v*a))).join(',')})`;
-  for(let j=0;j<H;j++)for(let i=0;i<w;i++)if(on(i,j)){y.fillStyle='#1a1a1a';y.fillRect((i+sh)*S,(j+sh)*S,S,S);y.fillStyle='#3f3f3f';y.fillRect((i+1)*S,(j+1)*S,S,S)}
-  for(let j=0;j<H;j++){const a=1.12-0.45*j/H;for(let i=0;i<w;i++)if(on(i,j)){y.fillStyle=(!on(i,j-1))?lt(1.25):lt(a);y.fillRect(i*S,j*S,S,S)}}
-  o.className='mcpix';o.style.imageRendering='pixelated';o.style.maxWidth='100%';o.style.margin='0 auto';o.setAttribute('aria-hidden','true');return o}
-function mcPixEl(el,h,scale){if(!el||THEME!=='mc')return;let orig=el.querySelector(':scope>.mcorig');
-  if(!orig){const tn=[...el.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!tn)return;orig=document.createElement('span');orig.className='mcorig';orig.textContent=tn.textContent;el.replaceChild(orig,tn)}
-  const txt=orig.textContent.trim();if(el.dataset.pix===txt)return;el.querySelectorAll(':scope>.mcpix').forEach(c=>c.remove());
-  orig.style.display='inline';const col=getComputedStyle(el).color;orig.style.display='';el.insertBefore(mcPixCanvas(txt,col,h,scale),orig);el.dataset.pix=txt}
-function mcPixify(){if(THEME!=='mc')return;try{mcPixEl(document.querySelector('.logo'),10,2);document.querySelectorAll('.ov .title,.ov .big').forEach(e=>mcPixEl(e,e.classList.contains('big')?13:12,e.classList.contains('big')?5:4))}catch(e){}}
-let _pixQ=0;new MutationObserver(()=>{if(THEME!=='mc'||_pixQ)return;_pixQ=requestAnimationFrame(()=>{_pixQ=0;mcPixify()})}).observe(document.documentElement,{childList:true,subtree:true});
-function setTheme(t){THEME=['classic','v4','mc'].includes(t)?t:'v4';try{document.getElementById('thV4').media=THEME==='classic'?'not all':'all';document.getElementById('thMC').media=THEME==='mc'?'all':'not all'}catch(e){}try{if(THEME==='mc')setTimeout(mcPixify,0)}catch(e){}try{localStorage.setItem('dny_theme',JSON.stringify(THEME))}catch(e){}}
+
+function setTheme(t){THEME=['classic','v4','mc'].includes(t)?t:'v4';try{document.getElementById('thV4').media=THEME==='classic'?'not all':'all';document.getElementById('thMC').media=THEME==='mc'?'all':'not all'}catch(e){}try{localStorage.setItem('dny_theme',JSON.stringify(THEME))}catch(e){}}
 try{setTheme(JSON.parse(localStorage.getItem('dny_theme')||'"v4"'))}catch(e){setTheme('v4')}
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let UID=0,NOW=0;
@@ -3279,8 +3261,7 @@ function updateHUD(){
    ${tHexes(b)}
    <div class="sub">${RT||!(b.season&&b.season.avg!=null)?`컨택 <b>${effC(b)}</b>${effC(b)>b.contact?`<small style="color:#ffd23f">+${effC(b)-b.contact}</small>`:''} 파워 <b>${effP(b)}</b>${effP(b)>b.power?`<small style="color:#ffd23f">+${effP(b)-b.power}</small>`:''}`:`시즌 ${String(b.season.avg.toFixed(3)).replace(/^0/,'')} ${b.season.hr}HR`}</div><div class="sub">오늘 ${b.st.ab}타수 ${b.st.h}안타${b.st.hr?` ${b.st.hr}HR`:''}</div>`;
   const sp=$('#spTag');if(b.special||p.special){sp.style.display='block';sp.textContent='★ 스페셜 '+[p.special?p.name:null,b.special?b.name:null].filter(Boolean).join(' vs ')}else sp.style.display='none'}
-function showBanner(t,cls,sub){const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;
-  if(THEME==='mc'){el.className=cls;const col=getComputedStyle(te).color;te.textContent='';const o=document.createElement('span');o.className='mcorig';o.textContent=t;te.appendChild(mcPixCanvas(t,col,13,cls==='hr'?6:5));te.appendChild(o)}el.querySelector('.s').textContent=sub||'';el.className='show '+cls}
+function showBanner(t,cls,sub){const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls}
 function showPinfo(){const p=st.pitch;if(!p)return;$('#pinfo').innerHTML=`${esc(p.name)}<br><b>${p.velo}</b> km/h`;$('#pinfo').style.opacity=1}
 
 /* ================= 오버레이/모달 ================= */
