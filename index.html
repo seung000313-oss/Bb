@@ -2885,11 +2885,13 @@ function pitcherPM(wp,u,pit){const kind=['over','side','under'].includes(pit&&pi
   pmShadow([wp[0],wp[1]+.01,wp[2]-.6],.55);
   drawPM(J,p=>[wp[0]+p[0]*PM_S,wp[1]+p[1]*PM_S,wp[2]-p[2]*PM_S],{glove:hand==='R'?'L':'R',U:pmUni(u)})}
 function batterPM(b,u){const side=b.curHand==='R'?-1:1,hand=b.curHand==='L'?'L':'R';let J;const st0=motJ('bat',-.8,hand);
-  if(st.swingAt>0&&NOW-st.swingAt<1.4){const t=-.15+(NOW-st.swingAt);J=t<=.4?motJ('bat',t,hand):lerpPJ(motJ('bat',.4,hand),st0,ease(clamp((t-.4)/.5,0,1)))}
-  else if(st.mode==='windup')J=motJ('bat',-.8+clamp(1-(st.until-NOW)/WIND,0,1)*.5,hand);
-  else if(st.mode==='flight'&&st.pitch)J=motJ('bat',-.3+clamp((NOW-st.fs)/st.pitch.D,0,1)*.15,hand);
+  // v4.3: 스윙은 지금 자세(_bt)에서 바로 이어지고, 버튼을 누른 순간(=판정 시점) 뒤 SW초 안에 컨택 자세에 닿도록 압축 → 판정과 화면의 컨택 타이밍 일치
+  const SW=0.07;
+  if(st.swingAt>0&&NOW-st.swingAt<1.4){const e=NOW-st.swingAt,t0=st._bt??-.3,t=e<SW?t0+(0-t0)*ease(e/SW):e-SW;J=t<=.4?motJ('bat',t,hand):lerpPJ(motJ('bat',.4,hand),st0,ease(clamp((t-.4)/.5,0,1)))}
+  else if(st.mode==='windup'){st._bt=-.8+clamp(1-(st.until-NOW)/WIND,0,1)*.5;J=motJ('bat',st._bt,hand)}
+  else if(st.mode==='flight'&&st.pitch){st._bt=-.3+clamp((NOW-st.fs)/st.pitch.D,0,1)*.15;J=motJ('bat',st._bt,hand)}
   else if(st.fs&&st.pitch&&(st.mode==='post'||st.mode==='inplay')&&NOW-st.fs<st.pitch.D+.7){const x=clamp((NOW-st.fs-st.pitch.D)/.6,0,1);J=lerpPJ(motJ('bat',-.15,hand),st0,ease(x))}
-  else J=st0;
+  else{J=st0;st._bt=-.8}
   const X=p=>side*0.95-(p+side*0.93)*PM_S;   // v4.0: 스탠스를 홈플레이트 쪽으로 0.15(신장 비) 당김
   pmShadow([side*0.95,.01,0.75],.5);
   drawPM(J,p=>[X(p[0]),p[1]*PM_S,0.75+p[2]*PM_S],{batter:true,hand,U:pmUni(u)})}
