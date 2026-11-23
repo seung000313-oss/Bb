@@ -34,6 +34,15 @@ table.ls{border-collapse:collapse;font-family:'Black Han Sans';font-size:12px;fl
 .bases{position:relative;width:40px;height:34px;flex:none}
 .bases i{position:absolute;width:11px;height:11px;transform:rotate(45deg);background:#28393c;border:1px solid #000}
 .bases i.on{background:var(--gold);box-shadow:0 0 7px var(--gold)}
+.bases i{cursor:pointer}.bases i:after{content:'';position:absolute;inset:-8px}.bases i.on.stl{background:#ff3030!important;box-shadow:0 0 9px #ff3030!important}
+@property --ra{syntax:'<angle>';initial-value:0deg;inherits:false}
+.rec{position:relative;isolation:isolate}.rec:before{content:'';position:absolute;inset:-2px;border-radius:12px;padding:2.5px;pointer-events:none;z-index:2;
+ background:conic-gradient(from var(--ra),transparent 0 52%,rgba(255,255,255,.2) 60%,#fff 70%,#a8e4ff 78%,#ffb3f0 86%,transparent 96%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:recspin 1.8s linear infinite;filter:drop-shadow(0 0 3px #fff)}
+.rec:after{content:'추천';position:absolute;top:-7px;right:8px;font:10px 'Black Han Sans',sans-serif;background:#fff;color:#123;padding:0 5px;border-radius:6px;z-index:3}
+@keyframes recspin{to{--ra:360deg}}
+.pbad{color:#ff4d4d!important;font-weight:700}
+#btnBunt{flex:0 0 52px;font-size:14px;padding:0;display:none}#btnBunt.show{display:block}#btnBunt.on{background:#ffd23f;color:#1a1a1a}
 .stage{position:relative;flex:1;min-height:0;overflow:hidden;border-top:2px solid #000;border-bottom:2px solid #000}
 canvas{display:block;width:100%;height:100%}
 .camlabel{position:absolute;left:8px;top:6px;font-family:'Black Han Sans';font-size:11px;color:#fff;background:rgba(0,0,0,.45);padding:2px 6px;border-radius:4px;letter-spacing:1px}
@@ -243,7 +252,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.0</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.1</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -282,7 +291,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
   <footer class="ctrl">
     <button class="btn gray" id="btnTactic">작전</button>
     <button class="btn" id="btnPitch">투구</button>
-    <button class="btn" id="btnSwing">SWING!</button>
+    <button class="btn" id="btnBunt">번트</button><button class="btn" id="btnSwing">SWING!</button>
   </footer>
 </div>
 <div class="ov" id="overlay"><div class="panel" id="ovp"></div></div>
@@ -2359,7 +2368,18 @@ const BAL={wallZ:30,wallP:0.9,grdZ:35,grdEv:135,grdP:0.5,lineTh:37,lineV:18,line
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
   ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:3.04e-05,qF:0.65,
   evB:105,evQ:45,evP:30,evS:12,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.6932,dragV:0.15,tK:0.78,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0,safe3:0.4145,rollK:0.9,cornerR:0.85,ifThr:19.5};
-const POSK={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수',DH:'지명타자'};
+const POSK={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수',DH:'지명타자',PH:'대타',PR:'대주자',IF:'내야',OF:'외야'};
+/* v5.1 후보 타자 본 포지션(기록 없는 선수: 이름 → 주/부 포지션, IF=내야 전반, OF=외야 전반, PH/PR=대타·대주자 전문) */
+const BPOS={"'26 손아섭":"LF","'26 한유섬":"RF","'26 박건우":"RF","'26 노진혁":"SS","'26 전준우":"CF","'26 김재현":"C","'82 박종호":"OF","'83 김준환":"LF","'83 송일섭":"LF","'83 조충열":"2B","'85 김동재":"2B","'86 송일섭":"LF","'86 조충열":"2B","'86 김준환":"LF","'86 장채근":"C","'86 이건열":"RF","'87 이순철":"CF","'87 김일권":"CF","'87 김준환":"LF","'87 이건열":"RF","'87 장채근":"C","'87 차영화":"SS","'87 조충열":"2B","'87 박철우":"LF","'88 백인수":"SS","'88 이건열":"RF","'88 차영화":"SS","'88 박철우":"IF","'88 조재환":"CF","'88 김무종":"C","'89 조충열":"2B","'89 이건열":"RF","'89 김종모":"RF","'89 윤재호":"SS","'89 박병호":"C","'90 심재원":"C","'90 최훈재":"1B","'91 백인수":"SS","'91 정회열":"C","'91 김종모":"RF","'92 장효조":"LF","'92 한문연":"IF","'93 장채근":"C","'93 윤재호":"SS","'93 박재벌":"LF","'93 박병호":"C","'94 최훈재":"OF","'95 정수근":"CF","'96 최해식":"C","'96 이호성":"LF","'96 이건열":"RF","'96 이호준":"1B","'97 장성호":"1B","'97 박재벌":"LF","'97 백인수":"SS","'97 이호준":"1B","'98 박종호":"2B","'00 이명수":"2B","'01 최훈재":"OF","'01 이도형":"C","'01 김원섭":"CF","'02 조동찬":"3B","'03 채종국":"2B","'04 이택근":"1B","'05 김대익":"LF","'05 박석민":"3B","'05 박정환":"2B","'05 조영훈":"OF","'06 조영훈":"1B","'06 박정환":"2B","'06 심정수":"RF","'07 박정권":"1B","'07 김재현":"IF","'07 이진영":"CF","'07 이재원":"IF","'07 김태균":"1B","'07 채종국":"2B","'08 이재원":"IF","'08 박정권":"1B","'08 정경배":"2B","'08 박정환":"2B","'09 김선빈":"2B","'09 김종국":"2B","'09 이용규":"CF","'10 이호준":"1B","'10 이재원":"C","'10 박정환":"2B","'11 채태인":"1B","'12 이지영":"C","'12 채태인":"1B","'12 신명철":"2B","'12 김헌곤":"LF","'13 진갑용":"C","'13 신명철":"2B","'14 김헌곤":"LF","'14 조동찬":"3B","'14 진갑용":"C","'15 최주환":"2B","'15 박건우":"RF","'15 김재환":"IF","'16 정수빈":"CF","'16 류지혁":"2B","'16 박세혁":"C","'16 최주환":"2B","'16 조수행":"LF","'16 홍성흔":"IF","'17 김호령":"CF","'17 한승택":"C","'17 최원준":"RF","'18 강승호":"1B","'18 김재현":"RF","'18 박성한":"SS","'19 류지혁":"2B","'19 오재원":"2B","'20 김성욱":"RF","'20 김태군":"C","'20 김형준":"C","'21 권동진":"SS","'21 김민혁":"LF","'21 허도환":"C","'22 김민식":"C","'22 최주환":"2B","'22 김강민":"CF","'22 전의산":"1B","'22 안상현":"3B","'23 김민성":"3B","'23 이재원":"OF","'23 허도환":"C","'23 서건창":"2B","'23 김기연":"C","'23 송찬의":"IF","'24 한준수":"C","'24 서건창":"2B","'24 박정우":"RF","'24 김호령":"CF","'24 박민":"SS","'25 천성호":"3B","'25 송찬의":"LF","'25 홍창기":"RF","'25 문정빈":"1B","'10 황재균":"3B","'10 장성우":"C","'10 박기혁":"SS","'14 박동원":"C","'94 류지현":"SS","'98 박경완":"C","'94 김재현":"RF","'93 전준호":"LF","'02 장성호":"1B","'01 정수근":"CF","'05 진갑용":"C","'08 홍성흔":"C","'08 김태균":"1B","'08 이택근":"OF","'08 진갑용":"C","'09 강민호":"C","'09 이범호":"3B","'09 이종욱":"CF","'09 이택근":"OF","'09 이진영":"CF","'26 장승현":"C","'26 이해승":"2B,SS,3B","'26 김영웅":"3B,SS","'26 김상준":"SS,2B","'26 박계범":"SS,2B,3B","'26 윤정빈":"RF,LF,1B","'26 김현준":"CF,RF","'26 홍현빈":"CF,LF","'26 강현우":"C","'26 문상철":"1B","'26 오윤석":"2B,1B,3B","'26 손민석":"SS,2B","'26 이강민":"SS","'26 주효상":"C","'26 정현창":"SS,2B","'26 변우혁":"1B,3B","'26 하주석":"SS,2B","'26 황대인":"1B","'26 김민규":"OF","'26 김민수":"C","'26 이주헌":"C","'26 손용준":"2B,SS","'26 이영빈":"SS,2B","'26 최원영":"CF,RF","'26 류현준":"C","'26 이유찬":"SS,2B,3B","'26 양석환":"1B,3B","'26 김대한":"RF,CF","'26 김인태":"RF,LF","'26 신범수":"C","'26 김민준":"IF","'26 김요셉":"IF","'26 문상준":"SS,2B","'26 안재연":"IF","'26 김정민":"OF","'26 유강남":"C","'26 김세민":"SS,2B","'26 박승욱":"SS,2B,3B","'26 박찬형":"3B,SS","'26 조세진":"RF,LF","'26 김동혁":"CF,LF","'26 신재인":"IF","'26 홍종표":"2B,SS","'26 한재환":"3B,1B","'26 블레인":"IF","'26 박시원":"RF,LF","'26 최재훈":"C","'26 장규현":"C","'26 이도윤":"SS,2B,3B","'26 정은원":"2B","'26 황영묵":"2B,SS","'26 권광민":"LF,RF,1B","'26 유로결":"CF,RF","'26 이원석":"CF,LF","'26 김시앙":"C","'26 박성빈":"C","'26 권혁빈":"IF","'26 김태진":"2B,3B,SS","'26 어준서":"SS","'26 염승원":"IF","'26 최재영":"IF","'82 이홍범":"OF","'82 김유동":"OF","'82 김경문":"C","'82 김광수":"2B","'82 정종현":"C","'82 구재서":"OF","'82 이근식":"OF","'82 김진홍":"IF","'82 박상열":"IF","'83 김일환":"IF","'83 임정면":"IF","'83 장진범":"IF","'83 조종규":"C","'83 박전섭":"C","'84 조성옥":"RF","'84 박용성":"OF","'84 박영태":"OF","'84 이광길":"OF","'84 김석일":"C","'84 김한조":"IF","'84 김성호":"IF","'84 이석규":"IF","'84 김성관":"OF","'84 김진근":"IF","'85 장태수":"CF","'85 이종두":"LF","'85 정진호":"IF","'85 홍승규":"OF","'85 송일수":"C","'85 정현발":"OF","'85 김근석":"IF","'85 오대석":"SS","'85 김한근":"IF","'86 김평호":"IF","'86 김일환":"IF","'86 장진범":"IF","'86 임정면":"IF","'86 김경호":"IF","'87 김일환":"IF","'87 장진범":"IF","'88 김성규":"OF","'88 김평호":"OF","'88 서창기":"IF","'88 선동열":"1B","'89 김평호":"OF","'89 문승훈":"IF","'89 김태완":"OF","'89 장호익":"C","'89 김성규":"OF","'90 나웅":"IF","'90 민경삼":"2B","'90 김영직":"IF","'90 신언호":"OF","'90 김선진":"IF","'90 유지홍":"IF","'90 김기홍":"IF","'90 조필현":"IF","'91 김성규":"OF","'91 김병두":"OF","'91 김태완":"OF","'91 박현수":"IF","'91 문승훈":"IF","'91 이경복":"OF","'91 양회열":"IF","'92 한영준":"OF","'92 김선일":"C","'92 김민재":"SS","'92 박영태":"2B","'92 최계영":"OF","'92 박상국":"IF","'92 고정식":"C","'92 김종헌":"OF","'93 김훈":"OF","'93 정성룡":"IF","'93 김병조":"IF","'93 이용석":"IF","'93 이경복":"OF","'93 오명종":"IF","'94 김영직":"OF","'94 김정민":"C","'94 윤찬":"OF","'94 허문회":"2B,3B","'94 김태민":"OF","'94 김선진":"IF","'94 서효인":"OF","'94 최규하":"IF","'94 조병일":"IF","'95 김태형":"C","'95 임형석":"IF","'95 박현영":"C","'95 윤기수":"IF","'95 추성건":"IF","'95 소상영":"IF","'95 강형석":"IF","'95 김종성":"IF","'95 김광현":"IF","'96 동봉철":"LF","'96 김병조":"OF","'96 이경복":"OF","'96 최철민":"IF","'96 김태룡":"IF","'96 양회열":"IF","'97 김태룡":"IF","'97 권오성":"C","'97 조현":"OF","'97 이경복":"OF","'97 조남기":"C","'97 김지영":"IF","'98 염경엽":"SS,2B","'98 장정석":"IF","'98 장광호":"C","'98 손차훈":"IF","'98 김인호":"IF","'98 이재주":"PH","'98 최만호":"OF","'98 권준헌":"3B","'98 정수성":"CF","'99 조경택":"C","'99 임주택":"OF","'99 황우구":"IF","'99 최익성":"CF,LF","'99 강인권":"C","'99 허준":"IF","'99 심재윤":"OF","'99 김승권":"OF","'99 심광호":"IF","'99 조효상":"OF","'00 이재주":"PH","'00 장교성":"IF","'00 카펜터":"OF","'00 장정석":"IF","'00 윌리엄스":"IF","'00 브링클리":"IF","'00 황윤성":"IF","'00 전근표":"IF","'00 김일경":"SS,2B","'01 전상렬":"CF","'01 이종민":"IF","'01 강봉규":"LF","'01 송원국":"2B","'01 문희성":"1B","'01 김호":"IF","'01 니일":"IF","'02 김종훈":"LF,RF","'02 임재철":"RF","'02 김재걸":"2B,SS,3B","'02 김승권":"IF","'02 현재윤":"C","'02 하춘동":"OF","'02 김승관":"1B","'02 장성국":"C","'02 이준민":"IF","'03 조재호":"OF","'03 김일경":"SS,2B","'03 강귀태":"C","'03 전근표":"IF","'03 강병식":"IF","'03 프랭클린":"OF","'03 최익성":"CF,LF","'03 김민우":"IF","'03 조승현":"IF","'04 정수성":"CF","'04 조재호":"OF","'04 강귀태":"C","'04 김일경":"SS,2B","'04 전근표":"OF","'04 서한규":"SS,2B","'04 김민우":"IF","'04 강병식":"3B,1B","'04 지석훈":"SS,2B,3B","'05 강명구":"PR,2B","'05 김재걸":"2B,SS,3B","'05 김종훈":"LF,RF","'05 이정식":"C","'05 김영복":"C","'05 손주인":"2B,SS","'06 김재걸":"2B,SS,3B","'06 김종훈":"LF,RF","'06 강명구":"PR,2B","'06 강봉규":"LF","'06 이정식":"C","'06 이태호":"OF","'06 김영복":"C","'07 조동화":"RF,CF","'07 정상호":"C","'07 김재구":"IF","'07 박연수":"OF","'08 조동화":"RF,CF","'08 모창민":"3B,1B","'08 정상호":"C","'08 권영진":"IF","'08 김연훈":"SS,2B","'08 김동건":"IF","'09 박기남":"3B,2B","'09 홍세완":"SS","'09 차일목":"C","'09 최용규":"OF","'09 이재주":"PH","'09 최경환":"OF","'09 신종길":"RF,CF","'10 조동화":"RF,CF","'10 임훈":"CF,RF","'10 김연훈":"SS,2B","'10 모창민":"3B,1B","'10 권용관":"SS,2B","'10 최동수":"PH,1B","'10 최윤석":"SS","'11 이영욱":"CF","'11 강명구":"PR,2B","'11 손주인":"2B,SS","'11 채상병":"C","'11 가코":"1B","'11 강봉규":"LF","'11 정형식":"CF,RF","'11 현재윤":"C","'11 모상기":"PH,1B","'12 강봉규":"LF","'12 손주인":"2B,SS","'12 이정식":"C","'12 우동균":"LF,RF","'12 김종호":"CF,LF","'12 모상기":"PH,1B","'13 정형식":"CF,RF","'13 김태완":"IF","'13 우동균":"OF","'13 강명구":"PR,2B","'13 정병곤":"SS,2B","'13 강봉규":"LF,1B","'13 이상훈":"OF","'13 정현":"IF","'14 이흥련":"C","'14 김태완":"2B,3B","'14 정형식":"CF,RF","'14 이영욱":"CF","'14 백상원":"2B,SS","'14 우동균":"LF,RF","'14 이상훈":"OF","'15 정진호":"CF,RF","'15 로메로":"3B,1B","'15 최재훈":"C","'15 장민석":"CF","'15 고영민":"2B","'15 유민상":"1B","'15 루츠":"3B","'16 국해성":"RF,LF","'16 정진호":"CF,RF","'16 최재훈":"C","'16 이원석":"3B,1B","'17 서동욱":"2B,1B,LF","'17 고장혁":"IF","'17 신종길":"RF,CF","'17 김주형":"3B,SS","'17 김지성":"IF","'17 유재신":"CF","'17 백용환":"C","'18 최항":"2B,1B","'18 정진기":"CF,RF","'18 이성우":"C","'18 정의윤":"LF,RF","'18 박승욱":"SS,2B","'18 최승준":"1B","'18 윤정우":"OF","'19 정진호":"CF,RF","'19 백동훈":"OF","'19 신성현":"3B,1B","'19 장승현":"C","'19 이흥련":"C","'19 김인태":"RF,LF","'19 국해성":"RF,LF","'19 정병곤":"SS,2B","'20 지석훈":"SS,2B,3B","'20 이상호":"2B,SS","'20 이원재":"IF","'20 모창민":"1B,3B","'20 김찬형":"SS,2B","'20 김준완":"CF,LF","'20 박준영":"SS,3B","'21 오윤석":"2B,1B","'21 신본기":"SS,2B,3B","'21 알몬테":"LF,RF","'21 김준태":"C","'21 문상철":"1B","'21 김태훈":"OF","'21 김병희":"IF","'22 최경모":"SS,2B","'22 하재훈":"RF,LF","'22 라가레스":"CF,LF","'22 오준혁":"LF,RF","'22 이흥련":"C","'23 정주현":"2B","'23 손호영":"3B,2B,SS","'23 안익훈":"CF","'23 김범석":"IF","'24 이창진":"LF,CF","'24 홍종표":"2B,SS","'24 변우혁":"1B,3B","'24 고종욱":"LF","'24 윤도현":"SS,2B","'25 최원영":"CF,RF","'25 이주헌":"C","'25 이영빈":"SS,2B","'25 박관우":"RF","'25 김주성":"SS","'25 함창건":"OF","'10 박종윤":"1B","'10 이우민":"CF,RF","'10 황동채":"OF","'10 정보명":"RF,LF","'10 정훈":"2B","'10 박준서":"2B,3B","'10 양종민":"SS","'14 이성열":"LF,RF","'14 로티노":"LF,C","'14 김하성":"SS","'14 박헌도":"LF,RF","'14 안태영":"OF","'14 서동욱":"2B,LF,1B","'14 김지수":"SS,2B","'14 임태준":"C","'14 고종욱":"LF,RF","'94 김기태":"1B","브라이스 하퍼":"1B,RF","피트 알론소":"1B","카일 슈와버":"LF","마이클 해리스 2세":"CF","벤 라이스":"1B,C","브라이스 투랑":"2B,SS","라파엘 데버스":"3B,1B","스즈키 세이야":"RF","바비 위트 주니어":"SS","오타니 쇼헤이":"DH","헌터 굿맨":"C","쿠리하라 료야":"3B,LF","쿠레바야시 코타로":"SS","니시카와 미시오":"CF,RF","키요미야 코타로":"1B,3B","마키하라 타이세이":"2B,CF","사토 토시야":"C","야나기타 유키":"LF,RF","만나미 츄세이":"RF,LF","야마구치 코키":"OF","마사키 토모야":"LF","츠츠고 요시토모":"LF,1B","'08 고영민":"2B","'08 김민재":"SS,3B","'09 고영민":"2B","'09 가타오카 야스유키":"2B,SS","'09 이나바 아쓰노리":"RF,1B","'09 아베 신노스케":"C","'09 가와사키 무네노리":"SS","'09 이시하라 요시유키":"C","'09 가메이 요시유키":"RF,LF","'08 이용규":"CF,LF"};
+const POS1={C:'포',"1B":'1',"2B":'2',"3B":'3',SS:'유',LF:'좌',CF:'중',RF:'우',DH:'지',PH:'타',PR:'주'};
+function natExp(v){const o=[];String(v||'').split(',').forEach(x=>{x=x.trim();if(x==='IF')o.push('1B','2B','3B','SS');else if(x==='OF')o.push('LF','CF','RF');else if(x)o.push(x)});return o}
+function natOf(name,rec,reg){let n=natExp(BPOS[name]);if(rec&&!n.includes(rec))n.unshift(rec);
+  if(!n.length){const r=String(reg||'');n=/포수/.test(r)?['C']:/내야/.test(r)?natExp('IF'):/외야/.test(r)?natExp('OF'):[]}return[...new Set(n)]}
+function natK(b){const n=b&&b.nat;if(!n||!n.length)return posK(b&&b.pos)||'';const f=n.filter(x=>x!=='DH');
+  if(f.length>=4&&['1B','2B','3B','SS'].every(x=>f.includes(x)))return'내야 전반';if(f.length===3&&['LF','CF','RF'].every(x=>f.includes(x)))return'외야 전반';
+  return n.length===1?posK(n[0]):posK(n[0])+'('+n.slice(1).map(x=>POS1[x]||x).join('·')+')'}
+// 수비 위치가 본 포지션이 아니면 페널티(지명타자·대타/대주자로 나와 아직 수비 전인 선수는 제외)
+function posBad(b){if(!b||!b.pos||b.pos==='DH'||b.offField)return false;const n=b.nat;return !!(n&&n.length&&!n.includes(b.pos))}
 const FIELD_POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
 function posCode(v){const s=String(v||'').trim().toUpperCase().replace(/\s/g,'');
   const m={'포수':'C','1루수':'1B','1루':'1B','2루수':'2B','2루':'2B','3루수':'3B','3루':'3B','유격수':'SS','유격':'SS','좌익수':'LF','좌익':'LF','중견수':'CF','중견':'CF','우익수':'RF','우익':'RF','지명타자':'DH','지명':'DH'};
@@ -2400,6 +2420,7 @@ const S={sp:['',''],names:['삼성','KIA'],club:[null,null],first:0,innings:3,ro
 function mkH(d){const sp=matchSpecial(d.name,'H');
   const b=sp?{name:d.name,pos:posCode(d.pos)||posCode(sp.pos)||'DH',hand:sp.hand,contact:+sp.contact||80,power:+sp.power||80,special:true,spKey:sp.name}
             :{name:d.name,pos:posCode(d.pos)||'DH',hand:/^[LR]$/.test(d.hand)?d.hand:'',contact:+d.contact||55,power:+d.power||50,special:false};
+  b.nat=d.nat&&d.nat.length?d.nat.slice():natOf(d.name,sp?posCode(sp.pos):posCode(d.pos),'');
   b.season=sp?null:{avg:d.avg,hr:d.hr};b.id=++UID;b.st={pa:0,ab:0,h:0,hr:0,rbi:0,bb:0,hbp:0,k:0,d2:0,d3:0,sf:0,sh:0};b.curHand=b.hand||(R()<.5?'R':'L');return b}
 function mkP(d){const sp=matchSpecial(d.name,'P');const s=sp||d;
   return{name:d.name,hand:s.hand==='L'?'L':'R',velo:+s.velo||145,control:+s.control||65,stuff:+s.stuff||65,stamina:+s.stamina||60,
@@ -2486,13 +2507,14 @@ function rosterFromRows(rows,hasGames){
   for(const pos of ORDER){const c=H.filter(r=>!used.has(r)&&r.pos===pos).sort(rank)[0];if(c){slot[pos]=c;used.add(c)}}
   for(const pos of ORDER){if(slot[pos])continue;const pool=H.filter(r=>!used.has(r));
     const c=pool.filter(r=>CLS[pos].test(r.regPos)).sort(rank)[0]||pool.sort(rank)[0];if(c){slot[pos]=c;used.add(c)}}
-  const hd=(r,pos)=>({name:r.name,pos,hand:r.hand||'',contact:r.contact,power:r.power,avg:r.avg,hr:r.hr,games:r.games});
+  const hd=(r,pos)=>({name:r.name,pos,hand:r.hand||'',contact:r.contact,power:r.power,avg:r.avg,hr:r.hr,games:r.games,nat:natOf(r.name,r.pos||(pos!=='DH'&&!r.pos?'':''),r.regPos)});
   let nine=ORDER.filter(p=>slot[p]).map(p=>hd(slot[p],p));
+  nine.forEach(h=>{if(h.pos!=='DH'&&h.nat.length&&!h.nat.includes(h.pos))h.nat.push(h.pos)});   // 기본 라인업 배치는 본 포지션으로 인정
   const base=genRoster(500+rows.length);let bi=0;
   while(nine.length<9){const miss=ORDER.find(p=>!nine.some(x=>x.pos===p))||'DH';nine.push(Object.assign({},base.lineup[bi++],{pos:miss}))}
   if(hasGames)nine=battingOrder(nine);
   else nine.sort((a,b)=>{const ia=H.findIndex(r=>r.name===a.name),ib=H.findIndex(r=>r.name===b.name);return(ia<0?999:ia)-(ib<0?999:ib)});
-  const bench=H.filter(r=>!used.has(r)).sort(rank).map(r=>hd(r,r.pos||''));
+  const bench=H.filter(r=>!used.has(r)).sort(rank).map(r=>{const h=hd(r,r.pos||'');if(!h.pos)h.pos=(h.nat.find(x=>FIELD_POS.includes(x))||'');return h});
   const pd=r=>({name:r.name,hand:r.hand||'R',arm:r.arm||'over',veloAvg:!!r.veloAvg,velo:r.velo,control:r.control,stuff:r.stuff,stamina:r.stamina,arsenal:r.arsenal,era:r.era,role:r.role,cl:!!r.cl,games:r.games});
   let SPs=Pi.filter(r=>r.role==='SP');
   let sp;if(hasGames){const pool=SPs.filter(r=>r.games>=10);sp=pick(pool.length?pool:SPs.length?SPs:Pi)}else sp=SPs[0]||Pi[0];
@@ -3022,7 +3044,7 @@ function startPitch(opts){opts=opts||{};st._ai=null;st._aiT=0;NET.dec=false;cons
   const rel=arm==='under'?[-0.8*sgn,0.55,17.0]:arm==='side'?[-1.0*sgn,1.2,17.1]:[-0.5*sgn,1.85,17.2];
   if(arm==='side'){bx-=0.16*sgn;by+=0.03}else if(arm==='under'){bx-=0.12*sgn;by+=0.16}
   st.pitch={name:ptp.n,velo,D:17.2/(velo/3.6)*SLOW,tx,ty,bx,by,k:ptp.k,rev:ptp.rev||0,rel,arm,
-    zone:Math.abs(tx)<=0.257&&ty>=0.413&&ty<=1.087,knuckle:ptp.n==='너클볼',hbp,wp:!hbp&&!!(G.bases[0]||G.bases[1]||G.bases[2])&&R()<BAL.pWP,steal:!hbp&&!st.buntNext&&G.outs<3?stealFrom():0};
+    zone:Math.abs(tx)<=0.257&&ty>=0.413&&ty<=1.087,knuckle:ptp.n==='너클볼',hbp,wp:!hbp&&!!(G.bases[0]||G.bases[1]||G.bases[2])&&R()<BAL.pWP,steal:!hbp&&!st.buntNext&&G.outs<3?stealPick():0};
   st.mode='windup';st.until=NOW+WIND;st.swung=false;st.whiff=false;st.ballAnim='pitch';st.camMode='pitch';
   $('#pinfo').style.opacity=0;updateHUD()}
 function pitchPos(p,t){const ax=p.tx-p.bx,ay=p.ty-p.by,tk=Math.pow(Math.max(t,0),p.k);
@@ -3179,7 +3201,7 @@ function advanceHit(n,me,exact){const B=G.bases,nb=[null,null,null],sc=[];let la
   if(n>=4)sc.push(me);else nb[n-1]=me;G.bases=nb;return sc}
 function applyHit(){const h=st.hit;if(h.how==='BUNT')return applyBunt(h);const bt=batTeam(),pit=fieldTeam().pitcher,b=curBatter(),B=G.bases,me={b,p:pit};b.st.pa++;let sc=[],txt,cls='out',sub='',rbi=true;
   if(h.res==='OUT'){const fp=fieldTeam().lineup.find(x=>x&&x.pos===h.fielder);if(fp)fp.defOk=true}
-  if(h.res==='OUT'&&!h.great&&R()<BAL.pE*(dfsOn(fieldTeam())?0.9:1)){b.st.ab++;G.eo=(G.eo||0)+1;const pos=POSK[h.fielder]||'야수';
+  if(h.res==='OUT'&&!h.great&&R()<BAL.pE*(dfsOn(fieldTeam())?0.9:1)+(posBad(fieldTeam().lineup.find(x=>x&&x.pos===h.fielder))?0.5:0)){b.st.ab++;G.eo=(G.eo||0)+1;const pos=POSK[h.fielder]||'야수';
     if(B[2]){sc.push(B[2]);}B[2]=B[1];B[1]=B[0];B[0]=Object.assign({},me,{ue:true});txt=pos+' 실책 출루';cls='hit';rbi=false}
   else if(h.res==='OUT'){b.st.ab++;
     if(h.how==='GO'){const ss=fieldTeam().lineup.find(x=>x.pos==='SS'),dpF=!!(ss&&hasTrait(ss,'내야 사령관')),dpB=hasTrait(b,'내야 사령관')&&b.pos==='SS';if(B[0]&&G.outs<2&&R()<.75+(dpF?.10:0)+(dfsOn(fieldTeam())?.05:0)-(dpB?.15:0)){if(dpF)h.trait='내야 사령관';G.outs+=2;pit.st.outs+=2;B[0]=null;rbi=false;if(G.outs<3){if(B[2]){sc.push(B[2]);B[2]=null}if(B[1]){B[2]=B[1];B[1]=null}}txt='병살타!'}
@@ -3233,12 +3255,14 @@ function endHalf(){const last=G.inning>=G.innings;
   if(G.half===1&&last)return endGame();
   G.bases=[null,null,null];G.outs=0;G.eo=0;G.balls=0;G.strikes=0;G.paP=[];renderPList();
   if(G.half===0){G.half=1;G.home.ls[G.inning-1]=0}else{G.half=0;G.inning++;G.away.ls[G.inning-1]=0}
+  fieldTeam().lineup.forEach(x=>{if(x)delete x.offField});G.stealReq=0;
   st.camMode='pitch';st.ballAnim=null;st.mode='idle';G.halt=true;bgKey='';updateHUD();showChange()}
 
 function update(){if(!G)return;
   if(NET.on&&!NET.host){if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}else if(st.mode==='flight'&&humanBat()&&!st.swung&&!NET.took&&(NOW-st.fs)/st.pitch.D>1.12){NET.took=true;netSend({t:'take'})}return}
   if(G.halt)return;
   if(anyOpen())return;
+  if(st.mode==='ready'&&!humanBat()&&st._stp!==G.paP.length+'|'+G.bases.map(Boolean)){st._stp=G.paP.length+'|'+G.bases.map(Boolean);if(!G.stealReq){const v=stealFrom();if(v){G.stealReq=v;G.stealAI=true}}}
   if(st.mode==='ready'&&aiPitch()){if(!st._aiT)st._aiT=NOW+0.9;else if(NOW>=st._aiT){st._aiT=0;startPitch()}}
   if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}
   else if(st.mode==='flight'){const t=(NOW-st.fs)/st.pitch.D;
@@ -3251,8 +3275,9 @@ function update(){if(!G)return;
 function setPitchCam(){lookAt([0,1.35,-2.6],[0,1.02,18.4],Math.min(W*1.3,H*1.05),0.47)}
 function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(pl){const o=(st.mode==='windup'||(st.mode==='flight'&&!st.swung))?'0.3':'1';if(pl.style.opacity!==o)pl.style.opacity=o}}ctx.setTransform(DPR,0,0,DPR,0,0);
   const fieldT=G?fieldTeam():{uni:uniOf('',' #e8483f'.trim())},batT=G?batTeam():{uni:uniOf('','#2f7df6')};
-  if(st.camMode==='pitch'){setPitchCam();const key=W+'x'+H+(G?tot(G.away)+'-'+tot(G.home):'');
-    if(bgKey!==key){bgKey=key;const o=ctx;ctx=bgctx;ctx.setTransform(DPR,0,0,DPR,0,0);drawScene();ctx=o}
+  const MC=moundCam();
+  if(st.camMode==='pitch'){if(MC)setMoundCam();else setPitchCam();const key=W+'x'+H+(G?tot(G.away)+'-'+tot(G.home):'')+(MC?'M':'');
+    if(bgKey!==key){bgKey=key;const o=ctx;ctx=bgctx;ctx.setTransform(DPR,0,0,DPR,0,0);drawScene();if(MC)backstop();ctx=o}
     ctx.drawImage(bg,0,0,W,H)}
   else{let tl=[0,0,52],tp=[0,32,-34];
     if(st.hit){const u=clamp((NOW-st.hitT0)/st.hit.T,0,1),b=hitPos(st.hit,u);tl=[b[0]*0.6,0,30+b[2]*0.55];tp=[b[0]*0.35,30+b[1]*0.25,-34+b[2]*0.35]}
@@ -3260,7 +3285,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     lookAt(st.cp.slice(),st.cl.slice(),Math.min(W*0.95,H*0.8),0.5);drawScene()}
   const objs=[];const isField=st.camMode==='field';const hu=st.hit?clamp((NOW-st.hitT0)/st.hit.T,0,1):0;
   const crouch=st.mode==='flight'?1:st.mode==='windup'?ease(clamp(1-(st.until-NOW)/WIND,0,1)):0;
-  for(const k in FP){if(k==='P'||(!isField&&k==='C'))continue;let p=FP[k],J=crouch>0?lerpJ(MO.READY,MO.CROUCH,crouch):MO.READY,fc=1;
+  for(const k in FP){if(k==='P'||(!isField&&!MC&&k==='C'))continue;let p=FP[k],J=crouch>0?lerpJ(MO.READY,MO.CROUCH,crouch):MO.READY,fc=1;
     if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land,tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
       // 반응 0.12 → 가속 → 등속, 잡는 타구는 공과 동시에 도착
       const a=clamp((hu-.12)/.88,0,1),e=h.res==='OUT'?a*a*(3-2*a)*.35+a*.65:clamp(a*1.2,0,1);const p0=p;p=[lerp(p0[0],tgt[0],e),0,lerp(p0[2],tgt[2],e)];
@@ -3273,6 +3298,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
   const pp=FP.P;objs.push({z:toC(pp)[2],d:()=>fig(pp,fieldT.uni,{pose:'pitch',pit:G?fieldTeam().pitcher:null})});
   if(G)G.bases.forEach((r,i)=>{if(r){const p=[BASES[i][0]+(i===0?0.8:i===2?-0.8:0.8),0,BASES[i][2]+(i===1?-0.8:0)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{pose:'stand'})})}});
   if(isField&&G){const b=curBatter(),side=b.curHand==='R'?-1:1;const p=[lerp(side*0.85,BASES[0][0],hu*0.9),0,lerp(0,BASES[0][2],hu*0.9)];objs.push({z:toC(p)[2],d:()=>fig(p,batT.uni,{sid:'RB',pose:'run',facing:1,ph:hu*27.4*0.9/0.9})})}
+  if(MC&&!isField&&G){const bb=curBatter();objs.push({z:toC([0,1,0])[2],d:()=>batter(bb,batT.uni)})}
   objs.sort((a,b)=>b.z-a.z).forEach(o=>o.d());
   if(!isField){
     const c=[[-0.22,0.45,0],[0.22,0.45,0],[0.22,1.05,0],[-0.22,1.05,0]];
@@ -3289,9 +3315,9 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
   if(st.ballAnim==='hit'&&st.hit&&isField){const u=clamp((NOW-st.hitT0)/st.hit.T,0,1);
     if(u<1)for(let i=6;i>=1;i--){const q=pt(hitPos(st.hit,u-i*0.012*(0.6/st.hit.T)));if(q){ctx.fillStyle=`rgba(255,255,255,${0.32*(1-i/7)})`;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(1.4,0.037*q.k*3.2*(1-i/9)),0,7);ctx.fill()}}
     ball(hitPos(st.hit,u),3.2,u<1?NOW*22:0)}
-  if(!isField&&G)batter(curBatter(),batT.uni);
-  $('#camlabel').textContent=isField?'FIELD CAM':'PITCH CAM'}
-let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons();netTick()}catch(e){console.error(e)}requestAnimationFrame(frame)}
+  if(!isField&&G&&!MC)batter(curBatter(),batT.uni);
+  $('#camlabel').textContent=isField?'FIELD CAM':MC?'MOUND CAM':'PITCH CAM'}
+let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons();syncBunt();netTick()}catch(e){console.error(e)}requestAnimationFrame(frame)}
 function resize(){const r=cv.getBoundingClientRect();W=Math.max(200,r.width);H=Math.max(200,r.height);DPR=Math.min(2,window.devicePixelRatio||1);
   cv.width=W*DPR;cv.height=H*DPR;bg.width=W*DPR;bg.height=H*DPR;bgKey=''}
 
@@ -3306,7 +3332,7 @@ function updateHUD(){try{updateModeTag()}catch(e){}
       h+=`<td class="R">${tot(t)}</td><td>${t.hits}</td></tr>`});ls.innerHTML=h}
   const dots=(sel,n)=>document.querySelectorAll(sel).forEach((d,i)=>d.classList.toggle('on',i<n));
   dots('.dot.b',G?G.balls:0);dots('.dot.s',G?G.strikes:0);dots('.dot.o',G?G.outs:0);
-  ['b1','b2','b3'].forEach((id,i)=>$('#'+id).classList.toggle('on',!!(G&&G.bases[i])));
+  ['b1','b2','b3'].forEach((id,i)=>{const e=$('#'+id);e.classList.toggle('on',!!(G&&G.bases[i]));e.classList.toggle('stl',!!(G&&G.stealReq===i+1&&stealVisible()))});
   $('#navA').textContent=S.names[0].slice(0,5);$('#navB').textContent=S.names[1].slice(0,5);
   if(!G){$('#cardP').innerHTML='<div class="lb">PITCHER</div><div class="nm">-</div>';$('#cardB').innerHTML='<div class="lb">BATTER</div><div class="nm">-</div>';$('#inn').textContent='';return}
   $('#inn').textContent=(G.half?'▼':'▲')+G.inning+'회 '+G.outs+'아웃';
@@ -3591,18 +3617,18 @@ function preLineup(i,sortK){const r=S.rosters[i];sortK=sortK||'cp';
   const swapOpts=benchSorted.map(({d,j})=>{const v=hView(d);return`<option value="${j}">${v.sp?'★':''}${esc(d.name)} · ${d.pos?posK(posCode(d.pos)||d.pos)+' · ':''}컨${v.c} 파${v.p}${v.avg!=='-'?' · '+v.avg:''}</option>`}).join('');
   const lrow=(d,j)=>{const v=hView(d);return`<tr><td><b style="color:var(--gold)">${j+1}</b></td>
     <td class="l">${v.sp?'<span class=star>★</span>':''}${esc(d.name)} ${tIcons(d)} <small style="color:#8fc3c9">${{R:'우',L:'좌',S:'양'}[HAND_OVR['b:'+d.name]||(matchSpecial(d.name,'H')||d).hand]||''}</small></td>
-    <td><select data-pos="${j}" class="mini" style="max-width:54px">${FIELD_POS.map(p=>`<option value="${p}" ${posCode(d.pos)===p?'selected':''}>${POSS[p]}</option>`).join('')}</select></td>
+    <td><select data-pos="${j}" class="mini" style="max-width:54px;${posBad(Object.assign({},d,{pos:posCode(d.pos)}))?'color:#ff4d4d;font-weight:700;border-color:#ff4d4d':''}" title="본 포지션: ${esc(natK(d))}">${FIELD_POS.map(p=>`<option value="${p}" ${posCode(d.pos)===p?'selected':''}>${POSS[p]}</option>`).join('')}</select></td>
     <td>${v.avg}</td><td>${v.hr}</td><td><b>${v.c}</b></td><td><b>${v.p}</b></td>
     <td style="white-space:nowrap"><button class="mbtn" data-up="${j}" ${j?'':'disabled'}>▲</button><button class="mbtn" data-dn="${j}" ${j<8?'':'disabled'}>▼</button></td>
     <td><select data-sw="${j}" class="mini" style="max-width:52px"><option value="">교체</option>${swapOpts}</select></td></tr>`};
-  const brow=({d,j})=>{const v=hView(d);return`<tr><td class="l">${v.sp?'<span class=star>★</span>':''}${esc(d.name)}</td><td>${esc(posK(posCode(d.pos))||d.pos||'-')}</td><td>${v.avg}</td><td>${v.hr}</td><td>${v.c}</td><td>${v.p}</td>
+  const brow=({d,j})=>{const v=hView(d);return`<tr><td class="l">${v.sp?'<span class=star>★</span>':''}${esc(d.name)}</td><td style="white-space:nowrap;font-size:11px">${esc(natK(d)||'-')}</td><td>${v.avg}</td><td>${v.hr}</td><td>${v.c}</td><td>${v.p}</td>
     <td><select data-in="${j}" class="mini" style="max-width:70px"><option value="">투입</option>${r.lineup.map((x,q)=>`<option value="${q}">${q+1}번 대신</option>`).join('')}</select></td></tr>`};
   const prow=(d,j)=>{const sp=matchSpecial(d.name,'P'),s=sp||d,a=curArs(d);
     return`<tr ${j===0?'class="now"':''}><td>${j===0?'<b style="color:var(--gold)">선발</b>':`<button class="mbtn" data-sp="${j}">선발로</button>`}</td>
     <td class="l">${sp?'<span class=star>★</span>':''}${esc(d.name)}<br><small style="color:#8fc3c9">${d.role==='SP'?'선발':d.role==='RP'?'구원':''} ${s.hand==='L'?'좌':'우'}${{over:'',side:' 사이드',under:' 언더'}[a.arm]||''}</small></td>
     <td>${d.era!=null&&d.era!==''?(+d.era).toFixed(2):'-'}</td><td style="white-space:normal;font-size:11px;text-align:left;min-width:110px">${a.ars.map(x=>`${x.n} ${x.v}`).join(' · ')}</td></tr>`};
   modal(`<h3>${esc(S.names[i])} 라인업·타순</h3>
-   <p class="note">순서는 ▲▼, 포지션은 칸에서 고르고, [교체]로 벤치 선수와 바꿔요. 벤치 표의 [투입]으로도 바꿀 수 있어요. 컨=컨택, 파=파워.</p>
+   <p class="note">순서는 ▲▼, 포지션은 칸에서 고르고, <b style="color:#ff4d4d">빨간 포지션</b>은 본 포지션이 아니에요(컨택·파워 -50%, 실책 +50%p, 지명타자는 예외). [교체]로 벤치 선수와 바꿔요. 벤치 표의 [투입]으로도 바꿀 수 있어요. 컨=컨택, 파=파워.</p>
    ${dup.length?`<p class="note" style="color:#ff8a7a">⚠ 포지션 확인: ${dup.map(posK).join(', ')} — 포지션마다 한 명씩 있어야 해요</p>`:''}
    <h4>선발 타순</h4><div style="overflow-x:auto"><table class="pt lu"><tr><th>#</th><th class="l">선수</th><th>포지션</th><th>타율</th><th>홈런</th><th>컨</th><th>파</th><th>순서</th><th>교체</th></tr>${r.lineup.map(lrow).join('')}</table></div>
    <div class="row"><button class="btn sm gray" id="auto">자동 타순 짜기</button></div>
@@ -3770,7 +3796,8 @@ const TRAIT_ENGINE={
   '통솔력':{sym:'lead',act:b=>!!b.leadUp,p:()=>7},                 // 포수 출장: 선발 체력 ×1.8·구원 ×1.2, 우리 투수가 직전 이닝 탈삼진 2개+ → 다음 타석 파워 +7
   '이마양':{sym:'imy',act:b=>(b._imyPA||0)>=1,c:b=>imyE(b).c,p:b=>imyE(b).p},   // 보유자들 첫 타석 획득 루 합 0/1~4/5+ → 다음 타석 컨+2·파-2 / 파+10 / 파+20, 이후 절반 유지
   '뱀직구':{sym:'snake',role:'P',act:()=>false},                    // 직구 계열 좌우 무브먼트 ×1.7
-  '자석 몸':{sym:'magnet',act:()=>false},                            // 몸에 맞는 공 확률 +20%
+  '자석 몸':{sym:'magnet',act:()=>false},
+  '철통 보안':{sym:'lock',act:()=>false},                            // 포수로 출장 시 상대 도루 성공률 -10%p                            // 몸에 맞는 공 확률 +20%
   '대주자':{sym:'pr',act:b=>!!b.pinchRun},                        // 대주자 투입: 2루에서도 도루, 1루 도루 성공률 +20%p
   '암울타':{sym:'weak',act:()=>false},                            // 땅볼 아웃의 12%가 내야안타
   '커브깎는 노인':{sym:'curve',role:'P',act:()=>false},           // 커브: 변화 폭 +25%(세로)/+15%(가로), 구속 +3km/h
@@ -3839,7 +3866,7 @@ const baseTraits=n=>TRAIT_BY_PLAYER[n]||[];
 const MAXT=3;
 const custT=n=>{const v=TR_OVR[n];return v?(Array.isArray(v)?v:[v]).filter(Boolean):[]};
 // 특성별 제한(시트 '비고'): 포지션·보직
-const TRESTRICT={'완투 본능':{role:'SP'},'센터라인 지배자':{pos:['CF','DH']},'내야 사령관':{pos:['SS','DH']},'통솔력':{pos:['C','DH']},'코너 날개':{pos:['LF','RF']},'파이널보스':{role:'RP'},'매덕스':{role:'SP'}};
+const TRESTRICT={'완투 본능':{role:'SP'},'센터라인 지배자':{pos:['CF','DH']},'내야 사령관':{pos:['SS','DH']},'통솔력':{pos:['C','DH']},'철통 보안':{pos:['C','DH']},'코너 날개':{pos:['LF','RF']},'파이널보스':{role:'RP'},'매덕스':{role:'SP'}};
 function restrictOK(o,t){const r=TRESTRICT[t];if(!r||!o||typeof o!=='object')return true;
   if(r.role){const ro=o.role||'';return!ro||ro===r.role}
   if(r.pos){const p=posCode(o.pos)||o.pos||'';return!p||r.pos.includes(p)}return true}
@@ -3872,7 +3899,7 @@ function autoPickTeam(i,f){const roster=(f==='P'?livePitchers(i):liveBatters(i))
 const hasTrait=(o,t)=>traitsOf(o).includes(t);
 const tOn=(o,t)=>{const e=TRAIT_ENGINE[t];if(!e)return false;return e.always||(e.act?e.act(o):false)};
 const tSum=(o,k)=>traitsOf(o).reduce((s,t)=>{const e=TRAIT_ENGINE[t];return s+(e&&e[k]&&(e.always||!e.act||e.act(o))?e[k](o):0)},0);
-const effC=b=>b.contact+tSum(b,'c'),effP=b=>b.power+tSum(b,'p'),effS=p=>p.stuff+tSum(p,'s')-udsD(p),effCtl=p=>p.control+tSum(p,'ctl')-udsD(p);
+const effC=b=>(b.contact+tSum(b,'c'))*(posBad(b)?0.5:1),effP=b=>(b.power+tSum(b,'p'))*(posBad(b)?0.5:1),effS=p=>p.stuff+tSum(p,'s')-udsD(p),effCtl=p=>p.control+tSum(p,'ctl')-udsD(p);
 const grandOn=b=>hasTrait(b,'만루 사나이')&&isLoaded();
 const anyOn=o=>traitsOf(o).some(t=>{const e=TRAIT_ENGINE[t];return e&&!e.always&&e.act&&e.act(o)});
 
@@ -3955,6 +3982,7 @@ const HEX_SYM={
     <path d="M24 64 L76 64" stroke="#b8321f" stroke-width="5" stroke-linecap="round"/><path d="M30 76 L70 76" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
   snake:`<path d="M18 62 C30 40 40 78 52 56 C62 38 70 70 82 48" fill="none" stroke="${INK}" stroke-width="8" stroke-linecap="round"/>
     <circle cx="84" cy="46" r="7" fill="${INK}"/><circle cx="86" cy="44" r="1.8" fill="#f3e2a0"/><path d="M90 47 L97 44 M90 47 L96 51" stroke="#b8321f" stroke-width="2"/>`,
+  lock:`<rect x="26" y="46" width="48" height="34" rx="5" fill="#2a3a4a"/><path d="M36 46 V36 C36 22 64 22 64 36 V46" fill="none" stroke="#2a3a4a" stroke-width="8"/><circle cx="50" cy="60" r="5" fill="#ffd23f"/><rect x="47.5" y="62" width="5" height="10" fill="#ffd23f"/>`,
   magnet:`<path d="M28 30 L28 58 C28 76 72 76 72 58 L72 30 L58 30 L58 58 C58 64 42 64 42 58 L42 30 Z" fill="#b8321f"/>
     <rect x="28" y="24" width="14" height="10" fill="${INK}"/><rect x="58" y="24" width="14" height="10" fill="${INK}"/><circle cx="50" cy="84" r="6" fill="#fff" stroke="${INK}" stroke-width="2"/>`,
   cg:`<text x="50" y="66" text-anchor="middle" font-size="40" font-weight="900" font-family="Arial Black,Arial,sans-serif" fill="${INK}">9</text>
@@ -3985,17 +4013,18 @@ const tHexes=o=>{const ts=traitsOf(o);if(!ts.length)return'';const i=(T_IDX[o.na
   return`<div class="hexes"><div class="hexw" title="${esc(t)}: ${esc(TDESC(t))}">${hexIcon(t,40,tOn(o,t)&&!TRAIT_ENGINE[t].always)}<span>${esc(t)}${isCustomT(o.name,t)?'<i style="color:#9fe0ff;font-style:normal">*</i>':''}${ts.length>1?` ${i+1}/${ts.length} ▸`:''}</span></div></div>`};
 function traitRulesHTML(){return TRAIT_DATA.map(t=>`<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:none">${hexIcon(t.name,30)}</span><div><b>${esc(t.name)}</b> — ${esc(t.desc)}${TRAIT_ENGINE[t.name]?'':' <small style="color:#ff9a7a">(효과 준비 중)</small>'}<br><small style="color:#8fc3c9">${esc(t.holders.join(', '))}</small></div></div>`).join('')}
 
+const csD=()=>fieldTeam().lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'철통 보안'))?0.1:0;   // 철통 보안 포수
 function stealFrom(){const B=G.bases;
   if(B[0]&&!B[1]&&(hasTrait(B[0].b,'대도')||prOK(B[0].b))&&R()<0.25)return 1;
   if(B[1]&&!B[2]&&prOK(B[1].b)&&R()<0.2)return 2;return 0}
 function stealRes(){const p=st.pitch;if(!p||!p.steal||p.stealDone||p.hbp)return false;p.stealDone=true;const B=G.bases,pit=fieldTeam().pitcher;
   if(p.steal===2){const r=B[1];if(!r||B[2])return false;
-    if(R()<0.78){G.bases=[B[0],null,r];r.b.st.sb=(r.b.st.sb||0)+1;log(`${r.b.name}: 3루 도루 성공 👟`);st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'👟 3루 도루 성공';updateHUD();return false}
+    if(R()<0.78-csD()){G.bases=[B[0],null,r];r.b.st.sb=(r.b.st.sb||0)+1;log(`${r.b.name}: 3루 도루 성공 👟`);st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'👟 3루 도루 성공';updateHUD();return false}
     G.bases=[B[0],null,B[2]];G.outs++;pit.st.outs++;r.b.st.cs=(r.b.st.cs||0)+1;log(`${r.b.name}: 3루 도루 실패(도루사)`);
     if(G.outs>=3){markPitch('S','도루사');finishPitch('도루사!','out',false,'이닝 종료');return true}
     st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'도루사';updateHUD();return false}
   const r=B[0];if(!r||B[1])return false;
-  if(R()<Math.min(0.97,0.82+(prOK(r.b)?0.2:0))){G.bases=[null,r,B[2]];r.b.st.sb=(r.b.st.sb||0)+1;log(`${r.b.name}: 2루 도루 성공 👟`);st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'👟 도루 성공';updateHUD();return false}
+  if(R()<Math.min(0.97,(hasTrait(r.b,'대도')?0.82:0.6)+(prOK(r.b)?0.2:0))-csD()){G.bases=[null,r,B[2]];r.b.st.sb=(r.b.st.sb||0)+1;log(`${r.b.name}: 2루 도루 성공 👟`);st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'👟 도루 성공';updateHUD();return false}
   G.bases=[null,B[1],B[2]];G.outs++;pit.st.outs++;r.b.st.cs=(r.b.st.cs||0)+1;log(`${r.b.name}: 2루 도루 실패(도루사)`);
   if(G.outs>=3){markPitch(G.strikes<2?'S':'S','도루사');finishPitch('도루사!','out',false,'이닝 종료');return true}
   st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'도루사';updateHUD();return false}
@@ -4042,33 +4071,33 @@ function tacticModal(){if(!G||G.halt)return;if(MODE==='pvp')return showBanner('�
    <div class="row"><button class="btn sm gray" id="cl">닫기</button></div>`,el=>{
    el.querySelector('#cl').onclick=closeModal;
    el.querySelector('#tI').onclick=()=>{closeModal();const b=curBatter();showBanner('고의사구','ball',b.name+' 자동 출루');setTimeout(()=>walk(false,true),500)};   // 고의사구: 투구 없이 타자 1루로(타석 시작 전만)
-   const benchList=(t)=>`<div class="list">${t.bench.map((q,j)=>`<div class="it click" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(posK(q.pos))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div>`;
-   const swapIn=(t,old,q,tag)=>{const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true};
+   const benchList=(t,rec)=>`<div class="list">${t.bench.map((q,j)=>`<div class="it click${rec&&rec.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div>`;
+   const swapIn=(t,old,q,tag)=>{const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;if(tag==='pinchRun')q.offField=true;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true};
    el.querySelector('#tR').onclick=()=>{const rs=[0,1,2].filter(i=>G.bases[i]);
-     const step2=bi=>{const old=G.bases[bi].b;modal(`<h3>대주자 — ${esc(bt.name)}</h3><p class="note">${bi+1}루 주자 ${esc(old.name)} 대신</p>${benchList(bt)}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
+     const step2=bi=>{const old=G.bases[bi].b;modal(`<h3>대주자 — ${esc(bt.name)}</h3><p class="note">${bi+1}루 주자 ${esc(old.name)} 대신</p>${benchList(bt,recRun(bt,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;
        e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench[+it.dataset.j];if(!swapIn(bt,old,q,'pinchRun')){showBanner('교체 불가','foul','');return}bt.bench.splice(+it.dataset.j,1);G.bases[bi]=Object.assign({},G.bases[bi],{b:q});log(`대주자: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대주자!','hit',q.name)})})};
      if(rs.length===1)return step2(rs[0]);
-     modal(`<h3>대주자 — 누구 대신?</h3><div class="list">${rs.map(i=>`<div class="it click" data-b="${i}"><span>${i+1}루 · ${esc(G.bases[i].b.name)}</span><span class="r">${tIcons(G.bases[i].b)}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
+     const rr=recRunBase(bt,rs);modal(`<h3>대주자 — 누구 대신?</h3><div class="list">${rs.map(i=>`<div class="it click${i===rr?' rec':''}" data-b="${i}"><span>${i+1}루 · ${esc(G.bases[i].b.name)}</span><span class="r">${tIcons(G.bases[i].b)}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>step2(+it.dataset.b))})};
-   el.querySelector('#tD').onclick=()=>modal(`<h3>대수비 — ${esc(ft.name)}</h3><p class="note">빠질 선수를 고르세요. 들어오는 선수가 그 포지션을 맡아요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it click" data-i="${i}"><span>${esc(posK(q.pos))} · ${esc(q.name)} ${tIcons(q)}</span><span class="r">${i+1}번</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
+   el.querySelector('#tD').onclick=()=>modal(`<h3>대수비 — ${esc(ft.name)}</h3><p class="note">빠질 선수를 고르세요. 들어오는 선수가 그 포지션을 맡아요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it click${recDefOut(ft).includes(i)?' rec':''}" data-i="${i}"><span><b class="${posBad(q)?'pbad':''}">${esc(posK(q.pos))}</b> · ${esc(q.name)} ${tIcons(q)}${posBad(q)?' <small class="pbad">본 포지션 '+esc(natK(q))+'</small>':''}</span><span class="r">${i+1}번</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
      e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const old=ft.lineup[+it.dataset.i];
-       modal(`<h3>대수비 — ${esc(posK(old.pos))}</h3><p class="note">${esc(old.name)} 대신</p>${benchList(ft)}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e3=>{
+       modal(`<h3>대수비 — ${esc(posK(old.pos))}</h3><p class="note">${esc(old.name)} 대신</p>${benchList(ft,recDef(ft,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e3=>{
          e3.querySelector('#cl').onclick=closeModal;
          e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>{const q=ft.bench[+x.dataset.j];if(!swapIn(ft,old,q,'defSub'))return;ft.bench.splice(+x.dataset.j,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);closeModal();updateHUD();showBanner('대수비','strike',q.name)})})})});
    el.querySelector('#tF').onclick=()=>{const POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
-     const draw=()=>modal(`<h3>수비 위치 — ${esc(ft.name)}</h3><p class="note">포지션을 바꾸면 그 자리에 있던 선수와 서로 맞바꿔요. 타순은 그대로예요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it"><span>${i+1}번 ${esc(q.name)} ${tIcons(q)}</span><select data-i="${i}" aria-label="${esc(q.name)} 포지션" style="font:inherit;padding:4px 6px;border-radius:8px">${POS.map(p=>`<option value="${p}" ${q.pos===p?'selected':''}>${POSK[p]}</option>`).join('')}</select></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">완료</button></div>`,e2=>{
+     const draw=()=>modal(`<h3>수비 위치 — ${esc(ft.name)}</h3><p class="note">포지션을 바꾸면 그 자리에 있던 선수와 서로 맞바꿔요. 타순은 그대로예요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it"><span>${i+1}번 ${esc(q.name)} ${tIcons(q)} <small class="${posBad(q)?'pbad':''}">${esc(natK(q))}</small></span><select class="${posBad(q)?'pbad':''}" data-i="${i}" aria-label="${esc(q.name)} 포지션" style="font:inherit;padding:4px 6px;border-radius:8px">${POS.map(p=>`<option value="${p}" ${q.pos===p?'selected':''}>${POSK[p]}</option>`).join('')}</select></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">완료</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=()=>{closeModal();updateHUD()};
        e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{const q=ft.lineup[+sel.dataset.i],np=sel.value,o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;draw()})});draw()};
    el.querySelector('#tS').onclick=()=>{if(!canSqueeze())return;st.buntNext='squeeze';closeModal();log(`${curBatter().name}: 스퀴즈 번트 작전`);showBanner('스퀴즈 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tB').onclick=()=>{if(!canBunt())return;st.buntNext=true;closeModal();log(`${curBatter().name}: 희생번트 작전`);showBanner('희생번트 작전','strike','투구 버튼을 누르세요')};
-   el.querySelector('#tP').onclick=()=>modal(`<h3>투수 교체 — ${esc(ft.name)}</h3><div class="list">${ft.bullpen.map((q,j)=>`<div class="it click" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${q.hand==='L'?'좌':'우'}</small></span><span class="r">${q.arsenal?q.arsenal.map(a=>a.n).join('/'):q.velo+'km'}${q.era!=null?` · ERA ${q.era}`:''}<br>${q.role==='SP'?'선발':'구원'} · 제${q.control} 위${q.stuff}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
+   el.querySelector('#tP').onclick=()=>{const rp=recPit(ft);modal(`<h3>투수 교체 — ${esc(ft.name)}</h3><div class="list">${ft.bullpen.map((q,j)=>`<div class="it click${rp.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${q.hand==='L'?'좌':'우'}</small></span><span class="r">${q.arsenal?q.arsenal.map(a=>a.n).join('/'):q.velo+'km'}${q.era!=null?` · ERA ${q.era}`:''}<br>${q.role==='SP'?'선발':'구원'} · 제${q.control} 위${q.stuff}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=ft.bullpen.splice(+it.dataset.j,1)[0];ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;closeModal();updateHUD();showBanner('투수 교체','strike',q.name)})});
-   el.querySelector('#tH').onclick=()=>modal(`<h3>대타 — ${esc(bt.name)}</h3><p class="note">${bt.idx+1}번 ${esc(curBatter().name)} 대신</p><div class="list">${bt.bench.map((q,j)=>`<div class="it click" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(posK(q.pos))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=ft.bullpen.splice(+it.dataset.j,1)[0];ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;closeModal();updateHUD();showBanner('투수 교체','strike',q.name)})})};
+   el.querySelector('#tH').onclick=()=>{const rh=recPH(bt);modal(`<h3>대타 — ${esc(bt.name)}</h3><p class="note">${bt.idx+1}번 ${esc(curBatter().name)} 대신</p><div class="list">${bt.bench.map((q,j)=>`<div class="it click${rh.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench.splice(+it.dataset.j,1)[0];q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;log(`대타: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대타!','hit',q.name)})})})}
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench.splice(+it.dataset.j,1)[0];q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;q.offField=true;log(`대타: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대타!','hit',q.name)})})}})}
 function logModal(){modal(`<h3>문자 중계</h3><div class="logl">${G&&G.log.length?G.log.map(l=>`<div><span class="ih">${l.h}</span>${esc(l.t)}</div>`).join(''):'<div>아직 기록이 없어요</div>'}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>el.querySelector('#cl').onclick=closeModal)}
 function pitchModal(){modal(`<h3>구종 인덱스</h3><p class="note">구종 정보가 없는 투수는 체크된 구종 중에서, KBO 투수는 자기 구종 중 체크된 것에서 같은 확률로 던져요.</p><div class="pgrid">${PITCHES.map((p,i)=>`<label><input type="checkbox" data-i="${i}" ${p.on?'checked':''}>${p.n}</label>`).join('')}</div><div class="row"><button class="btn sm gray" id="all">전체 선택</button><button class="btn sm" id="cl">닫기</button></div>`,el=>{
   const save=()=>LS.set('dny_pitches',PITCHES.map(p=>p.on));
@@ -4113,10 +4142,10 @@ function aiPitch(){return !!G&&(MODE==='cpu'||(MODE==='game'&&!humanPitch()))}
 /* AI 타자: 존·카운트·선구안으로 스윙 여부, 컨택·구위·구속으로 타이밍 오차 */
 function aiPlan(){const p=st.pitch,b=curBatter(),pit=fieldTeam().pitcher,c=effC(b),S=effS(pit);
   const near=Math.abs(p.tx)<=0.38&&p.ty>=0.29&&p.ty<=1.21,two=G.strikes>=2,three=G.balls>=3&&G.strikes<2;
-  let ps=p.hbp?0:p.zone?(0.64+0.12*G.strikes-(three?0.3:0)-(G.balls===0&&G.strikes===0?0.12:0)):near?(0.16+0.16*G.strikes-c*0.0008):0.03;
+  let ps=p.hbp?0:p.zone?(0.8+0.08*G.strikes-(three?0.22:0)-(G.balls===0&&G.strikes===0?0.05:0)):near?(0.34+0.16*G.strikes-c*0.001):0.08;
   const w=BAL.win*(0.10+c*0.0012)*(1.1-S*0.002),sd=w*(AI.sd+(S-c)*AI.sdK)*(1+(p.velo-140)*0.006);
   return{sw:R()<clamp(ps,0,0.97),dt:gauss()*sd+AI.mu*w}}
-const AI={sd:1.45,sdK:0.006,mu:0};
+const AI={sd:1.6,sdK:0.006,mu:0};
 /* 조이스틱 · 구종 버튼 */
 function padPitches(){const pit=fieldTeam().pitcher;let L=(pit.arsenal||[]).map(a=>a.n).filter(n=>PITCHES.some(p=>p.n===n));
   if(!L.length)L=PITCHES.filter(p=>p.on&&!p.sig).map(p=>p.n).slice(0,5);return[...new Set(L)].slice(0,9)}
@@ -4170,13 +4199,16 @@ function hostMsg(m){
   if(!G||G.over)return;
   if(m.t==='pitch'){if(!G.halt&&st.mode==='ready'&&fieldTeam()===G.teams[1])startPitch(m.o)}
   else if(m.t==='swing'){if(st.mode==='flight'&&batTeam()===G.teams[1]&&!st.swung)doSwing(true,+m.dt||0)}
-  else if(m.t==='take'){NET.dec=true}}
+  else if(m.t==='take'){NET.dec=true}
+  else if(m.t==='steal'){if(st.mode==='ready'&&batTeam()===G.teams[1]){const B=G.bases,i=(+m.v||0)-1;if(!m.v||(B[i]&&!B[i+1]&&(i===0||hasTrait(B[i].b,'대주자'))))G.stealReq=+m.v||0}}
+  else if(m.t==='pick'){if(fieldTeam()===G.teams[1])pickoff(+m.i)}
+  else if(m.t==='bunt'){if(batTeam()===G.teams[1]){if(!m.v)st.buntNext=false;else if(canBunt()||canSqueeze())st.buntNext=canSqueeze()?'squeeze':true}}}
 function guestMsg(m){
   if(m.t==='welcome'){lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
   if(m.t==='ban'){showBanner(...m.a);return}
   if(m.t==='snap')applySnap(m)}
 const ST_SYNC=['mode','wpNote','pitch','hit','buntNext','ballAnim','camMode','swung','whiff','foulDir','paEnd'],ST_T=['until','fs','swingAt','hitT0','foulT0','buntAt'];
-function netTick(){if(!NET.on||!NET.host||!G)return;const k=(st.mode==='flight'?'windup':st.mode)+'|'+st.swung+'|'+G.halt+'|'+G.over+'|'+(st.pitch&&st.pitch.velo)+'|'+G.outs+G.balls+G.strikes;if(k===NET.lk)return;NET.lk=k;
+function netTick(){if(!NET.on||!NET.host||!G)return;const k=(st.mode==='flight'?'windup':st.mode)+'|'+st.swung+'|'+G.halt+'|'+G.over+'|'+(st.pitch&&st.pitch.velo)+'|'+G.outs+G.balls+G.strikes+'|'+G.stealReq+'|'+st.buntNext+'|'+G.bases.map(Boolean);if(k===NET.lk)return;NET.lk=k;
   const s={};ST_SYNC.concat(ST_T).forEach(x=>s[x]=st[x]);netSend({t:'snap',now:NOW,park:PARK&&PARK.id,g:graphEnc({G,s})})}
 function applySnap(m){const o=graphDec(m.g),off=NOW-m.now,s=o.s,first=!G;G=o.G;
   if(m.park&&(!PARK||PARK.id!==m.park))setPark(m.park);
@@ -4190,6 +4222,54 @@ function applySnap(m){const o=graphDec(m.g),off=NOW-m.now,s=o.s,first=!G;G=o.G;
   if(G.over&&!NET.over){NET.over=true;const a=tot(G.away),h=tot(G.home),win=a===h?'무승부':(a>h?G.away:G.home).name+' 승리!';
     setTimeout(()=>overlay(`<div class="big">GAME SET</div><p class="center" style="font-family:'Black Han Sans';font-size:30px;color:#ffe066">${esc(win)}</p><p class="center" style="font-family:'Black Han Sans';font-size:24px">${esc(G.away.name)} ${a} : ${h} ${esc(G.home.name)}</p>
       <div class="row"><button class="btn sm" id="bxB">타자 기록</button><button class="btn sm" id="bxP">투수 기록</button></div><div class="row"><button class="btn" id="again">처음으로</button></div>`,el=>{el.querySelector('#again').onclick=()=>{netClose();showSetup()};el.querySelector('#bxB').onclick=()=>boxModal('bat');el.querySelector('#bxP').onclick=()=>boxModal('pit')}),900)}}
+/* ===== v5.1: 도루·견제, 번트 버튼, 투수 뒤 카메라, 교체 추천 ===== */
+function moundCam(){return !!G&&MODE!=='bat'&&humanPitch()&&st.camMode==='pitch'}
+function setMoundCam(){lookAt([-0.9,3.3,28.5],[0,0.95,0],Math.min(W*1.3,H*1.05)*3.1,0.45)}
+// 투수 뒤 시점: 홈플레이트 뒤 관중석·백네트
+function backstop(){const th=PARK?PARK.th:{seats:['#3e4d70','#34425f','#2b3653']},cs=th.seats||['#3e4d70'],r0=mulberry(7);
+  for(let a=118;a<=242;a+=2){for(let k=0;k<16;k++){const r1=19+k*2,y1=1.2+k*1.3;poly([P(r1,a,y1),P(r1,a+2,y1),P(r1+2,a+2,y1+1.3),P(r1+2,a,y1+1.3)],cs[(k*3+Math.floor(a/2)*7)%cs.length])}}
+  for(let a=118;a<242;a+=4)poly([P(18.5,a,0),P(18.5,a+4,0),P(18.5,a+4,1.4),P(18.5,a,1.4)],th.fence||'#1f5f43');
+  for(let i=0;i<900;i++){const a=118+r0()*124,k=r0()*16,q=pt(P(20+k*2,a,1.8+k*1.3+0.4));if(q&&q.k>0.3){ctx.fillStyle=['#fff','#ffd23f','#ff6b6b','#8fd3ff'][i%4];ctx.fillRect(q.x,q.y,Math.max(1,q.k*0.12),Math.max(1,q.k*0.12))}}
+  polyS([P(18.5,150,1.4),P(18.5,150,9),P(18.5,210,9),P(18.5,210,1.4)],'rgba(220,220,220,.35)',1)}
+function stealVisible(){return MODE==='bat'||humanBat()}
+function stealPick(){const v=G.stealReq||0,B=G.bases;G.stealReq=0;G.stealAI=false;
+  if(v===1&&B[0]&&!B[1])return 1;if(v===2&&B[1]&&!B[2]&&hasTrait(B[1].b,'대주자'))return 2;return 0}
+function baseTap(i){if(!G||G.halt||st.mode!=='ready'||anyOpen())return;const B=G.bases;if(!B[i])return;
+  const steal=MODE==='bat'||humanBat(),pick=!steal&&humanPitch();
+  if(steal){if(i===2)return showBanner('홈 도루 불가','foul','');
+    if(B[i+1])return showBanner('도루 불가','foul',`${i+2}루가 비어 있지 않아요`);
+    if(i===1&&!hasTrait(B[1].b,'대주자'))return showBanner('3루 도루 불가','foul','2루→3루 도루는 대주자 특성 보유 주자만');
+    const v=G.stealReq===i+1?0:i+1;
+    if(NET.on&&!NET.host){netSend({t:'steal',v});G.stealReq=v;updateHUD();return}
+    G.stealReq=v;G.stealAI=false;updateHUD();if(v)showBanner(`${i+2}루 도루 준비`,'strike',`${B[i].b.name} · 다음 투구에 스타트`);return}
+  if(pick){if(NET.on&&!NET.host){netSend({t:'pick',i});return}pickoff(i)}}
+function pickoff(i){const B=G.bases,r=B[i];if(!r||st.mode!=='ready'||G.halt)return;const pit=fieldTeam().pitcher;
+  const go=G.stealReq===i+1,caught=go&&(!G.stealAI||R()<0.5);
+  if(caught){B[i]=null;G.stealReq=0;G.stealAI=false;G.outs++;pit.st.outs++;r.b.st.cs=(r.b.st.cs||0)+1;log(`${pit.name}: ${i+1}루 견제사 — ${r.b.name}`);
+    finishPitch('견제사!','out',false,G.outs>=3?'이닝 종료':`${r.b.name} 아웃`);return}
+  if(go){G.stealReq=0;G.stealAI=false}
+  log(`${pit.name}: ${i+1}루 견제`);showBanner('견제','ball',`${i+1}루 세이프`)}
+['b1','b2','b3'].forEach((id,i)=>{const e=$('#'+id);e.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();baseTap(i)})});
+// 번트 버튼(PvP·경기 모드): 다음 투구에 번트(3루 주자 있으면 스퀴즈)
+function buntOK(){return !!G&&!G.halt&&st.mode==='ready'&&humanBat()&&(canBunt()||canSqueeze()||st.buntNext)}
+function buntTap(){if(!G)return;if(st.buntNext){if(NET.on&&!NET.host)return netSend({t:'bunt',v:0});st.buntNext=false;return}
+  if(!buntOK())return showBanner('번트 불가','foul','주자 있고 2아웃 전일 때만');const v=canSqueeze()?'squeeze':true;
+  if(NET.on&&!NET.host){st.buntNext=v;return netSend({t:'bunt',v:1})}
+  st.buntNext=v;log(`${curBatter().name}: ${v==='squeeze'?'스퀴즈':'번트'} 작전`);showBanner(v==='squeeze'?'스퀴즈!':'번트!','strike','다음 투구에 번트를 대요')}
+$('#btnBunt').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();buntTap()});
+function syncBunt(){const b=$('#btnBunt');if(!b)return;const show=!!G&&(MODE==='pvp'||MODE==='game')&&humanBat();if(b.classList.contains('show')!==show)b.classList.toggle('show',show);
+  const on=!!(G&&st.buntNext);if(b.classList.contains('on')!==on)b.classList.toggle('on',on);const dis=!(on||buntOK());if(b.disabled!==dis)b.disabled=dis}
+/* 교체 추천: 상황 점수 최고 1명(+근접 1명) */
+function topIdx(sc,keep){const a=sc.map((v,j)=>[v,j]).filter(x=>x[0]>-1e8).sort((x,y)=>y[0]-x[0]);if(!a.length)return[];const o=[a[0][1]];if(keep&&a[1]&&a[1][0]>=a[0][0]-keep)o.push(a[1][1]);return o}
+function recPH(t){const pit=fieldTeam().pitcher,cur=t.lineup[t.idx],val=q=>{const h=q.hand||'R',pl=(h==='S'||h!==pit.hand)?6:0;return q.contact+q.power+pl+(hasTrait(q,'대타 신화')?14:0)+tSum(q,'c')+tSum(q,'p')};
+  const base=cur?val(cur)*(posBad(cur)?0.5:1):0;return topIdx(t.bench.map(q=>{const v=val(q);return v>base+4?v:-1e9}),3)}
+function recRun(t,old){return topIdx(t.bench.map(q=>(hasTrait(q,'대주자')?40:0)+(hasTrait(q,'대도')?30:0)+((q.nat||[]).includes(old.pos)?8:0)-q.power*0.2+(q.nat&&q.nat[0]==='PR'?25:0)),4)}
+function recRunBase(t,rs){let best=-1,bv=-1;rs.forEach(i=>{const b=G.bases[i].b,v=(i===1?2:i===0?1:0)*10+(hasTrait(b,'대도')||hasTrait(b,'대주자')?-50:0)+b.power*0.1;if(v>bv){bv=v;best=i}});return best}
+function recDefOut(t){const o=[];t.lineup.forEach((q,i)=>{if(posBad(q)&&t.bench.some(b=>(b.nat||[]).includes(q.pos)))o.push(i)});return o}
+function recDef(t,old){return topIdx(t.bench.map(q=>(q.nat||[]).includes(old.pos)?(q.nat[0]===old.pos?20:10)+(hasTrait(q,'지명수비')?25:0)+(old.pos==='CF'&&hasTrait(q,'센터라인 지배자')?20:0)+(['LF','RF'].includes(old.pos)&&hasTrait(q,'코너 날개')?15:0)+(old.pos==='SS'&&hasTrait(q,'내야 사령관')?15:0)+q.contact*0.05:-1e9),3)}
+function recPit(t){const late=G.inning>=Math.max(1,G.innings-1),lead=leadOf(t),nb=curBatter(),bh=nb&&nb.curHand;
+  return topIdx(t.bullpen.map(q=>{let v=(q.stuff||50)+(q.control||50);if(late&&lead>0&&lead<=3)v+=(q.cl?40:0)+(hasTrait(q,'파이널보스')?30:0);
+    else if(!late)v+=q.role==='SP'?12:0;if(bh&&q.hand===bh)v+=8;return v}),6)}
 $('#btnSwing').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#stage').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#btnTactic').onclick=tacticModal;
