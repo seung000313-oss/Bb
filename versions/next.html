@@ -252,7 +252,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.2</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.2.1</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -4129,7 +4129,7 @@ document.querySelector('nav').onclick=navAct;$('#moreMenu').onclick=navAct;docum
 const MODES=[['pitch','⚾','투수','조이스틱 투구'],['bat','🏏','타자','2인 번갈아'],['game','🏟','경기','A팀 공수'],['pvp','⚔','PvP','방 코드 1:1']];
 let MODE=LS.get('dny_mode','bat');if(!MODES.some(m=>m[0]===MODE))MODE='bat';
 const NET={on:false,host:false,me:0,code:'',sent:false,took:false,dec:false,lk:'',over:false};
-const NETX={peer:null,conn:null,bc:null,buf:{}};
+const NETX={mq:null,bc:null,buf:{},seen:0,jt:0,welcomed:false};
 let PAD_ON=false,PAD_KEY='',SX=1;st.aim={x:0,y:0.75};st.selP='';
 const PCODE={'포심':'4FB','투심':'2FB','커터':'CUT','싱커':'SNK','슬라이더':'SLD','스위퍼':'SWP','커브':'CRV','너클커브':'KCV','체인지업':'CHG','스플리터':'SPL','포크':'FRK','서클체인지':'CCH','슬러브':'SLV','너클볼':'KNK','팜볼':'PLM','스크루볼':'SCR','슈트':'SHT','자이로볼':'GYR','종슬라이더':'VSL','킥체인지업':'KCH','프리즈비 슬라이더':'FRZ','업슛':'UPS'};
 function gauss(){let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())}
@@ -4166,36 +4166,59 @@ function joyAt(e){const j=$('#joy'),r=j.getBoundingClientRect(),R0=r.width/2-14;
   j.addEventListener('pointermove',e=>{if(drag)joyAt(e)});['pointerup','pointercancel'].forEach(t=>j.addEventListener(t,()=>drag=false));
   $('#pbtns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.selP=b.dataset.n;$('#pbtns').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))})}
 /* ===== PvP: 방 코드 1:1 (방장 권한형 동기화) ===== */
-function loadPeer(){return window.Peer?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';sc.onload=ok;sc.onerror=()=>no(new Error('PeerJS 불러오기 실패'));document.head.appendChild(sc)})}
-function netOut(x){try{if(NETX.bc)NETX.bc.postMessage({from:NET.host?'h':'g',d:x});else if(NETX.conn&&NETX.conn.open)NETX.conn.send(x)}catch(e){}}
-function netSend(o){if(!NET.on)return;const s=JSON.stringify(o),CH=48000;if(s.length<=CH)return netOut(s);
+/* PvP 중계: 공개 MQTT 브로커(WebSocket)를 거쳐 주고받음 — 모바일 데이터(LTE)처럼 기기끼리 직접 연결(P2P)이 막히는 환경에서도 동작 */
+const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+const TE=new TextEncoder(),TD=new TextDecoder();
+function mqLen(n){const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b)}while(n>0);return o}
+function mqStr(s){const b=TE.encode(s);return[b.length>>8,b.length&255,...b]}
+function mqPkt(h,body){const a=new Uint8Array(1+mqLen(body.length).length+body.length);const L=mqLen(body.length);a[0]=h;a.set(L,1);a.set(body,1+L.length);return a}
+function mqConnect(url,cid,onMsg,onClose){return new Promise((ok,no)=>{let ws;try{ws=new WebSocket(url,'mqtt')}catch(e){return no(e)}ws.binaryType='arraybuffer';let buf=new Uint8Array(0),done=false,pid=1;
+  const to=setTimeout(()=>{if(!done){done=true;try{ws.close()}catch(e){}no(new Error('timeout'))}},6000);
+  const c={ws,sub(t){const p=pid++;ws.send(mqPkt(0x82,new Uint8Array([p>>8,p&255,...mqStr(t),0])))},
+    pub(t,s){ws.send(mqPkt(0x30,new Uint8Array([...mqStr(t),...TE.encode(s)])))},close(){clearInterval(c.ping);try{ws.send(new Uint8Array([0xE0,0]))}catch(e){}try{ws.close()}catch(e){}}};
+  ws.onopen=()=>{ws.send(mqPkt(0x10,new Uint8Array([...mqStr('MQTT'),4,2,0,60,...mqStr(cid)])))};
+  ws.onmessage=e=>{const d=new Uint8Array(e.data),nb=new Uint8Array(buf.length+d.length);nb.set(buf);nb.set(d,buf.length);buf=nb;
+    for(;;){if(buf.length<2)break;let m=1,len=0,i=1,b;do{if(i>=buf.length)return;b=buf[i++];len+=(b&127)*m;m*=128}while(b&128);if(buf.length<i+len)break;
+      const h0=buf[0],typ=h0>>4,body=buf.subarray(i,i+len);buf=buf.slice(i+len);
+      if(typ===2){if(!done){done=true;clearTimeout(to);if(body[1]!==0){no(new Error('connack '+body[1]));return}c.ping=setInterval(()=>{try{ws.send(new Uint8Array([0xC0,0]))}catch(e){}},25000);ok(c)}}
+      else if(typ===3){const tl=(body[0]<<8)|body[1],t=TD.decode(body.subarray(2,2+tl));let off=2+tl;if(h0&6)off+=2;onMsg(t,TD.decode(body.subarray(off)))}}};
+  ws.onerror=()=>{if(!done){done=true;clearTimeout(to);no(new Error('ws error'))}};
+  ws.onclose=()=>{clearInterval(c.ping);if(!done){done=true;clearTimeout(to);no(new Error('closed'))}else onClose&&onClose()}})}
+async function mqOpen(onMsg){const cid='dny5'+Math.random().toString(36).slice(2,10);let last;
+  for(const u of (window.NET_BROKERS||BROKERS)){try{const c=await mqConnect(u,cid,onMsg,()=>{if(NETX.mq===c){NETX.mq=null;netLost()}});c.url=u;return c}catch(e){last=e}}
+  throw new Error('중계 서버에 연결하지 못했어요('+(last&&last.message)+')')}
+function netOut(x){try{if(NETX.bc)NETX.bc.postMessage({from:NET.host?'h':'g',d:x});else if(NETX.mq)NETX.mq.pub(`dny5/${NET.code}/${NET.host?'g':'h'}`,x)}catch(e){}}
+function netSend(o){if(!NET.on)return;const s=JSON.stringify(o),CH=12000;if(s.length<=CH)return netOut(s);
   const id=Math.random().toString(36).slice(2,8),n=Math.ceil(s.length/CH);for(let i=0;i<n;i++)netOut(JSON.stringify({t:'ck',id,i,n,d:s.slice(i*CH,(i+1)*CH)}))}
-function netRecv(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}
+function netRecv(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}NETX.seen=Date.now();
   if(m.t==='ck'){const b=NETX.buf[m.id]=NETX.buf[m.id]||[];b[m.i]=m.d;if(b.filter(x=>x!=null).length===m.n){delete NETX.buf[m.id];netRecv(b.join(''))}return}
+  if(m.t==='hb')return;
   try{(NET.host?hostMsg:guestMsg)(m)}catch(e){console.error(e)}}
-function netClose(){try{NETX.conn&&NETX.conn.close()}catch(e){}try{NETX.peer&&NETX.peer.destroy()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}NETX.conn=NETX.peer=NETX.bc=null;NET.on=false;NET.code='';updateModeTag()}
+// 연결 확인(3초마다 신호, 15초 동안 없으면 끊김 처리)
+setInterval(()=>{if(!NET.on)return;netSend({t:'hb'});if(NETX.seen&&Date.now()-NETX.seen>15000){NETX.seen=0;netLost()}},3000);
+function netClose(){try{NETX.mq&&NETX.mq.close()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}clearTimeout(NETX.jt);NETX.mq=NETX.bc=null;NETX.seen=0;NET.on=false;NET.code='';updateModeTag()}
 function netLost(){if(!NET.on)return;const wasHost=NET.host;NET.on=false;
   if(wasHost&&G&&!G.over){setMode('game');showBanner('상대 연결 끊김','out','B팀은 컴퓨터가 이어서 해요')}
-  else if(!wasHost)overlay(`<div class="big">연결 끊김</div><p class="center note">방장과 연결이 끊겼어요.</p><div class="row"><button class="btn gold" id="ok">처음으로</button></div>`,el=>el.querySelector('#ok').onclick=()=>{netClose();setMode('bat');showSetup()})}
+  else if(wasHost)lobbyMsg('상대 연결이 끊겼어요. 방 코드는 그대로예요 — 다시 참가하면 돼요');
+  else overlay(`<div class="big">연결 끊김</div><p class="center note">방장과 연결이 끊겼어요.</p><div class="row"><button class="btn gold" id="ok">처음으로</button></div>`,el=>el.querySelector('#ok').onclick=()=>{netClose();setMode('bat');showSetup()})}
 function lobbyMsg(t){const e=document.getElementById('pvS');if(e)e.innerHTML=t}
-async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const code=String(1000+Math.floor(R()*9000));NET.code=code;
-  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='g')netRecv(e.data.d)};lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`);return code}
-  lobbyMsg('방 만드는 중…');await loadPeer();
-  NETX.peer=new Peer('dny5-'+code);
-  NETX.peer.on('open',()=>lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`));
-  NETX.peer.on('connection',c=>{if(NETX.conn&&NETX.conn.open){c.close();return}NETX.conn=c;c.on('data',netRecv);c.on('close',netLost)});
-  NETX.peer.on('error',e=>{if(e.type==='unavailable-id')return pvpHost();lobbyMsg('✖ 연결 오류: '+(e.type||e.message))});return code}
+async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const code=String(1000+Math.floor(Math.random()*9000));NET.code=code;
+  const ready=()=>lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`);
+  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='g')netRecv(e.data.d)};ready();return code}
+  lobbyMsg('중계 서버에 연결하는 중…');
+  NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/h`)netRecv(s)});NETX.mq.sub(`dny5/${code}/h`);ready();return code}
 async function pvpJoin(code){netClose();NET.host=false;NET.me=1;NET.code=code;NET.over=false;
   if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='h')netRecv(e.data.d)};NET.on=true;netSend({t:'hello'});return}
-  lobbyMsg('방 찾는 중…');await loadPeer();NETX.peer=new Peer();
-  NETX.peer.on('open',()=>{const c=NETX.conn=NETX.peer.connect('dny5-'+code,{serialization:'raw',reliable:true});c.on('open',()=>{NET.on=true;netSend({t:'hello'})});c.on('data',netRecv);c.on('close',netLost)});
-  NETX.peer.on('error',e=>lobbyMsg(e.type==='peer-unavailable'?'✖ 그 코드의 방이 없어요':'✖ 연결 오류: '+(e.type||e.message)))}
+  lobbyMsg('중계 서버에 연결하는 중…');
+  NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/g`)netRecv(s)});NETX.mq.sub(`dny5/${code}/g`);NET.code=code;
+  lobbyMsg('방 찾는 중…');NET.on=true;let n=0;const tryHello=()=>{if(NETX.welcomed||!NETX.mq)return;if(n++>=4){NET.on=false;lobbyMsg('✖ 그 코드의 방이 없거나 방장이 응답하지 않아요');return}netSend({t:'hello'});NETX.jt=setTimeout(tryHello,2500)};
+  NETX.welcomed=false;setTimeout(tryHello,400)}
 function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 쓸 수 없어요.</p>
   <div class="row"><button class="btn gold" id="pvH">방 만들기</button></div>
   <div class="row"><input id="pvC" inputmode="numeric" maxlength="4" placeholder="코드 4자리" style="flex:1;font-size:20px;text-align:center"><button class="btn" id="pvJ">참가</button></div>
   <div class="status" id="pvS" style="text-align:center">${NET.on?`● 연결됨 (방 ${NET.code})`:''}</div>
-  <div class="row"><button class="btn sm gray" id="pvX">닫기</button>${NET.on||NETX.peer||NETX.bc?'<button class="btn sm gray" id="pvQ">방 나가기</button>':''}</div>`,el=>{
-  el.querySelector('#pvH').onclick=()=>pvpHost().catch(e=>lobbyMsg('✖ '+e.message));
+  <div class="row"><button class="btn sm gray" id="pvX">닫기</button>${NET.on||NETX.mq||NETX.bc?'<button class="btn sm gray" id="pvQ">방 나가기</button>':''}</div>`,el=>{
+  el.querySelector('#pvH').onclick=()=>pvpHost().catch(e=>lobbyMsg('✖ '+e.message+'<br><small>와이파이/데이터 연결을 확인해 주세요</small>'));
   el.querySelector('#pvJ').onclick=()=>{const c=el.querySelector('#pvC').value.trim();if(!/^\d{4}$/.test(c))return lobbyMsg('코드 4자리를 넣어 주세요');pvpJoin(c).catch(e=>lobbyMsg('✖ '+e.message))};
   el.querySelector('#pvX').onclick=closeModal;const q=el.querySelector('#pvQ');if(q)q.onclick=()=>{netClose();lobbyMsg('방에서 나왔어요')}})}
 function setupRefresh(){const e=document.getElementById('mdI');if(e)e.innerHTML=modeInfo()}
@@ -4209,7 +4232,7 @@ function hostMsg(m){
   else if(m.t==='pick'){if(fieldTeam()===G.teams[1])pickoff(+m.i)}
   else if(m.t==='bunt'){if(batTeam()===G.teams[1]){if(!m.v)st.buntNext=false;else if(canBunt()||canSqueeze())st.buntNext=canSqueeze()?'squeeze':true}}}
 function guestMsg(m){
-  if(m.t==='welcome'){lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
+  if(m.t==='welcome'){NETX.welcomed=true;clearTimeout(NETX.jt);lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
   if(m.t==='ban'){showBanner(...m.a);return}
   if(m.t==='snap')applySnap(m)}
 const ST_SYNC=['mode','wpNote','pitch','hit','buntNext','ballAnim','camMode','swung','whiff','foulDir','paEnd'],ST_T=['until','fs','swingAt','hitT0','foulT0','buntAt'];
