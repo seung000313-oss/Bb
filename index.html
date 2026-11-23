@@ -253,7 +253,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3.1</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -2964,7 +2964,10 @@ function batterPM(b,u){const side=b.curHand==='R'?-1:1,hand=b.curHand==='L'?'L':
   drawPM(J,p=>[X(p[0]),p[1]*PM_S,0.75+p[2]*PM_S],{batter:true,hand,U:pmUni(u)})}
 
 function fig(wp,u,o){o=o||{};const f=pt(wp);if(!f)return;const tp=pt([wp[0],wp[1]+1.85,wp[2]]);if(!tp)return;
-  const h=f.y-tp.y;if(h<4){ctx.fillStyle=u.trim;ctx.fillRect(f.x-1.5,f.y-4,3,4);return}
+  const h=f.y-tp.y;if(h<9){const H=Math.max(h,5),w=Math.max(2,H*0.3);   // 멀리 있는 선수: 작은 실루엣(유니폼·모자·다리)
+    ctx.fillStyle=u.pants||'#ddd';ctx.fillRect(f.x-w*0.5,f.y-H*0.45,w*0.42,H*0.45);ctx.fillRect(f.x+w*0.08,f.y-H*0.45,w*0.42,H*0.45);
+    ctx.fillStyle=u.jersey||u.trim;ctx.fillRect(f.x-w*0.6,f.y-H*0.85,w*1.2,H*0.42);
+    ctx.fillStyle=u.cap||u.trim;ctx.beginPath();ctx.arc(f.x,f.y-H*0.92,Math.max(1.2,w*0.42),0,7);ctx.fill();return}
   if(o.pose==='pitch'&&h>=14){pitcherPM(wp,u,o.pit);return}
   let J=READY,facing=1;
   if(o.pose==='pitch'){const pit=o.pit;facing=pit&&pit.hand==='L'?-1:1;const arm=pit?pit.arm:'over';
@@ -3148,8 +3151,8 @@ function bipJudge(q,pw,ct,sf,K,R,N){
   // 얕은 텍사스 안타성 타구: 외야수가 아니라 내야수가 처리(다이빙 캐치)
   if(dist<50&&bestIF&&bestIF.m>-5&&R()<K.ifDive)return{th,dist,type,res:'OUT',how:type==='fb'?'IF':'LO',fielder:bestIF.k,great:true,T:hang,h:apex,ev,la};
   let wall=dist>=fr-0.5;
-  if(!wall&&type!=='gb'&&dist>=fr-K.wallZ&&R()<K.wallP){wall=true}          // 펜스 직격(원바운드 포함)
-  const grd=!wall&&type!=='gb'&&dist>=fr-K.grdZ&&ev>=K.grdEv&&R()<K.grdP;   // 바운드로 펜스를 넘긴 인정 2루타
+  // 펜스 직격: 비거리가 해당 구장·방향의 펜스 거리에 닿은 타구만(확률 판정 없음)
+  const grd=!wall&&type!=='gb'&&dist>=fr-12&&ev>=K.grdEv&&R()<K.grdP;   // 바운드로 펜스를 넘긴 인정 2루타
   const line=Math.abs(th)>=K.lineTh;
   const roll=wall?-2.5:Math.min(fr-1-dist,(v*Math.cos(lr))*K.rollK);
   const fin=P(Math.max(5,Math.min(dist,fr-0.5)+roll),th);
@@ -3290,7 +3293,8 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
   const objs=[];const isField=st.camMode==='field';const hu=st.hit?clamp((NOW-st.hitT0)/st.hit.T,0,1):0;
   const crouch=st.mode==='flight'?1:st.mode==='windup'?ease(clamp(1-(st.until-NOW)/WIND,0,1)):0;
   for(const k in FP){if(k==='P'||(!isField&&!MC&&k==='C'))continue;let p=FP[k],J=crouch>0?lerpJ(MO.READY,MO.CROUCH,crouch):MO.READY,fc=1;
-    if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land,tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
+    if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land;let tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
+      {const r=Math.hypot(tgt[0],tgt[2]),th=Math.atan2(tgt[0],tgt[2])*180/Math.PI,lim=fence(clamp(th,-45,45))-1.2;if(r>lim)tgt=[tgt[0]*lim/r,0,tgt[2]*lim/r]}   // 펜스 앞에서 멈춤
       // 반응 0.12 → 가속 → 등속, 잡는 타구는 공과 동시에 도착
       const a=clamp((hu-.12)/.88,0,1),e=h.res==='OUT'?a*a*(3-2*a)*.35+a*.65:clamp(a*1.2,0,1);const p0=p;p=[lerp(p0[0],tgt[0],e),0,lerp(p0[2],tgt[2],e)];
       const run=Math.hypot(p[0]-p0[0],p[2]-p0[2]),sp=toC(tgt),s0=toC(p0);fc=(sp&&s0&&sp[0]<s0[0])?-1:1;
