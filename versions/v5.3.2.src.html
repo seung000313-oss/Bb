@@ -66,7 +66,7 @@ canvas{display:block;width:100%;height:100%}
 .tslot{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(0,0,0,.25);border:1.5px dashed #b89a4a;border-radius:10px;padding:4px 2px;color:#e9cf7a;font:inherit}.tslot small{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}.tslot.on{border-style:solid;background:rgba(226,189,92,.12)}.tslot.lock{border:none;background:none;color:#6f8f93;font-size:11px;justify-content:center}
 .hexadd{display:flex;align-items:center;justify-content:center;width:30px;height:33px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#3b3215;color:#e9cf7a;font-size:20px;font-weight:900}
 .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tcell{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(#22343a,#16252a);border:1.5px solid #3c5a5e;border-radius:10px;padding:8px 4px;color:#fff;font:inherit;text-align:center}.tcell b{font-size:12.5px;color:#ffd98a}.tcell small{font-size:10px;color:#a9cdd1;line-height:1.3}.tcell.on{border-color:#ffd23f;box-shadow:0 0 10px rgba(255,210,63,.5)}
-.card{cursor:pointer;position:relative}.hexes{position:absolute;right:6px;top:24px;transform:none;display:flex;gap:3px;cursor:pointer}.hexw{display:flex;flex-direction:column;align-items:center}.hexw span{font-size:8.5px;color:#ffe08a;margin-top:-2px;white-space:nowrap;text-shadow:0 1px 0 #000}.hexi{filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.hexi.on{animation:hexon 1s infinite}@keyframes hexon{50%{filter:drop-shadow(0 0 7px #ff6a3a) brightness(1.25)}}.hexs{display:inline-block;vertical-align:-4px;margin-left:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hexs .hexn{color:#ffe08a;font-size:9px;margin-left:1px}.nm,.hexes,.hexw{cursor:pointer}.hexn{font-size:9px;color:#ffd98a;margin-left:1px;vertical-align:4px}.card .tg{float:right;font-size:9px;color:#8fc3c9;border:1px solid #2b6d74;border-radius:6px;padding:0 4px}.trts{display:flex;flex-wrap:wrap;gap:3px;margin:1px 0}.trt{font-size:10px;background:#3a2a0a;border:1px solid #c9922a;color:#ffd98a;border-radius:8px;padding:0 5px;white-space:nowrap}.trt.on{background:#c9302a;border-color:#ff8a5a;color:#fff;animation:blink 1s infinite}@keyframes blink{50%{opacity:.55}}
+.card{cursor:pointer;position:relative}.hexes{position:absolute;right:6px;top:24px;transform:none;display:flex;gap:3px;cursor:pointer}.hexw{display:flex;flex-direction:column;align-items:center}.hexw span{font-size:8.5px;color:#ffe08a;margin-top:-2px;white-space:nowrap;text-shadow:0 1px 0 #000}.hexi{filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.hexst{position:relative;width:40px;height:40px}.hexst>div{position:absolute;left:0;top:0;line-height:0}.hexg{opacity:.35;pointer-events:none}.hexes .hexw{position:relative;padding-bottom:12px}.hexes .hexw span{position:absolute;right:-2px;top:38px;margin:0}.hexi.on{animation:hexon 1s infinite}@keyframes hexon{50%{filter:drop-shadow(0 0 7px #ff6a3a) brightness(1.25)}}.hexs{display:inline-block;vertical-align:-4px;margin-left:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hexs .hexn{color:#ffe08a;font-size:9px;margin-left:1px}.nm,.hexes,.hexw{cursor:pointer}.hexn{font-size:9px;color:#ffd98a;margin-left:1px;vertical-align:4px}.card .tg{float:right;font-size:9px;color:#8fc3c9;border:1px solid #2b6d74;border-radius:6px;padding:0 4px}.trts{display:flex;flex-wrap:wrap;gap:3px;margin:1px 0}.trt{font-size:10px;background:#3a2a0a;border:1px solid #c9922a;color:#ffd98a;border-radius:8px;padding:0 5px;white-space:nowrap}.trt.on{background:#c9302a;border-color:#ff8a5a;color:#fff;animation:blink 1s infinite}@keyframes blink{50%{opacity:.55}}
 .card{background:linear-gradient(#174a50,#0f3438);border:2px solid #000;border-radius:10px;padding:4px 7px;min-width:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
 .card .lb{font-family:'Black Han Sans';font-size:10px;color:#8fc3c9}
 .card .nm{font-family:'Black Han Sans';font-size:16px;white-space:normal;word-break:keep-all;line-height:1.15;-webkit-text-stroke:.3px #000}
@@ -82,6 +82,7 @@ canvas{display:block;width:100%;height:100%}
 .joy{width:116px;height:116px;border-radius:50%;background:radial-gradient(rgba(255,255,255,.16),rgba(0,0,0,.5));border:2px solid rgba(255,255,255,.55);position:relative;touch-action:none;cursor:grab}
 .joy:before,.joy:after{content:'';position:absolute;background:rgba(255,255,255,.25)}.joy:before{left:50%;top:8px;bottom:8px;width:1px}.joy:after{top:50%;left:8px;right:8px;height:1px}
 .joy .knob{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9aa);box-shadow:0 2px 6px rgba(0,0,0,.6);left:50%;top:50%;pointer-events:none}
+#zoomZ{position:absolute;right:6px;top:80px;width:128px;height:160px;display:none;z-index:5;border-radius:10px;background:rgba(8,16,24,.55);border:1px solid rgba(255,255,255,.35);touch-action:none}#zoomZ.on{display:block}
 #modeTag{position:absolute;left:50%;transform:translateX(-50%);top:4px;font:11px 'Black Han Sans',sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:8px;pointer-events:none}#modeTag:empty{display:none}
 .modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.modes button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border-radius:12px;border:2px solid #3c5a5e;background:linear-gradient(#22343a,#16252a);color:#fff;font:17px 'Black Han Sans',sans-serif;cursor:pointer}
 .modes button i{font-style:normal;font-size:20px}.modes button small{font:10px sans-serif;opacity:.75}.modes button.on{border-color:#ffd23f;background:linear-gradient(#5a4a12,#3a2f0a);box-shadow:0 0 8px rgba(255,210,63,.5)}
@@ -252,7 +253,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3.2</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -282,6 +283,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
     <div id="spTag">★ 스페셜</div>
     <div id="pad"><div class="pbtns" id="pbtns"></div><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
     <div id="modeTag"></div>
+    <canvas id="zoomZ" width="128" height="160"></canvas>
   </div>
   <section class="matchup">
     <div class="card" id="cardP"></div>
@@ -1364,7 +1366,10 @@ function batterPM(b,u){const side=b.curHand==='R'?-1:1,hand=b.curHand==='L'?'L':
   drawPM(J,p=>[X(p[0]),p[1]*PM_S,0.75+p[2]*PM_S],{batter:true,hand,U:pmUni(u)})}
 
 function fig(wp,u,o){o=o||{};const f=pt(wp);if(!f)return;const tp=pt([wp[0],wp[1]+1.85,wp[2]]);if(!tp)return;
-  const h=f.y-tp.y;if(h<4){ctx.fillStyle=u.trim;ctx.fillRect(f.x-1.5,f.y-4,3,4);return}
+  const h=f.y-tp.y;if(h<9){const H=Math.max(h,5),w=Math.max(2,H*0.3);   // 멀리 있는 선수: 작은 실루엣(유니폼·모자·다리)
+    ctx.fillStyle=u.pants||'#ddd';ctx.fillRect(f.x-w*0.5,f.y-H*0.45,w*0.42,H*0.45);ctx.fillRect(f.x+w*0.08,f.y-H*0.45,w*0.42,H*0.45);
+    ctx.fillStyle=u.jersey||u.trim;ctx.fillRect(f.x-w*0.6,f.y-H*0.85,w*1.2,H*0.42);
+    ctx.fillStyle=u.cap||u.trim;ctx.beginPath();ctx.arc(f.x,f.y-H*0.92,Math.max(1.2,w*0.42),0,7);ctx.fill();return}
   if(o.pose==='pitch'&&h>=14){pitcherPM(wp,u,o.pit);return}
   let J=READY,facing=1;
   if(o.pose==='pitch'){const pit=o.pit;facing=pit&&pit.hand==='L'?-1:1;const arm=pit?pit.arm:'over';
@@ -1469,10 +1474,12 @@ function doSwing(force,dtO){if(!G||G.halt||(!force&&anyOpen())||st.buntNext)retu
   else st.whiff=true}
 function doPitch(){if(!G||G.halt||anyOpen()||st.mode!=='ready')return;
   if(MODE==='bat')return startPitch();
+  if(MODE==='game'&&!humanPitch()&&humanBat())return startPitch();   // 타자가 [준비]를 누르면 상대(컴퓨터) 투수가 던짐
   if(!humanPitch()||NET.sent)return;const o={name:st.selP,aim:{x:st.aim.x,y:st.aim.y}};
   if(MODE==='pvp'&&!NET.host){NET.sent=true;netSend({t:'pitch',o});return}
   startPitch(o)}
-function syncButtons(){const rdy=!!(G&&!G.halt&&st.mode==='ready'&&!anyOpen());const hp=MODE!=='bat'&&!!G&&humanPitch(),ok=rdy&&(MODE==='bat'||hp)&&!NET.sent;
+function syncButtons(){const rdy=!!(G&&!G.halt&&st.mode==='ready'&&!anyOpen());const hp=MODE!=='bat'&&!!G&&humanPitch(),prep=MODE==='game'&&!!G&&!hp&&humanBat(),ok=rdy&&(MODE==='bat'||hp||prep)&&!NET.sent;
+  {const bp=$('#btnPitch'),lb=prep?'준비':'투구';if(bp.textContent!==lb)bp.textContent=lb}
   {const sw=$('#btnSwing'),hb=!G||humanBat();if(sw.disabled===hb)sw.disabled=!hb;syncPad(rdy&&hp&&!NET.sent)}const bp=$('#btnPitch');if(bp.disabled===ok){bp.disabled=!ok;bp.classList.toggle('ready',ok)}}
 function doFoul(){
   // 파울 플라이: 포수·1루수·3루수가 파울 지역 뜬공을 잡아 아웃
@@ -1546,8 +1553,8 @@ function bipJudge(q,pw,ct,sf,K,R,N){
   // 얕은 텍사스 안타성 타구: 외야수가 아니라 내야수가 처리(다이빙 캐치)
   if(dist<50&&bestIF&&bestIF.m>-5&&R()<K.ifDive)return{th,dist,type,res:'OUT',how:type==='fb'?'IF':'LO',fielder:bestIF.k,great:true,T:hang,h:apex,ev,la};
   let wall=dist>=fr-0.5;
-  if(!wall&&type!=='gb'&&dist>=fr-K.wallZ&&R()<K.wallP){wall=true}          // 펜스 직격(원바운드 포함)
-  const grd=!wall&&type!=='gb'&&dist>=fr-K.grdZ&&ev>=K.grdEv&&R()<K.grdP;   // 바운드로 펜스를 넘긴 인정 2루타
+  // 펜스 직격: 비거리가 해당 구장·방향의 펜스 거리에 닿은 타구만(확률 판정 없음)
+  const grd=!wall&&type!=='gb'&&dist>=fr-12&&ev>=K.grdEv&&R()<K.grdP;   // 바운드로 펜스를 넘긴 인정 2루타
   const line=Math.abs(th)>=K.lineTh;
   const roll=wall?-2.5:Math.min(fr-1-dist,(v*Math.cos(lr))*K.rollK);
   const fin=P(Math.max(5,Math.min(dist,fr-0.5)+roll),th);
@@ -1688,7 +1695,8 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
   const objs=[];const isField=st.camMode==='field';const hu=st.hit?clamp((NOW-st.hitT0)/st.hit.T,0,1):0;
   const crouch=st.mode==='flight'?1:st.mode==='windup'?ease(clamp(1-(st.until-NOW)/WIND,0,1)):0;
   for(const k in FP){if(k==='P'||(!isField&&!MC&&k==='C'))continue;let p=FP[k],J=crouch>0?lerpJ(MO.READY,MO.CROUCH,crouch):MO.READY,fc=1;
-    if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land,tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
+    if(isField&&st.hit&&st.hit.fielder===k){const h=st.hit,L=h.land;let tgt=h.res==='OUT'?L:[lerp(p[0],L[0],.85),0,lerp(p[2],L[2],.85)];
+      {const r=Math.hypot(tgt[0],tgt[2]),th=Math.atan2(tgt[0],tgt[2])*180/Math.PI,lim=fence(clamp(th,-45,45))-1.2;if(r>lim)tgt=[tgt[0]*lim/r,0,tgt[2]*lim/r]}   // 펜스 앞에서 멈춤
       // 반응 0.12 → 가속 → 등속, 잡는 타구는 공과 동시에 도착
       const a=clamp((hu-.12)/.88,0,1),e=h.res==='OUT'?a*a*(3-2*a)*.35+a*.65:clamp(a*1.2,0,1);const p0=p;p=[lerp(p0[0],tgt[0],e),0,lerp(p0[2],tgt[2],e)];
       const run=Math.hypot(p[0]-p0[0],p[2]-p0[2]),sp=toC(tgt),s0=toC(p0);fc=(sp&&s0&&sp[0]<s0[0])?-1:1;
@@ -1708,7 +1716,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     for(let i=1;i<3;i++){polyS([[-0.22+0.44*i/3,0.45,0],[-0.22+0.44*i/3,1.05,0]],'rgba(255,214,0,.35)',1);polyS([[-0.22,0.45+0.6*i/3,0],[0.22,0.45+0.6*i/3,0]],'rgba(255,214,0,.35)',1)}
     if(PAD_ON&&G){const m=pt([st.aim.x,st.aim.y,0]),pit=fieldTeam().pitcher;if(m){const sd=aimSD(pit,effCtl(pit),fatigue(pit)),r=Math.max(6,sd*m.k);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
       ctx.strokeStyle='#ff4d4d';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(m.x-9,m.y);ctx.lineTo(m.x+9,m.y);ctx.moveTo(m.x,m.y-9);ctx.lineTo(m.x,m.y+9);ctx.stroke()}}
-    if(G&&G.paP)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
+    if(G&&G.paP&&!MC)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
       ctx.fillStyle=q.k==='B'?'#2fbf4a':q.k==='S'?'#ffb300':'#3fa9ff';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.fill();ctx.stroke();
       ctx.fillStyle='#fff';ctx.font=`${Math.round(r*1.25)}px "Black Han Sans"`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,m.x,m.y+1)})}
   if(st.ballAnim==='pitch'&&st.pitch&&(st.mode==='flight'||(st.mode==='post'&&!st.paEnd)||(st.mode==='post'))&&st.fs>0){
@@ -1718,6 +1726,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     if(u<1)for(let i=6;i>=1;i--){const q=pt(hitPos(st.hit,u-i*0.012*(0.6/st.hit.T)));if(q){ctx.fillStyle=`rgba(255,255,255,${0.32*(1-i/7)})`;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(1.4,0.037*q.k*3.2*(1-i/9)),0,7);ctx.fill()}}
     ball(hitPos(st.hit,u),3.2,u<1?NOW*22:0)}
   if(!isField&&G&&!MC)batter(curBatter(),batT.uni);
+  drawZoom(MC&&!isField);
   $('#camlabel').textContent=isField?'FIELD CAM':MC?'MOUND CAM':'PITCH CAM'}
 let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons();syncBunt();netTick()}catch(e){console.error(e)}requestAnimationFrame(frame)}
 function resize(){const r=cv.getBoundingClientRect();W=Math.max(200,r.width);H=Math.max(200,r.height);DPR=Math.min(2,window.devicePixelRatio||1);
@@ -1941,7 +1950,7 @@ function batHandModal(i){const HN={R:'우타',L:'좌타',S:'양타'};
 function traitModal(i,f){i=i||0;f=f||'B';
   const nameOf=k=>G?([G.away,G.home].find(t=>t.key===k)||G.teams[k]).name:S.names[k];
   const raw=f==='P'?livePitchers(i):liveBatters(i),list=raw.filter((p,j,a)=>p&&a.findIndex(q=>q&&q.name===p.name)===j);
-  const row=(d,j)=>{const b=baseOf(d),cs=custT(d.name).filter(c=>!b.includes(c)&&TRAIT_ENGINE[c]),free=MAXT-b.length;
+  const row=(d,j)=>{const b=baseOf(d),cs=custT(d.name).filter(c=>!b.includes(c)&&TRAIT_ENGINE[c]),free=MAXT-nonU(b).length;
     const slot=free<=0?`<span class="tslot lock">보유 ${MAXT}/${MAXT}</span>`:Array.from({length:Math.min(free,cs.length+1)},(_,k)=>{const c=cs[k];
       return`<button class="tslot ${c?'on':''}" data-pk="${j}" data-sl="${k}">${c?hexIcon(c,22):'<span class="hexadd">＋</span>'}<small>${c?esc(c):(b.length+k+1)+'번째 특성'}</small></button>`}).join('');
     return`<div class="trow"><div class="tnm"><b>${esc(d.name)}</b><small>${f==='P'?(d.role==='SP'?'선발':'구원'):esc(posK(posCode(d.pos))||d.pos||'')}</small></div><div class="tbase">${b.map(t=>`<span title="${esc(t)}">${hexIcon(t,22)}</span>`).join('')||'<small class="note">기본 특성 없음</small>'}</div>${slot}</div>`};
@@ -2265,7 +2274,8 @@ const saveTr=()=>{LS.set('dny_trait',TR_OVR);cloudPush('trait',TR_OVR)};
 const tRole=t=>(TRAIT_ENGINE[t]&&TRAIT_ENGINE[t].role)||'B';
 const baseTraits=n=>TRAIT_BY_PLAYER[n]||[];
 // v4.0: 선수당 특성 최대 3개(고유+직접 고른 것). 직접 고른 특성은 TR_OVR[이름] = [특성,…]
-const MAXT=3;
+const MAXT=3;   // 일반 특성 최대 개수. 고유 기술(UNIQUE_T)은 여기에 포함하지 않고 별도로 1개(CSV로만 부여)
+const nonU=a=>a.filter(t=>!UNIQUE_T.includes(t));
 const custT=n=>{const v=TR_OVR[n];return v?(Array.isArray(v)?v:[v]).filter(Boolean):[]};
 // 특성별 제한(시트 '비고'): 포지션·보직
 const TRESTRICT={'완투 본능':{role:'SP'},'센터라인 지배자':{pos:['CF','DH']},'내야 사령관':{pos:['SS','DH']},'통솔력':{pos:['C','DH']},'철통 보안':{pos:['C','DH']},'코너 날개':{pos:['LF','RF']},'파이널보스':{role:'RP'},'매덕스':{role:'SP'}};
@@ -2276,7 +2286,7 @@ function restrictOK(o,t){const r=TRESTRICT[t];if(!r||!o||typeof o!=='object')ret
 const baseOf=o=>{const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseTraits(n);return typeof o==='object'&&o?b.filter(t=>!(TRESTRICT[t]&&TRESTRICT[t].role)||restrictOK(o,t)):b};
 function traitsOf(o){const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseOf(o);
   const cs=custT(n).filter((c,k,a)=>a.indexOf(c)===k&&TRAIT_ENGINE[c]&&!NO_PICK.includes(c)&&!b.includes(c)&&!(o&&o.trOffs&&o.trOffs.includes(c))&&pitchOK(o,c)&&restrictOK(o,c));
-  return[...b,...cs].slice(0,MAXT)}
+  const u=b.filter(t=>UNIQUE_T.includes(t)).slice(0,1);return[...[...nonU(b),...cs].slice(0,MAXT),...u]}
 const TCAP={B:4,P:5};
 // 한 팀(타자·투수 명단)에서 같은 특성 보유 인원 제한. 고유 특성 보유자가 이미 한도 이상이면 직접 고른 특성 1명까지만 허용
 function capOK(list,t,self){const nb=list.filter(p=>baseTraits(p.name).includes(t)).length,nc=list.filter(p=>p!==self&&p.name!==(self&&self.name)&&custT(p.name).includes(t)&&!baseTraits(p.name).includes(t)&&!(p.trOffs&&p.trOffs.includes(t))).length,cap=TCAP[tRole(t)];
@@ -2292,7 +2302,7 @@ function autoPickTeam(i,f){const roster=(f==='P'?livePitchers(i):liveBatters(i))
   const order=list.slice().sort((a,b)=>(starter(b)-starter(a))||(stat(b)-stat(a)));
   const pool=TRAIT_DATA.map(t=>t.name).filter(t=>TRAIT_ENGINE[t]&&!NO_PICK.includes(t)&&tRole(t)===f);let n=0;
   for(const d of order){let guard=0;
-    while(traitsOf(d).length<MAXT&&guard++<MAXT){const have=traitsOf(d),bench=f==='B'&&!lu.some(x=>x&&x.name===d.name);
+    while(nonU(traitsOf(d)).length<MAXT&&guard++<MAXT){const have=traitsOf(d),bench=f==='B'&&!lu.some(x=>x&&x.name===d.name);
       const ok=pool.filter(t=>!have.includes(t)&&capOK(roster,t,d)&&pitchOK(d,t)&&restrictOK(d,t));if(!ok.length)break;
       const o={bench,closer:f==='P'&&d.cl},sc=t=>recScore(d,t,o);ok.sort((a,b)=>sc(b)-sc(a));   // 추천 점수 높은 것부터, 추천이 없으면 남은 것 중에서
       const t=ok[0],a=custT(d.name).slice();a.push(t);TR_OVR[d.name]=a;n++;
@@ -2412,7 +2422,8 @@ const tIcons=o=>{const ts=traitsOf(o);if(!ts.length)return'';const i=(T_IDX[o.na
 document.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('.hexs[data-tn]');if(!h)return;const n=h.dataset.tn,ts=traitsOf(n);if(ts.length<2)return;e.stopPropagation();e.preventDefault();T_IDX[n]=((T_IDX[n]||0)+1)%ts.length;h.outerHTML=tIcons({name:n})},true);
 // 선수 카드: 특성 1개씩, 선수 이름을 누르면 다음 특성으로
 const tHexes=o=>{const ts=traitsOf(o);if(!ts.length)return'';const i=(T_IDX[o.name]||0)%ts.length,t=ts[i];
-  return`<div class="hexes"><div class="hexw" title="${esc(t)}: ${esc(TDESC(t))}">${hexIcon(t,40,tOn(o,t)&&!TRAIT_ENGINE[t].always)}<span>${esc(t)}${isCustomT(o.name,t)?'<i style="color:#9fe0ff;font-style:normal">*</i>':''}${ts.length>1?` ${i+1}/${ts.length} ▸`:''}</span></div></div>`};
+  const back=ts.length>1?ts.map((_,k)=>ts[(i+ts.length-1-k)%ts.length]).slice(0,ts.length-1).reverse():[];   // 뒤에 겹쳐 놓인 나머지 특성(반투명)
+  return`<div class="hexes"><div class="hexw" title="${esc(t)}: ${esc(TDESC(t))}"><div class="hexst">${back.map((b,k)=>`<div class="hexg" style="transform:translate(${-(back.length-k)*6}px,${-(back.length-k)*3}px)">${hexIcon(b,40,false)}</div>`).join('')}<div class="hexf">${hexIcon(t,40,tOn(o,t)&&!TRAIT_ENGINE[t].always)}</div></div><span>${esc(t)}${isCustomT(o.name,t)?'<i style="color:#9fe0ff;font-style:normal">*</i>':''}${ts.length>1?` ${i+1}/${ts.length} ▸`:''}</span></div></div>`};
 function traitRulesHTML(){return TRAIT_DATA.map(t=>`<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:none">${hexIcon(t.name,30)}</span><div><b>${esc(t.name)}</b> — ${esc(t.desc)}${TRAIT_ENGINE[t.name]?'':' <small style="color:#ff9a7a">(효과 준비 중)</small>'}<br><small style="color:#8fc3c9">${esc(t.holders.join(', '))}</small></div></div>`).join('')}
 
 const csD=()=>fieldTeam().lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'철통 보안'))?0.1:0;   // 철통 보안 포수
@@ -2461,24 +2472,34 @@ function applyBunt(h){const b=curBatter(),pit=fieldTeam().pitcher,B=G.bases,me={
   st.buntNext=false;log(`${b.name}: ${txt}`);finishPitch(txt,h.bk==='ok'?'hit':'out',true,'')}
 
 
-function tacticModal(){if(!G||G.halt)return;if(MODE==='pvp')return showBanner('작전 없음','ball','PvP에선 작전을 쓸 수 없어요');
+/* 선수 교체 실행(PvP에선 방장 기기에서 실행: 참가자는 요청만 보냄) */
+function swapInT(t,old,q,tag){const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;if(tag==='pinchRun')q.offField=true;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true}
+function subDo(k,a,b){if(!G)return false;const ft=fieldTeam(),bt=batTeam();
+  if(k==='P'){const q=ft.bullpen[a];if(!q)return false;ft.bullpen.splice(a,1);ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;updateHUD();showBanner('투수 교체','strike',q.name);return true}
+  if(k==='H'){const q=bt.bench[a];if(!q)return false;bt.bench.splice(a,1);q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;q.offField=true;log(`대타: ${old.name} → ${q.name}`);updateHUD();showBanner('대타!','hit',q.name);return true}
+  if(k==='R'){const r=G.bases[a],q=bt.bench[b];if(!r||!q)return false;const old=r.b;if(!swapInT(bt,old,q,'pinchRun')){showBanner('교체 불가','foul','');return false}bt.bench.splice(b,1);G.bases[a]=Object.assign({},r,{b:q});log(`대주자: ${old.name} → ${q.name}`);updateHUD();showBanner('대주자!','hit',q.name);return true}
+  if(k==='D'){const old=ft.lineup[a],q=ft.bench[b];if(!old||!q||!swapInT(ft,old,q,'defSub'))return false;ft.bench.splice(b,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);updateHUD();showBanner('대수비','strike',q.name);return true}
+  if(k==='F'){const q=ft.lineup[a],np=b;if(!q||!POSK[np])return false;const o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;updateHUD();return true}
+  return false}
+function subReq(k,a,b){if(NET.on&&!NET.host){netSend({t:'sub',k,a,b});closeModal();showBanner('교체 요청','strike','방장 기기에서 반영돼요');return}const ok=subDo(k,a,b);NET.lk='';if(k!=='F')closeModal();return ok}
+function tacticModal(){if(!G||G.halt)return;
+  const pvp=MODE==='pvp',myF=!pvp||humanPitch(),myB=!pvp||humanBat();   // PvP: 내 팀 교체만(번트는 번트 버튼, 고의사구·스퀴즈 없음)
   if(!(st.mode==='ready'||st.mode==='idle')){showBanner('투구 중엔 불가','foul','');return}
   const ft=fieldTeam(),bt=batTeam(),p=ft.pitcher;
   modal(`<h3>작전 타임</h3>
    <div class="jrow"><span>수비 · ${esc(ft.name)}</span><span class="n">${esc(p.name)} ${p.pc}구 · 체력 ${Math.round(clamp(1-p.pc/pLimit(p),0,1)*100)}%</span></div>
-   <div class="tacg"><button class="btn red" id="tP" ${ft.bullpen.length?'':'disabled'}>투수 교체<br>(${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length?'':'disabled'}>대수비<br>(${ft.bench.length})</button><button class="btn" id="tF">수비 위치</button><button class="btn" id="tI" ${G.balls||G.strikes?'disabled':''}>고의사구</button></div>
+   <div class="tacg"><button class="btn red" id="tP" ${ft.bullpen.length&&myF?'':'disabled'}>투수 교체<br>(${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length&&myF?'':'disabled'}>대수비<br>(${ft.bench.length})</button><button class="btn" id="tF" ${myF?'':'disabled'}>수비 위치</button><button class="btn" id="tI" ${G.balls||G.strikes||pvp?'disabled':''}>고의사구</button></div>
    <div class="jrow"><span>공격 · ${esc(bt.name)}</span><span class="n">${bt.idx+1}번 ${esc(curBatter().name)}</span></div>
-   <div class="tacg"><button class="btn" id="tH" ${bt.bench.length?'':'disabled'}>대타 기용<br>(${bt.bench.length})</button><button class="btn" id="tR" ${bt.bench.length&&G.bases.some(Boolean)?'':'disabled'}>대주자</button><button class="btn gold" id="tB" ${canBunt()?'':'disabled'}>희생번트</button><button class="btn gold" id="tS" ${canSqueeze()?'':'disabled'}>스퀴즈</button></div>
+   <div class="tacg"><button class="btn" id="tH" ${bt.bench.length&&myB?'':'disabled'}>대타 기용<br>(${bt.bench.length})</button><button class="btn" id="tR" ${bt.bench.length&&G.bases.some(Boolean)&&myB?'':'disabled'}>대주자</button><button class="btn gold" id="tB" ${canBunt()&&!pvp?'':'disabled'}>희생번트</button><button class="btn gold" id="tS" ${canSqueeze()&&!pvp?'':'disabled'}>스퀴즈</button></div>
    <p class="note">희생번트는 주자 1루·2루·1,2루(3루 비었을 때, 2아웃 전)에서만 가능해요. 다음 투구에 자동으로 번트를 대요: 성공 55% · 번트 파울 39% · 병살 3% · 선행주자 아웃 3%.<br>스퀴즈는 3루에 주자가 있고 2아웃 전일 때 가능해요: 성공(득점, 타자 아웃) 58% · 번트 파울 22% · 헛스윙(3루 주자 협살 아웃) 8% · 홈 승부 아웃(타자는 1루) 7% · 올 세이프 5%.<br>고의사구는 볼카운트가 0-0일 때 투구 없이 타자를 1루로 보내요(볼넷으로 기록).<br>대주자는 주자 대신 들어가 그 타순·포지션을 이어받고, 대수비는 고른 수비수의 타순·포지션에 들어가요. 교체되어 나간 선수는 이번 경기에 다시 나올 수 없어요. 볼카운트는 유지돼요.</p>
    <div class="row"><button class="btn sm gray" id="cl">닫기</button></div>`,el=>{
    el.querySelector('#cl').onclick=closeModal;
    el.querySelector('#tI').onclick=()=>{closeModal();const b=curBatter();showBanner('고의사구','ball',b.name+' 자동 출루');setTimeout(()=>walk(false,true),500)};   // 고의사구: 투구 없이 타자 1루로(타석 시작 전만)
    const benchList=(t,rec)=>`<div class="list">${t.bench.map((q,j)=>`<div class="it click${rec&&rec.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div>`;
-   const swapIn=(t,old,q,tag)=>{const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;if(tag==='pinchRun')q.offField=true;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true};
    el.querySelector('#tR').onclick=()=>{const rs=[0,1,2].filter(i=>G.bases[i]);
      const step2=bi=>{const old=G.bases[bi].b;modal(`<h3>대주자 — ${esc(bt.name)}</h3><p class="note">${bi+1}루 주자 ${esc(old.name)} 대신</p>${benchList(bt,recRun(bt,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;
-       e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench[+it.dataset.j];if(!swapIn(bt,old,q,'pinchRun')){showBanner('교체 불가','foul','');return}bt.bench.splice(+it.dataset.j,1);G.bases[bi]=Object.assign({},G.bases[bi],{b:q});log(`대주자: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대주자!','hit',q.name)})})};
+       e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('R',bi,+it.dataset.j))})};
      if(rs.length===1)return step2(rs[0]);
      const rr=recRunBase(bt,rs);modal(`<h3>대주자 — 누구 대신?</h3><div class="list">${rs.map(i=>`<div class="it click${i===rr?' rec':''}" data-b="${i}"><span>${i+1}루 · ${esc(G.bases[i].b.name)}</span><span class="r">${tIcons(G.bases[i].b)}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>step2(+it.dataset.b))})};
@@ -2487,26 +2508,26 @@ function tacticModal(){if(!G||G.halt)return;if(MODE==='pvp')return showBanner('�
      e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const old=ft.lineup[+it.dataset.i];
        modal(`<h3>대수비 — ${esc(posK(old.pos))}</h3><p class="note">${esc(old.name)} 대신</p>${benchList(ft,recDef(ft,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e3=>{
          e3.querySelector('#cl').onclick=closeModal;
-         e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>{const q=ft.bench[+x.dataset.j];if(!swapIn(ft,old,q,'defSub'))return;ft.bench.splice(+x.dataset.j,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);closeModal();updateHUD();showBanner('대수비','strike',q.name)})})})});
+         e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>subReq('D',+it.dataset.i,+x.dataset.j))})})});
    el.querySelector('#tF').onclick=()=>{const POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
      const draw=()=>modal(`<h3>수비 위치 — ${esc(ft.name)}</h3><p class="note">포지션을 바꾸면 그 자리에 있던 선수와 서로 맞바꿔요. 타순은 그대로예요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it"><span>${i+1}번 ${esc(q.name)} ${tIcons(q)} <small class="${posBad(q)?'pbad':''}">${esc(natK(q))}</small></span><select class="${posBad(q)?'pbad':''}" data-i="${i}" aria-label="${esc(q.name)} 포지션" style="font:inherit;padding:4px 6px;border-radius:8px">${POS.map(p=>`<option value="${p}" ${q.pos===p?'selected':''}>${POSK[p]}</option>`).join('')}</select></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">완료</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=()=>{closeModal();updateHUD()};
-       e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{const q=ft.lineup[+sel.dataset.i],np=sel.value,o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;draw()})});draw()};
+       e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{subReq('F',+sel.dataset.i,sel.value);if(!(NET.on&&!NET.host))draw()})});draw()};
    el.querySelector('#tS').onclick=()=>{if(!canSqueeze())return;st.buntNext='squeeze';closeModal();log(`${curBatter().name}: 스퀴즈 번트 작전`);showBanner('스퀴즈 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tB').onclick=()=>{if(!canBunt())return;st.buntNext=true;closeModal();log(`${curBatter().name}: 희생번트 작전`);showBanner('희생번트 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tP').onclick=()=>{const rp=recPit(ft);modal(`<h3>투수 교체 — ${esc(ft.name)}</h3><div class="list">${ft.bullpen.map((q,j)=>`<div class="it click${rp.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${q.hand==='L'?'좌':'우'}</small></span><span class="r">${q.arsenal?q.arsenal.map(a=>a.n).join('/'):q.velo+'km'}${q.era!=null?` · ERA ${q.era}`:''}<br>${q.role==='SP'?'선발':'구원'} · 제${q.control} 위${q.stuff}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=ft.bullpen.splice(+it.dataset.j,1)[0];ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;closeModal();updateHUD();showBanner('투수 교체','strike',q.name)})})};
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('P',+it.dataset.j))})};
    el.querySelector('#tH').onclick=()=>{const rh=recPH(bt);modal(`<h3>대타 — ${esc(bt.name)}</h3><p class="note">${bt.idx+1}번 ${esc(curBatter().name)} 대신</p><div class="list">${bt.bench.map((q,j)=>`<div class="it click${rh.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench.splice(+it.dataset.j,1)[0];q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;q.offField=true;log(`대타: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대타!','hit',q.name)})})}})}
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('H',+it.dataset.j))})}})}
 function logModal(){modal(`<h3>문자 중계</h3><div class="logl">${G&&G.log.length?G.log.map(l=>`<div><span class="ih">${l.h}</span>${esc(l.t)}</div>`).join(''):'<div>아직 기록이 없어요</div>'}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>el.querySelector('#cl').onclick=closeModal)}
 function pitchModal(){modal(`<h3>구종 인덱스</h3><p class="note">구종 정보가 없는 투수는 체크된 구종 중에서, KBO 투수는 자기 구종 중 체크된 것에서 같은 확률로 던져요.</p><div class="pgrid">${PITCHES.map((p,i)=>`<label><input type="checkbox" data-i="${i}" ${p.on?'checked':''}>${p.n}</label>`).join('')}</div><div class="row"><button class="btn sm gray" id="all">전체 선택</button><button class="btn sm" id="cl">닫기</button></div>`,el=>{
   const save=()=>LS.set('dny_pitches',PITCHES.map(p=>p.on));
   el.querySelectorAll('input').forEach(c=>c.onchange=()=>{PITCHES[+c.dataset.i].on=c.checked;if(!PITCHES.some(p=>p.on)){c.checked=true;PITCHES[+c.dataset.i].on=true}save()});
   el.querySelector('#all').onclick=()=>{PITCHES.forEach(p=>p.on=true);save();pitchModal()};el.querySelector('#cl').onclick=closeModal})}
 function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:14px;line-height:1.6">
- <b>모드</b> — <b>투수</b>: 조이스틱으로 코스, 버튼으로 구종을 고르고 [투구]. 빨간 십자가 조준점, 점선 원이 제구 오차 범위(제구 낮고 지칠수록 커짐). 타격은 컴퓨터. <b>타자</b>: 두 사람이 번갈아 투구·타격(기존). <b>경기</b>: A팀 공격은 SWING!, 수비는 조이스틱 투구, B팀은 컴퓨터. <b>PvP</b>: 방 코드로 다른 기기와 1:1(방장 A팀·참가자 B팀, 작전 없음).<br><b>진행</b> — [투구] 버튼(키보드 Enter)을 눌러야 공을 던져요.<br><b>타격</b> — 공이 노란 스트라이크 존에 들어올 때 SWING!(Space) 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울. 파울로는 삼진이 안 돼요. 존 밖 공은 치기 어려워요.<br>
+ <b>모드</b> — <b>투수</b>: 조이스틱으로 코스, 버튼으로 구종을 고르고 [투구]. 빨간 십자가 조준점, 점선 원이 제구 오차 범위(제구 낮고 지칠수록 커짐). 타격은 컴퓨터. <b>타자</b>: 두 사람이 번갈아 투구·타격(기존). <b>경기</b>: A팀 공격은 SWING!, 수비는 조이스틱 투구, B팀은 컴퓨터. <b>PvP</b>: 방 코드로 다른 기기와 1:1(방장 A팀·참가자 B팀, 작전은 내 팀 선수 교체만 가능, 번트는 번트 버튼).<br><b>진행</b> — [투구] 버튼(키보드 Enter)을 눌러야 공을 던져요.<br><b>타격</b> — 공이 노란 스트라이크 존에 들어올 때 SWING!(Space) 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울. 파울로는 삼진이 안 돼요. 존 밖 공은 치기 어려워요.<br>
  <b>투구폼</b> — 사이드암은 낮고 옆에서 나와 횡변화가 크고, 언더핸드는 무릎 높이에서 떠오르듯 들어와요.<br><b>투구</b> — 투수별 구종(CSV)이 있으면 그 구종 중에서, 없으면 체크된 구종 중 무작위. 몸쪽으로 크게 빠진 공에 맞으면 <b>몸에 맞는 공</b>(1루 진루, 사사구 기록). 투수의 구속·제구·구위·체력이 반영되고, 투구수가 늘면 체력이 떨어져 제구와 구위가 나빠져요.<br>
  <b>특성</b> — 선수 카드 오른쪽 육각형 아이콘. 특성이 2개 이상이면 선수 이름을 누를 때마다 바뀌어요. 효과가 켜지면 아이콘이 빛나요.${traitRulesHTML()} <b>타구 판정</b> — 펜스 색 구간 판정은 없어요. 타이밍·파워·투수 구위로 <b>타구 속도</b>와 <b>발사각</b>이 정해지고, 방향과 함께 비거리·체공 시간을 계산해요. 펜스(좌우 95m·중앙 110m)를 넘기면 홈런, 야수가 체공 시간 안에 도달하면 아웃, 못 잡으면 공을 잡아 던지는 시간과 타자 주루 시간을 비교해 1·2·3루타가 결정돼요. 땅볼도 내야수가 따라잡는지·송구가 빠른지로 아웃/내야안타를 판정해요.<br>
  <b>투구 위치</b> — 타석마다 들어온 공의 위치가 존 위에 번호로 표시돼요(노랑=스트라이크·헛스윙·파울, 초록=볼, 파랑=타격).<br><b>수비</b> — 넓은 수비 범위(전체 수비 성공률 +4%p 상향). 외야수는 10%(중견수는 15%) 확률로 호수비(한 단계 감소).<br>
@@ -2526,7 +2547,7 @@ document.querySelector('nav').onclick=navAct;$('#moreMenu').onclick=navAct;docum
 const MODES=[['pitch','⚾','투수','조이스틱 투구'],['bat','🏏','타자','2인 번갈아'],['game','🏟','경기','A팀 공수'],['pvp','⚔','PvP','방 코드 1:1']];
 let MODE=LS.get('dny_mode','bat');if(!MODES.some(m=>m[0]===MODE))MODE='bat';
 const NET={on:false,host:false,me:0,code:'',sent:false,took:false,dec:false,lk:'',over:false};
-const NETX={peer:null,conn:null,bc:null,buf:{}};
+const NETX={mq:null,bc:null,buf:{},seen:0,jt:0,welcomed:false};
 let PAD_ON=false,PAD_KEY='',SX=1;st.aim={x:0,y:0.75};st.selP='';
 const PCODE={'포심':'4FB','투심':'2FB','커터':'CUT','싱커':'SNK','슬라이더':'SLD','스위퍼':'SWP','커브':'CRV','너클커브':'KCV','체인지업':'CHG','스플리터':'SPL','포크':'FRK','서클체인지':'CCH','슬러브':'SLV','너클볼':'KNK','팜볼':'PLM','스크루볼':'SCR','슈트':'SHT','자이로볼':'GYR','종슬라이더':'VSL','킥체인지업':'KCH','프리즈비 슬라이더':'FRZ','업슛':'UPS'};
 function gauss(){let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())}
@@ -2540,7 +2561,7 @@ function myTeamIdx(){return MODE==='pvp'?NET.me:0}
 function humanPitch(){if(!G)return false;if(MODE==='pitch')return true;if(MODE==='game'||MODE==='pvp')return fieldTeam()===G.teams[myTeamIdx()];return false}
 function humanBat(){if(!G)return true;if(MODE==='bat')return true;if(MODE==='pitch'||MODE==='cpu')return false;return batTeam()===G.teams[myTeamIdx()]}
 function aiBat(){return !!G&&(MODE==='pitch'||MODE==='cpu'||(MODE==='game'&&!humanBat()))}
-function aiPitch(){return !!G&&(MODE==='cpu'||(MODE==='game'&&!humanPitch()))}
+function aiPitch(){return !!G&&MODE==='cpu'}
 /* AI 타자: 존·카운트·선구안으로 스윙 여부, 컨택·구위·구속으로 타이밍 오차 */
 function aiPlan(){const p=st.pitch,b=curBatter(),pit=fieldTeam().pitcher,c=effC(b),S=effS(pit);
   const near=Math.abs(p.tx)<=0.38&&p.ty>=0.29&&p.ty<=1.21,two=G.strikes>=2,three=G.balls>=3&&G.strikes<2;
@@ -2563,36 +2584,59 @@ function joyAt(e){const j=$('#joy'),r=j.getBoundingClientRect(),R0=r.width/2-14;
   j.addEventListener('pointermove',e=>{if(drag)joyAt(e)});['pointerup','pointercancel'].forEach(t=>j.addEventListener(t,()=>drag=false));
   $('#pbtns').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.selP=b.dataset.n;$('#pbtns').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))})}
 /* ===== PvP: 방 코드 1:1 (방장 권한형 동기화) ===== */
-function loadPeer(){return window.Peer?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';sc.onload=ok;sc.onerror=()=>no(new Error('PeerJS 불러오기 실패'));document.head.appendChild(sc)})}
-function netOut(x){try{if(NETX.bc)NETX.bc.postMessage({from:NET.host?'h':'g',d:x});else if(NETX.conn&&NETX.conn.open)NETX.conn.send(x)}catch(e){}}
-function netSend(o){if(!NET.on)return;const s=JSON.stringify(o),CH=48000;if(s.length<=CH)return netOut(s);
+/* PvP 중계: 공개 MQTT 브로커(WebSocket)를 거쳐 주고받음 — 모바일 데이터(LTE)처럼 기기끼리 직접 연결(P2P)이 막히는 환경에서도 동작 */
+const BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+const TE=new TextEncoder(),TD=new TextDecoder();
+function mqLen(n){const o=[];do{let b=n%128;n=Math.floor(n/128);if(n>0)b|=128;o.push(b)}while(n>0);return o}
+function mqStr(s){const b=TE.encode(s);return[b.length>>8,b.length&255,...b]}
+function mqPkt(h,body){const a=new Uint8Array(1+mqLen(body.length).length+body.length);const L=mqLen(body.length);a[0]=h;a.set(L,1);a.set(body,1+L.length);return a}
+function mqConnect(url,cid,onMsg,onClose){return new Promise((ok,no)=>{let ws;try{ws=new WebSocket(url,'mqtt')}catch(e){return no(e)}ws.binaryType='arraybuffer';let buf=new Uint8Array(0),done=false,pid=1;
+  const to=setTimeout(()=>{if(!done){done=true;try{ws.close()}catch(e){}no(new Error('timeout'))}},6000);
+  const c={ws,sub(t){const p=pid++;ws.send(mqPkt(0x82,new Uint8Array([p>>8,p&255,...mqStr(t),0])))},
+    pub(t,s){ws.send(mqPkt(0x30,new Uint8Array([...mqStr(t),...TE.encode(s)])))},close(){clearInterval(c.ping);try{ws.send(new Uint8Array([0xE0,0]))}catch(e){}try{ws.close()}catch(e){}}};
+  ws.onopen=()=>{ws.send(mqPkt(0x10,new Uint8Array([...mqStr('MQTT'),4,2,0,60,...mqStr(cid)])))};
+  ws.onmessage=e=>{const d=new Uint8Array(e.data),nb=new Uint8Array(buf.length+d.length);nb.set(buf);nb.set(d,buf.length);buf=nb;
+    for(;;){if(buf.length<2)break;let m=1,len=0,i=1,b;do{if(i>=buf.length)return;b=buf[i++];len+=(b&127)*m;m*=128}while(b&128);if(buf.length<i+len)break;
+      const h0=buf[0],typ=h0>>4,body=buf.subarray(i,i+len);buf=buf.slice(i+len);
+      if(typ===2){if(!done){done=true;clearTimeout(to);if(body[1]!==0){no(new Error('connack '+body[1]));return}c.ping=setInterval(()=>{try{ws.send(new Uint8Array([0xC0,0]))}catch(e){}},25000);ok(c)}}
+      else if(typ===3){const tl=(body[0]<<8)|body[1],t=TD.decode(body.subarray(2,2+tl));let off=2+tl;if(h0&6)off+=2;onMsg(t,TD.decode(body.subarray(off)))}}};
+  ws.onerror=()=>{if(!done){done=true;clearTimeout(to);no(new Error('ws error'))}};
+  ws.onclose=()=>{clearInterval(c.ping);if(!done){done=true;clearTimeout(to);no(new Error('closed'))}else onClose&&onClose()}})}
+async function mqOpen(onMsg){const cid='dny5'+Math.random().toString(36).slice(2,10);let last;
+  for(const u of (window.NET_BROKERS||BROKERS)){try{const c=await mqConnect(u,cid,onMsg,()=>{if(NETX.mq===c){NETX.mq=null;netLost()}});c.url=u;return c}catch(e){last=e}}
+  throw new Error('중계 서버에 연결하지 못했어요('+(last&&last.message)+')')}
+function netOut(x){try{if(NETX.bc)NETX.bc.postMessage({from:NET.host?'h':'g',d:x});else if(NETX.mq)NETX.mq.pub(`dny5/${NET.code}/${NET.host?'g':'h'}`,x)}catch(e){}}
+function netSend(o){if(!NET.on)return;const s=JSON.stringify(o),CH=12000;if(s.length<=CH)return netOut(s);
   const id=Math.random().toString(36).slice(2,8),n=Math.ceil(s.length/CH);for(let i=0;i<n;i++)netOut(JSON.stringify({t:'ck',id,i,n,d:s.slice(i*CH,(i+1)*CH)}))}
-function netRecv(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}
+function netRecv(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catch(e){return}NETX.seen=Date.now();
   if(m.t==='ck'){const b=NETX.buf[m.id]=NETX.buf[m.id]||[];b[m.i]=m.d;if(b.filter(x=>x!=null).length===m.n){delete NETX.buf[m.id];netRecv(b.join(''))}return}
+  if(m.t==='hb')return;
   try{(NET.host?hostMsg:guestMsg)(m)}catch(e){console.error(e)}}
-function netClose(){try{NETX.conn&&NETX.conn.close()}catch(e){}try{NETX.peer&&NETX.peer.destroy()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}NETX.conn=NETX.peer=NETX.bc=null;NET.on=false;NET.code='';updateModeTag()}
+// 연결 확인(3초마다 신호, 15초 동안 없으면 끊김 처리)
+setInterval(()=>{if(!NET.on)return;netSend({t:'hb'});if(NETX.seen&&Date.now()-NETX.seen>15000){NETX.seen=0;netLost()}},3000);
+function netClose(){try{NETX.mq&&NETX.mq.close()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}clearTimeout(NETX.jt);NETX.mq=NETX.bc=null;NETX.seen=0;NET.on=false;NET.code='';updateModeTag()}
 function netLost(){if(!NET.on)return;const wasHost=NET.host;NET.on=false;
   if(wasHost&&G&&!G.over){setMode('game');showBanner('상대 연결 끊김','out','B팀은 컴퓨터가 이어서 해요')}
-  else if(!wasHost)overlay(`<div class="big">연결 끊김</div><p class="center note">방장과 연결이 끊겼어요.</p><div class="row"><button class="btn gold" id="ok">처음으로</button></div>`,el=>el.querySelector('#ok').onclick=()=>{netClose();setMode('bat');showSetup()})}
+  else if(wasHost)lobbyMsg('상대 연결이 끊겼어요. 방 코드는 그대로예요 — 다시 참가하면 돼요');
+  else overlay(`<div class="big">연결 끊김</div><p class="center note">방장과 연결이 끊겼어요.</p><div class="row"><button class="btn gold" id="ok">처음으로</button></div>`,el=>el.querySelector('#ok').onclick=()=>{netClose();setMode('bat');showSetup()})}
 function lobbyMsg(t){const e=document.getElementById('pvS');if(e)e.innerHTML=t}
-async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const code=String(1000+Math.floor(R()*9000));NET.code=code;
-  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='g')netRecv(e.data.d)};lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`);return code}
-  lobbyMsg('방 만드는 중…');await loadPeer();
-  NETX.peer=new Peer('dny5-'+code);
-  NETX.peer.on('open',()=>lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`));
-  NETX.peer.on('connection',c=>{if(NETX.conn&&NETX.conn.open){c.close();return}NETX.conn=c;c.on('data',netRecv);c.on('close',netLost)});
-  NETX.peer.on('error',e=>{if(e.type==='unavailable-id')return pvpHost();lobbyMsg('✖ 연결 오류: '+(e.type||e.message))});return code}
+async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const code=String(1000+Math.floor(Math.random()*9000));NET.code=code;
+  const ready=()=>lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`);
+  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='g')netRecv(e.data.d)};ready();return code}
+  lobbyMsg('중계 서버에 연결하는 중…');
+  NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/h`)netRecv(s)});NETX.mq.sub(`dny5/${code}/h`);ready();return code}
 async function pvpJoin(code){netClose();NET.host=false;NET.me=1;NET.code=code;NET.over=false;
   if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='h')netRecv(e.data.d)};NET.on=true;netSend({t:'hello'});return}
-  lobbyMsg('방 찾는 중…');await loadPeer();NETX.peer=new Peer();
-  NETX.peer.on('open',()=>{const c=NETX.conn=NETX.peer.connect('dny5-'+code,{serialization:'raw',reliable:true});c.on('open',()=>{NET.on=true;netSend({t:'hello'})});c.on('data',netRecv);c.on('close',netLost)});
-  NETX.peer.on('error',e=>lobbyMsg(e.type==='peer-unavailable'?'✖ 그 코드의 방이 없어요':'✖ 연결 오류: '+(e.type||e.message)))}
-function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 쓸 수 없어요.</p>
+  lobbyMsg('중계 서버에 연결하는 중…');
+  NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/g`)netRecv(s)});NETX.mq.sub(`dny5/${code}/g`);NET.code=code;
+  lobbyMsg('방 찾는 중…');NET.on=true;let n=0;const tryHello=()=>{if(NETX.welcomed||!NETX.mq)return;if(n++>=4){NET.on=false;lobbyMsg('✖ 그 코드의 방이 없거나 방장이 응답하지 않아요');return}netSend({t:'hello'});NETX.jt=setTimeout(tryHello,2500)};
+  NETX.welcomed=false;setTimeout(tryHello,400)}
+function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 내 팀 선수 교체만 쓸 수 있어요.</p>
   <div class="row"><button class="btn gold" id="pvH">방 만들기</button></div>
   <div class="row"><input id="pvC" inputmode="numeric" maxlength="4" placeholder="코드 4자리" style="flex:1;font-size:20px;text-align:center"><button class="btn" id="pvJ">참가</button></div>
   <div class="status" id="pvS" style="text-align:center">${NET.on?`● 연결됨 (방 ${NET.code})`:''}</div>
-  <div class="row"><button class="btn sm gray" id="pvX">닫기</button>${NET.on||NETX.peer||NETX.bc?'<button class="btn sm gray" id="pvQ">방 나가기</button>':''}</div>`,el=>{
-  el.querySelector('#pvH').onclick=()=>pvpHost().catch(e=>lobbyMsg('✖ '+e.message));
+  <div class="row"><button class="btn sm gray" id="pvX">닫기</button>${NET.on||NETX.mq||NETX.bc?'<button class="btn sm gray" id="pvQ">방 나가기</button>':''}</div>`,el=>{
+  el.querySelector('#pvH').onclick=()=>pvpHost().catch(e=>lobbyMsg('✖ '+e.message+'<br><small>와이파이/데이터 연결을 확인해 주세요</small>'));
   el.querySelector('#pvJ').onclick=()=>{const c=el.querySelector('#pvC').value.trim();if(!/^\d{4}$/.test(c))return lobbyMsg('코드 4자리를 넣어 주세요');pvpJoin(c).catch(e=>lobbyMsg('✖ '+e.message))};
   el.querySelector('#pvX').onclick=closeModal;const q=el.querySelector('#pvQ');if(q)q.onclick=()=>{netClose();lobbyMsg('방에서 나왔어요')}})}
 function setupRefresh(){const e=document.getElementById('mdI');if(e)e.innerHTML=modeInfo()}
@@ -2603,10 +2647,11 @@ function hostMsg(m){
   else if(m.t==='swing'){if(st.mode==='flight'&&batTeam()===G.teams[1]&&!st.swung)doSwing(true,+m.dt||0)}
   else if(m.t==='take'){NET.dec=true}
   else if(m.t==='steal'){if(st.mode==='ready'&&batTeam()===G.teams[1]){const B=G.bases,i=(+m.v||0)-1;if(!m.v||(B[i]&&!B[i+1]&&(i===0||hasTrait(B[i].b,'대주자'))))G.stealReq=+m.v||0}}
+  else if(m.t==='sub'){if((st.mode==='ready'||st.mode==='idle')&&!G.halt){const mine=['P','D','F'].includes(m.k)?fieldTeam()===G.teams[1]:batTeam()===G.teams[1];if(mine)subDo(m.k,+m.a,m.k==='F'?String(m.b):+m.b);NET.lk=''}}
   else if(m.t==='pick'){if(fieldTeam()===G.teams[1])pickoff(+m.i)}
   else if(m.t==='bunt'){if(batTeam()===G.teams[1]){if(!m.v)st.buntNext=false;else if(canBunt()||canSqueeze())st.buntNext=canSqueeze()?'squeeze':true}}}
 function guestMsg(m){
-  if(m.t==='welcome'){lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
+  if(m.t==='welcome'){NETX.welcomed=true;clearTimeout(NETX.jt);lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
   if(m.t==='ban'){showBanner(...m.a);return}
   if(m.t==='snap')applySnap(m)}
 const ST_SYNC=['mode','wpNote','pitch','hit','buntNext','ballAnim','camMode','swung','whiff','foulDir','paEnd'],ST_T=['until','fs','swingAt','hitT0','foulT0','buntAt'];
@@ -2672,6 +2717,26 @@ function recDef(t,old){return topIdx(t.bench.map(q=>(q.nat||[]).includes(old.pos
 function recPit(t){const late=G.inning>=Math.max(1,G.innings-1),lead=leadOf(t),nb=curBatter(),bh=nb&&nb.curHand;
   return topIdx(t.bullpen.map(q=>{let v=(q.stuff||50)+(q.control||50);if(late&&lead>0&&lead<=3)v+=(q.cl?40:0)+(hasTrait(q,'파이널보스')?30:0);
     else if(!late)v+=q.role==='SP'?12:0;if(bh&&q.hand===bh)v+=8;return v}),6)}
+/* 확대 존(내가 던질 때): 조준점·제구 범위·이번 타석 투구 기록. 눌러서 바로 조준할 수도 있음 */
+const ZX=[-0.5,0.5],ZY=[0.2,1.32];
+function zMap(x,y){const c=$('#zoomZ'),w=128,h=160,mir=zMir();return[(mir?(ZX[1]-x):(x-ZX[0]))/(ZX[1]-ZX[0])*w,(ZY[1]-y)/(ZY[1]-ZY[0])*h]}
+function zMir(){const a=pt([0.3,0.75,0]),b=pt([-0.3,0.75,0]);return !!(a&&b&&a.x<b.x)}
+function drawZoom(on){const c=$('#zoomZ');if(!c)return;if(c.classList.contains('on')!==on)c.classList.toggle('on',on);if(!on)return;
+  const d=Math.min(2,window.devicePixelRatio||1);if(c.width!==128*d){c.width=128*d;c.height=160*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,128,160);
+  const [x0,y0]=zMap(-0.22,1.05),[x1,y1]=zMap(0.22,0.45),L=Math.min(x0,x1),T=y0,Wd=Math.abs(x1-x0),Hd=y1-y0;
+  x.fillStyle='rgba(255,214,0,.1)';x.fillRect(L,T,Wd,Hd);x.strokeStyle='#ffd400';x.lineWidth=2;x.strokeRect(L,T,Wd,Hd);x.lineWidth=1;x.strokeStyle='rgba(255,214,0,.45)';
+  for(let i=1;i<3;i++){x.beginPath();x.moveTo(L+Wd*i/3,T);x.lineTo(L+Wd*i/3,T+Hd);x.moveTo(L,T+Hd*i/3);x.lineTo(L+Wd,T+Hd*i/3);x.stroke()}
+  {const b=curBatter(),side=b.curHand==='R'?-1:1,[hx]=zMap(side*0.62,0);x.fillStyle='rgba(255,255,255,.5)';x.font='10px sans-serif';x.textAlign='center';x.fillText(b.curHand==='R'?'우타':'좌타',Math.max(14,Math.min(114,hx)),154)}
+  if(G.paP)G.paP.forEach((q,i)=>{const [px,py]=zMap(q.x,q.y);x.fillStyle=q.k==='B'?'#2fbf4a':q.k==='S'?'#ffb300':'#3fa9ff';x.strokeStyle='#fff';x.lineWidth=1.5;x.beginPath();x.arc(px,py,7,0,7);x.fill();x.stroke();
+    x.fillStyle='#fff';x.font='bold 9px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(i+1,px,py+0.5)});
+  if(PAD_ON){const pit=fieldTeam().pitcher,sd=aimSD(pit,effCtl(pit),fatigue(pit)),[ax,ay]=zMap(st.aim.x,st.aim.y),r=sd/(ZX[1]-ZX[0])*128;
+    x.setLineDash([3,3]);x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=1.5;x.beginPath();x.arc(ax,ay,Math.max(4,r),0,7);x.stroke();x.setLineDash([]);
+    x.strokeStyle='#ff4d4d';x.lineWidth=2;x.beginPath();x.moveTo(ax-7,ay);x.lineTo(ax+7,ay);x.moveTo(ax,ay-7);x.lineTo(ax,ay+7);x.stroke()}}
+function zoomAim(e){if(!PAD_ON)return;const c=$('#zoomZ'),r=c.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width,fy=(e.clientY-r.top)/r.height,mir=zMir();
+  const wx=mir?ZX[1]-fx*(ZX[1]-ZX[0]):ZX[0]+fx*(ZX[1]-ZX[0]),wy=ZY[1]-fy*(ZY[1]-ZY[0]);st.aim={x:clamp(wx,-0.46,0.46),y:clamp(wy,0.23,1.27)};
+  {const nx=st.aim.x/(0.46*SX),ny=(0.75-st.aim.y)/0.52,j=$('#joy'),R0=j.getBoundingClientRect().width/2-14,W0=j.getBoundingClientRect().width||116;$('#knob').style.left=(50+nx*(R0/W0)*100)+'%';$('#knob').style.top=(50+ny*(R0/W0)*100)+'%'}}
+{const c=$('#zoomZ');let dn=false;c.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();dn=true;try{c.setPointerCapture(e.pointerId)}catch(_){}zoomAim(e)});
+  c.addEventListener('pointermove',e=>{if(dn)zoomAim(e)});['pointerup','pointercancel'].forEach(t=>c.addEventListener(t,()=>dn=false))}
 $('#btnSwing').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#stage').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#btnTactic').onclick=tacticModal;

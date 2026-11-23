@@ -253,7 +253,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3.2</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -4070,24 +4070,34 @@ function applyBunt(h){const b=curBatter(),pit=fieldTeam().pitcher,B=G.bases,me={
   st.buntNext=false;log(`${b.name}: ${txt}`);finishPitch(txt,h.bk==='ok'?'hit':'out',true,'')}
 
 
-function tacticModal(){if(!G||G.halt)return;if(MODE==='pvp')return showBanner('작전 없음','ball','PvP에선 작전을 쓸 수 없어요');
+/* 선수 교체 실행(PvP에선 방장 기기에서 실행: 참가자는 요청만 보냄) */
+function swapInT(t,old,q,tag){const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;if(tag==='pinchRun')q.offField=true;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true}
+function subDo(k,a,b){if(!G)return false;const ft=fieldTeam(),bt=batTeam();
+  if(k==='P'){const q=ft.bullpen[a];if(!q)return false;ft.bullpen.splice(a,1);ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;updateHUD();showBanner('투수 교체','strike',q.name);return true}
+  if(k==='H'){const q=bt.bench[a];if(!q)return false;bt.bench.splice(a,1);q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;q.offField=true;log(`대타: ${old.name} → ${q.name}`);updateHUD();showBanner('대타!','hit',q.name);return true}
+  if(k==='R'){const r=G.bases[a],q=bt.bench[b];if(!r||!q)return false;const old=r.b;if(!swapInT(bt,old,q,'pinchRun')){showBanner('교체 불가','foul','');return false}bt.bench.splice(b,1);G.bases[a]=Object.assign({},r,{b:q});log(`대주자: ${old.name} → ${q.name}`);updateHUD();showBanner('대주자!','hit',q.name);return true}
+  if(k==='D'){const old=ft.lineup[a],q=ft.bench[b];if(!old||!q||!swapInT(ft,old,q,'defSub'))return false;ft.bench.splice(b,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);updateHUD();showBanner('대수비','strike',q.name);return true}
+  if(k==='F'){const q=ft.lineup[a],np=b;if(!q||!POSK[np])return false;const o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;updateHUD();return true}
+  return false}
+function subReq(k,a,b){if(NET.on&&!NET.host){netSend({t:'sub',k,a,b});closeModal();showBanner('교체 요청','strike','방장 기기에서 반영돼요');return}const ok=subDo(k,a,b);NET.lk='';if(k!=='F')closeModal();return ok}
+function tacticModal(){if(!G||G.halt)return;
+  const pvp=MODE==='pvp',myF=!pvp||humanPitch(),myB=!pvp||humanBat();   // PvP: 내 팀 교체만(번트는 번트 버튼, 고의사구·스퀴즈 없음)
   if(!(st.mode==='ready'||st.mode==='idle')){showBanner('투구 중엔 불가','foul','');return}
   const ft=fieldTeam(),bt=batTeam(),p=ft.pitcher;
   modal(`<h3>작전 타임</h3>
    <div class="jrow"><span>수비 · ${esc(ft.name)}</span><span class="n">${esc(p.name)} ${p.pc}구 · 체력 ${Math.round(clamp(1-p.pc/pLimit(p),0,1)*100)}%</span></div>
-   <div class="tacg"><button class="btn red" id="tP" ${ft.bullpen.length?'':'disabled'}>투수 교체<br>(${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length?'':'disabled'}>대수비<br>(${ft.bench.length})</button><button class="btn" id="tF">수비 위치</button><button class="btn" id="tI" ${G.balls||G.strikes?'disabled':''}>고의사구</button></div>
+   <div class="tacg"><button class="btn red" id="tP" ${ft.bullpen.length&&myF?'':'disabled'}>투수 교체<br>(${ft.bullpen.length})</button><button class="btn" id="tD" ${ft.bench.length&&myF?'':'disabled'}>대수비<br>(${ft.bench.length})</button><button class="btn" id="tF" ${myF?'':'disabled'}>수비 위치</button><button class="btn" id="tI" ${G.balls||G.strikes||pvp?'disabled':''}>고의사구</button></div>
    <div class="jrow"><span>공격 · ${esc(bt.name)}</span><span class="n">${bt.idx+1}번 ${esc(curBatter().name)}</span></div>
-   <div class="tacg"><button class="btn" id="tH" ${bt.bench.length?'':'disabled'}>대타 기용<br>(${bt.bench.length})</button><button class="btn" id="tR" ${bt.bench.length&&G.bases.some(Boolean)?'':'disabled'}>대주자</button><button class="btn gold" id="tB" ${canBunt()?'':'disabled'}>희생번트</button><button class="btn gold" id="tS" ${canSqueeze()?'':'disabled'}>스퀴즈</button></div>
+   <div class="tacg"><button class="btn" id="tH" ${bt.bench.length&&myB?'':'disabled'}>대타 기용<br>(${bt.bench.length})</button><button class="btn" id="tR" ${bt.bench.length&&G.bases.some(Boolean)&&myB?'':'disabled'}>대주자</button><button class="btn gold" id="tB" ${canBunt()&&!pvp?'':'disabled'}>희생번트</button><button class="btn gold" id="tS" ${canSqueeze()&&!pvp?'':'disabled'}>스퀴즈</button></div>
    <p class="note">희생번트는 주자 1루·2루·1,2루(3루 비었을 때, 2아웃 전)에서만 가능해요. 다음 투구에 자동으로 번트를 대요: 성공 55% · 번트 파울 39% · 병살 3% · 선행주자 아웃 3%.<br>스퀴즈는 3루에 주자가 있고 2아웃 전일 때 가능해요: 성공(득점, 타자 아웃) 58% · 번트 파울 22% · 헛스윙(3루 주자 협살 아웃) 8% · 홈 승부 아웃(타자는 1루) 7% · 올 세이프 5%.<br>고의사구는 볼카운트가 0-0일 때 투구 없이 타자를 1루로 보내요(볼넷으로 기록).<br>대주자는 주자 대신 들어가 그 타순·포지션을 이어받고, 대수비는 고른 수비수의 타순·포지션에 들어가요. 교체되어 나간 선수는 이번 경기에 다시 나올 수 없어요. 볼카운트는 유지돼요.</p>
    <div class="row"><button class="btn sm gray" id="cl">닫기</button></div>`,el=>{
    el.querySelector('#cl').onclick=closeModal;
    el.querySelector('#tI').onclick=()=>{closeModal();const b=curBatter();showBanner('고의사구','ball',b.name+' 자동 출루');setTimeout(()=>walk(false,true),500)};   // 고의사구: 투구 없이 타자 1루로(타석 시작 전만)
    const benchList=(t,rec)=>`<div class="list">${t.bench.map((q,j)=>`<div class="it click${rec&&rec.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div>`;
-   const swapIn=(t,old,q,tag)=>{const i=t.lineup.indexOf(old);if(i<0)return false;q.pos=old.pos;if(tag==='pinchRun')q.offField=true;q.curHand=q.hand||(R()<.5?'R':'L');t.used.push(old);t.lineup[i]=q;q.appeared=true;q[tag]=true;return true};
    el.querySelector('#tR').onclick=()=>{const rs=[0,1,2].filter(i=>G.bases[i]);
      const step2=bi=>{const old=G.bases[bi].b;modal(`<h3>대주자 — ${esc(bt.name)}</h3><p class="note">${bi+1}루 주자 ${esc(old.name)} 대신</p>${benchList(bt,recRun(bt,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;
-       e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench[+it.dataset.j];if(!swapIn(bt,old,q,'pinchRun')){showBanner('교체 불가','foul','');return}bt.bench.splice(+it.dataset.j,1);G.bases[bi]=Object.assign({},G.bases[bi],{b:q});log(`대주자: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대주자!','hit',q.name)})})};
+       e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('R',bi,+it.dataset.j))})};
      if(rs.length===1)return step2(rs[0]);
      const rr=recRunBase(bt,rs);modal(`<h3>대주자 — 누구 대신?</h3><div class="list">${rs.map(i=>`<div class="it click${i===rr?' rec':''}" data-b="${i}"><span>${i+1}루 · ${esc(G.bases[i].b.name)}</span><span class="r">${tIcons(G.bases[i].b)}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=closeModal;e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>step2(+it.dataset.b))})};
@@ -4096,26 +4106,26 @@ function tacticModal(){if(!G||G.halt)return;if(MODE==='pvp')return showBanner('�
      e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const old=ft.lineup[+it.dataset.i];
        modal(`<h3>대수비 — ${esc(posK(old.pos))}</h3><p class="note">${esc(old.name)} 대신</p>${benchList(ft,recDef(ft,old))}<div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e3=>{
          e3.querySelector('#cl').onclick=closeModal;
-         e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>{const q=ft.bench[+x.dataset.j];if(!swapIn(ft,old,q,'defSub'))return;ft.bench.splice(+x.dataset.j,1);log(`대수비: ${old.name} → ${q.name} (${posK(q.pos)})`);closeModal();updateHUD();showBanner('대수비','strike',q.name)})})})});
+         e3.querySelectorAll('.it.click').forEach(x=>x.onclick=()=>subReq('D',+it.dataset.i,+x.dataset.j))})})});
    el.querySelector('#tF').onclick=()=>{const POS=['C','1B','2B','3B','SS','LF','CF','RF','DH'];
      const draw=()=>modal(`<h3>수비 위치 — ${esc(ft.name)}</h3><p class="note">포지션을 바꾸면 그 자리에 있던 선수와 서로 맞바꿔요. 타순은 그대로예요.</p><div class="list">${ft.lineup.map((q,i)=>`<div class="it"><span>${i+1}번 ${esc(q.name)} ${tIcons(q)} <small class="${posBad(q)?'pbad':''}">${esc(natK(q))}</small></span><select class="${posBad(q)?'pbad':''}" data-i="${i}" aria-label="${esc(q.name)} 포지션" style="font:inherit;padding:4px 6px;border-radius:8px">${POS.map(p=>`<option value="${p}" ${q.pos===p?'selected':''}>${POSK[p]}</option>`).join('')}</select></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">완료</button></div>`,e2=>{
        e2.querySelector('#cl').onclick=()=>{closeModal();updateHUD()};
-       e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{const q=ft.lineup[+sel.dataset.i],np=sel.value,o=ft.lineup.find(x=>x!==q&&x.pos===np);if(o)o.pos=q.pos;log(`수비 위치: ${q.name} ${POSK[q.pos]}→${POSK[np]}${o?` / ${o.name} ${POSK[np]}→${POSK[o.pos]}`:''}`);q.pos=np;draw()})});draw()};
+       e2.querySelectorAll('select').forEach(sel=>sel.onchange=()=>{subReq('F',+sel.dataset.i,sel.value);if(!(NET.on&&!NET.host))draw()})});draw()};
    el.querySelector('#tS').onclick=()=>{if(!canSqueeze())return;st.buntNext='squeeze';closeModal();log(`${curBatter().name}: 스퀴즈 번트 작전`);showBanner('스퀴즈 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tB').onclick=()=>{if(!canBunt())return;st.buntNext=true;closeModal();log(`${curBatter().name}: 희생번트 작전`);showBanner('희생번트 작전','strike','투구 버튼을 누르세요')};
    el.querySelector('#tP').onclick=()=>{const rp=recPit(ft);modal(`<h3>투수 교체 — ${esc(ft.name)}</h3><div class="list">${ft.bullpen.map((q,j)=>`<div class="it click${rp.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${q.hand==='L'?'좌':'우'}</small></span><span class="r">${q.arsenal?q.arsenal.map(a=>a.n).join('/'):q.velo+'km'}${q.era!=null?` · ERA ${q.era}`:''}<br>${q.role==='SP'?'선발':'구원'} · 제${q.control} 위${q.stuff}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=ft.bullpen.splice(+it.dataset.j,1)[0];ft.pitcher.exitLead=leadOf(ft);ft.used.push(ft.pitcher);ft.pitchLog.push(q);enterPitcher(ft,q);log(`투수 교체: ${ft.pitcher.name} → ${q.name}`);ft.pitcher=q;closeModal();updateHUD();showBanner('투수 교체','strike',q.name)})})};
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('P',+it.dataset.j))})};
    el.querySelector('#tH').onclick=()=>{const rh=recPH(bt);modal(`<h3>대타 — ${esc(bt.name)}</h3><p class="note">${bt.idx+1}번 ${esc(curBatter().name)} 대신</p><div class="list">${bt.bench.map((q,j)=>`<div class="it click${rh.includes(j)?' rec':''}" data-j="${j}"><span>${q.special?'<span class=star>★</span>':''}${esc(q.name)} <small>${esc(natK(q))}</small> ${tIcons(q)}</span><span class="r">컨${q.contact} 파${q.power}${q.hand?' · '+(q.hand==='L'?'좌':'우')+'타':''}</span></div>`).join('')}</div><div class="row"><button class="btn sm gray" id="cl">취소</button></div>`,e2=>{
      e2.querySelector('#cl').onclick=closeModal;
-     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>{const q=bt.bench.splice(+it.dataset.j,1)[0];q.pinchPA=true;const old=bt.lineup[bt.idx];q.pos=old.pos;q.curHand=q.hand||(R()<.5?'R':'L');bt.used.push(old);bt.lineup[bt.idx]=q;q.appeared=true;q.offField=true;log(`대타: ${old.name} → ${q.name}`);closeModal();updateHUD();showBanner('대타!','hit',q.name)})})}})}
+     e2.querySelectorAll('.it.click').forEach(it=>it.onclick=()=>subReq('H',+it.dataset.j))})}})}
 function logModal(){modal(`<h3>문자 중계</h3><div class="logl">${G&&G.log.length?G.log.map(l=>`<div><span class="ih">${l.h}</span>${esc(l.t)}</div>`).join(''):'<div>아직 기록이 없어요</div>'}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>el.querySelector('#cl').onclick=closeModal)}
 function pitchModal(){modal(`<h3>구종 인덱스</h3><p class="note">구종 정보가 없는 투수는 체크된 구종 중에서, KBO 투수는 자기 구종 중 체크된 것에서 같은 확률로 던져요.</p><div class="pgrid">${PITCHES.map((p,i)=>`<label><input type="checkbox" data-i="${i}" ${p.on?'checked':''}>${p.n}</label>`).join('')}</div><div class="row"><button class="btn sm gray" id="all">전체 선택</button><button class="btn sm" id="cl">닫기</button></div>`,el=>{
   const save=()=>LS.set('dny_pitches',PITCHES.map(p=>p.on));
   el.querySelectorAll('input').forEach(c=>c.onchange=()=>{PITCHES[+c.dataset.i].on=c.checked;if(!PITCHES.some(p=>p.on)){c.checked=true;PITCHES[+c.dataset.i].on=true}save()});
   el.querySelector('#all').onclick=()=>{PITCHES.forEach(p=>p.on=true);save();pitchModal()};el.querySelector('#cl').onclick=closeModal})}
 function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:14px;line-height:1.6">
- <b>모드</b> — <b>투수</b>: 조이스틱으로 코스, 버튼으로 구종을 고르고 [투구]. 빨간 십자가 조준점, 점선 원이 제구 오차 범위(제구 낮고 지칠수록 커짐). 타격은 컴퓨터. <b>타자</b>: 두 사람이 번갈아 투구·타격(기존). <b>경기</b>: A팀 공격은 SWING!, 수비는 조이스틱 투구, B팀은 컴퓨터. <b>PvP</b>: 방 코드로 다른 기기와 1:1(방장 A팀·참가자 B팀, 작전 없음).<br><b>진행</b> — [투구] 버튼(키보드 Enter)을 눌러야 공을 던져요.<br><b>타격</b> — 공이 노란 스트라이크 존에 들어올 때 SWING!(Space) 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울. 파울로는 삼진이 안 돼요. 존 밖 공은 치기 어려워요.<br>
+ <b>모드</b> — <b>투수</b>: 조이스틱으로 코스, 버튼으로 구종을 고르고 [투구]. 빨간 십자가 조준점, 점선 원이 제구 오차 범위(제구 낮고 지칠수록 커짐). 타격은 컴퓨터. <b>타자</b>: 두 사람이 번갈아 투구·타격(기존). <b>경기</b>: A팀 공격은 SWING!, 수비는 조이스틱 투구, B팀은 컴퓨터. <b>PvP</b>: 방 코드로 다른 기기와 1:1(방장 A팀·참가자 B팀, 작전은 내 팀 선수 교체만 가능, 번트는 번트 버튼).<br><b>진행</b> — [투구] 버튼(키보드 Enter)을 눌러야 공을 던져요.<br><b>타격</b> — 공이 노란 스트라이크 존에 들어올 때 SWING!(Space) 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울. 파울로는 삼진이 안 돼요. 존 밖 공은 치기 어려워요.<br>
  <b>투구폼</b> — 사이드암은 낮고 옆에서 나와 횡변화가 크고, 언더핸드는 무릎 높이에서 떠오르듯 들어와요.<br><b>투구</b> — 투수별 구종(CSV)이 있으면 그 구종 중에서, 없으면 체크된 구종 중 무작위. 몸쪽으로 크게 빠진 공에 맞으면 <b>몸에 맞는 공</b>(1루 진루, 사사구 기록). 투수의 구속·제구·구위·체력이 반영되고, 투구수가 늘면 체력이 떨어져 제구와 구위가 나빠져요.<br>
  <b>특성</b> — 선수 카드 오른쪽 육각형 아이콘. 특성이 2개 이상이면 선수 이름을 누를 때마다 바뀌어요. 효과가 켜지면 아이콘이 빛나요.${traitRulesHTML()} <b>타구 판정</b> — 펜스 색 구간 판정은 없어요. 타이밍·파워·투수 구위로 <b>타구 속도</b>와 <b>발사각</b>이 정해지고, 방향과 함께 비거리·체공 시간을 계산해요. 펜스(좌우 95m·중앙 110m)를 넘기면 홈런, 야수가 체공 시간 안에 도달하면 아웃, 못 잡으면 공을 잡아 던지는 시간과 타자 주루 시간을 비교해 1·2·3루타가 결정돼요. 땅볼도 내야수가 따라잡는지·송구가 빠른지로 아웃/내야안타를 판정해요.<br>
  <b>투구 위치</b> — 타석마다 들어온 공의 위치가 존 위에 번호로 표시돼요(노랑=스트라이크·헛스윙·파울, 초록=볼, 파랑=타격).<br><b>수비</b> — 넓은 수비 범위(전체 수비 성공률 +4%p 상향). 외야수는 10%(중견수는 15%) 확률로 호수비(한 단계 감소).<br>
@@ -4219,7 +4229,7 @@ async function pvpJoin(code){netClose();NET.host=false;NET.me=1;NET.code=code;NE
   NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/g`)netRecv(s)});NETX.mq.sub(`dny5/${code}/g`);NET.code=code;
   lobbyMsg('방 찾는 중…');NET.on=true;let n=0;const tryHello=()=>{if(NETX.welcomed||!NETX.mq)return;if(n++>=4){NET.on=false;lobbyMsg('✖ 그 코드의 방이 없거나 방장이 응답하지 않아요');return}netSend({t:'hello'});NETX.jt=setTimeout(tryHello,2500)};
   NETX.welcomed=false;setTimeout(tryHello,400)}
-function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 쓸 수 없어요.</p>
+function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 내 팀 선수 교체만 쓸 수 있어요.</p>
   <div class="row"><button class="btn gold" id="pvH">방 만들기</button></div>
   <div class="row"><input id="pvC" inputmode="numeric" maxlength="4" placeholder="코드 4자리" style="flex:1;font-size:20px;text-align:center"><button class="btn" id="pvJ">참가</button></div>
   <div class="status" id="pvS" style="text-align:center">${NET.on?`● 연결됨 (방 ${NET.code})`:''}</div>
@@ -4235,6 +4245,7 @@ function hostMsg(m){
   else if(m.t==='swing'){if(st.mode==='flight'&&batTeam()===G.teams[1]&&!st.swung)doSwing(true,+m.dt||0)}
   else if(m.t==='take'){NET.dec=true}
   else if(m.t==='steal'){if(st.mode==='ready'&&batTeam()===G.teams[1]){const B=G.bases,i=(+m.v||0)-1;if(!m.v||(B[i]&&!B[i+1]&&(i===0||hasTrait(B[i].b,'대주자'))))G.stealReq=+m.v||0}}
+  else if(m.t==='sub'){if((st.mode==='ready'||st.mode==='idle')&&!G.halt){const mine=['P','D','F'].includes(m.k)?fieldTeam()===G.teams[1]:batTeam()===G.teams[1];if(mine)subDo(m.k,+m.a,m.k==='F'?String(m.b):+m.b);NET.lk=''}}
   else if(m.t==='pick'){if(fieldTeam()===G.teams[1])pickoff(+m.i)}
   else if(m.t==='bunt'){if(batTeam()===G.teams[1]){if(!m.v)st.buntNext=false;else if(canBunt()||canSqueeze())st.buntNext=canSqueeze()?'squeeze':true}}}
 function guestMsg(m){
