@@ -82,6 +82,7 @@ canvas{display:block;width:100%;height:100%}
 .joy{width:116px;height:116px;border-radius:50%;background:radial-gradient(rgba(255,255,255,.16),rgba(0,0,0,.5));border:2px solid rgba(255,255,255,.55);position:relative;touch-action:none;cursor:grab}
 .joy:before,.joy:after{content:'';position:absolute;background:rgba(255,255,255,.25)}.joy:before{left:50%;top:8px;bottom:8px;width:1px}.joy:after{top:50%;left:8px;right:8px;height:1px}
 .joy .knob{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9aa);box-shadow:0 2px 6px rgba(0,0,0,.6);left:50%;top:50%;pointer-events:none}
+#zoomZ{position:absolute;right:6px;top:80px;width:128px;height:160px;display:none;z-index:5;border-radius:10px;background:rgba(8,16,24,.55);border:1px solid rgba(255,255,255,.35);touch-action:none}#zoomZ.on{display:block}
 #modeTag{position:absolute;left:50%;transform:translateX(-50%);top:4px;font:11px 'Black Han Sans',sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:8px;pointer-events:none}#modeTag:empty{display:none}
 .modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.modes button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border-radius:12px;border:2px solid #3c5a5e;background:linear-gradient(#22343a,#16252a);color:#fff;font:17px 'Black Han Sans',sans-serif;cursor:pointer}
 .modes button i{font-style:normal;font-size:20px}.modes button small{font:10px sans-serif;opacity:.75}.modes button.on{border-color:#ffd23f;background:linear-gradient(#5a4a12,#3a2f0a);box-shadow:0 0 8px rgba(255,210,63,.5)}
@@ -252,7 +253,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.2.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.3</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -282,6 +283,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
     <div id="spTag">★ 스페셜</div>
     <div id="pad"><div class="pbtns" id="pbtns"></div><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
     <div id="modeTag"></div>
+    <canvas id="zoomZ" width="128" height="160"></canvas>
   </div>
   <section class="matchup">
     <div class="card" id="cardP"></div>
@@ -3070,10 +3072,12 @@ function doSwing(force,dtO){if(!G||G.halt||(!force&&anyOpen())||st.buntNext)retu
   else st.whiff=true}
 function doPitch(){if(!G||G.halt||anyOpen()||st.mode!=='ready')return;
   if(MODE==='bat')return startPitch();
+  if(MODE==='game'&&!humanPitch()&&humanBat())return startPitch();   // 타자가 [준비]를 누르면 상대(컴퓨터) 투수가 던짐
   if(!humanPitch()||NET.sent)return;const o={name:st.selP,aim:{x:st.aim.x,y:st.aim.y}};
   if(MODE==='pvp'&&!NET.host){NET.sent=true;netSend({t:'pitch',o});return}
   startPitch(o)}
-function syncButtons(){const rdy=!!(G&&!G.halt&&st.mode==='ready'&&!anyOpen());const hp=MODE!=='bat'&&!!G&&humanPitch(),ok=rdy&&(MODE==='bat'||hp)&&!NET.sent;
+function syncButtons(){const rdy=!!(G&&!G.halt&&st.mode==='ready'&&!anyOpen());const hp=MODE!=='bat'&&!!G&&humanPitch(),prep=MODE==='game'&&!!G&&!hp&&humanBat(),ok=rdy&&(MODE==='bat'||hp||prep)&&!NET.sent;
+  {const bp=$('#btnPitch'),lb=prep?'준비':'투구';if(bp.textContent!==lb)bp.textContent=lb}
   {const sw=$('#btnSwing'),hb=!G||humanBat();if(sw.disabled===hb)sw.disabled=!hb;syncPad(rdy&&hp&&!NET.sent)}const bp=$('#btnPitch');if(bp.disabled===ok){bp.disabled=!ok;bp.classList.toggle('ready',ok)}}
 function doFoul(){
   // 파울 플라이: 포수·1루수·3루수가 파울 지역 뜬공을 잡아 아웃
@@ -3309,7 +3313,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     for(let i=1;i<3;i++){polyS([[-0.22+0.44*i/3,0.45,0],[-0.22+0.44*i/3,1.05,0]],'rgba(255,214,0,.35)',1);polyS([[-0.22,0.45+0.6*i/3,0],[0.22,0.45+0.6*i/3,0]],'rgba(255,214,0,.35)',1)}
     if(PAD_ON&&G){const m=pt([st.aim.x,st.aim.y,0]),pit=fieldTeam().pitcher;if(m){const sd=aimSD(pit,effCtl(pit),fatigue(pit)),r=Math.max(6,sd*m.k);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
       ctx.strokeStyle='#ff4d4d';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(m.x-9,m.y);ctx.lineTo(m.x+9,m.y);ctx.moveTo(m.x,m.y-9);ctx.lineTo(m.x,m.y+9);ctx.stroke()}}
-    if(G&&G.paP)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
+    if(G&&G.paP&&!MC)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
       ctx.fillStyle=q.k==='B'?'#2fbf4a':q.k==='S'?'#ffb300':'#3fa9ff';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.fill();ctx.stroke();
       ctx.fillStyle='#fff';ctx.font=`${Math.round(r*1.25)}px "Black Han Sans"`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,m.x,m.y+1)})}
   if(st.ballAnim==='pitch'&&st.pitch&&(st.mode==='flight'||(st.mode==='post'&&!st.paEnd)||(st.mode==='post'))&&st.fs>0){
@@ -3319,6 +3323,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     if(u<1)for(let i=6;i>=1;i--){const q=pt(hitPos(st.hit,u-i*0.012*(0.6/st.hit.T)));if(q){ctx.fillStyle=`rgba(255,255,255,${0.32*(1-i/7)})`;ctx.beginPath();ctx.arc(q.x,q.y,Math.max(1.4,0.037*q.k*3.2*(1-i/9)),0,7);ctx.fill()}}
     ball(hitPos(st.hit,u),3.2,u<1?NOW*22:0)}
   if(!isField&&G&&!MC)batter(curBatter(),batT.uni);
+  drawZoom(MC&&!isField);
   $('#camlabel').textContent=isField?'FIELD CAM':MC?'MOUND CAM':'PITCH CAM'}
 let _rsz=0;function frame(ts){NOW=ts/1000;if(++_rsz%15===0){const r=cv.getBoundingClientRect();if(r.width>0&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1))resize()}try{update();render();syncButtons();syncBunt();netTick()}catch(e){console.error(e)}requestAnimationFrame(frame)}
 function resize(){const r=cv.getBoundingClientRect();W=Math.max(200,r.width);H=Math.max(200,r.height);DPR=Math.min(2,window.devicePixelRatio||1);
@@ -4143,7 +4148,7 @@ function myTeamIdx(){return MODE==='pvp'?NET.me:0}
 function humanPitch(){if(!G)return false;if(MODE==='pitch')return true;if(MODE==='game'||MODE==='pvp')return fieldTeam()===G.teams[myTeamIdx()];return false}
 function humanBat(){if(!G)return true;if(MODE==='bat')return true;if(MODE==='pitch'||MODE==='cpu')return false;return batTeam()===G.teams[myTeamIdx()]}
 function aiBat(){return !!G&&(MODE==='pitch'||MODE==='cpu'||(MODE==='game'&&!humanBat()))}
-function aiPitch(){return !!G&&(MODE==='cpu'||(MODE==='game'&&!humanPitch()))}
+function aiPitch(){return !!G&&MODE==='cpu'}
 /* AI 타자: 존·카운트·선구안으로 스윙 여부, 컨택·구위·구속으로 타이밍 오차 */
 function aiPlan(){const p=st.pitch,b=curBatter(),pit=fieldTeam().pitcher,c=effC(b),S=effS(pit);
   const near=Math.abs(p.tx)<=0.38&&p.ty>=0.29&&p.ty<=1.21,two=G.strikes>=2,three=G.balls>=3&&G.strikes<2;
@@ -4298,6 +4303,26 @@ function recDef(t,old){return topIdx(t.bench.map(q=>(q.nat||[]).includes(old.pos
 function recPit(t){const late=G.inning>=Math.max(1,G.innings-1),lead=leadOf(t),nb=curBatter(),bh=nb&&nb.curHand;
   return topIdx(t.bullpen.map(q=>{let v=(q.stuff||50)+(q.control||50);if(late&&lead>0&&lead<=3)v+=(q.cl?40:0)+(hasTrait(q,'파이널보스')?30:0);
     else if(!late)v+=q.role==='SP'?12:0;if(bh&&q.hand===bh)v+=8;return v}),6)}
+/* 확대 존(내가 던질 때): 조준점·제구 범위·이번 타석 투구 기록. 눌러서 바로 조준할 수도 있음 */
+const ZX=[-0.5,0.5],ZY=[0.2,1.32];
+function zMap(x,y){const c=$('#zoomZ'),w=128,h=160,mir=zMir();return[(mir?(ZX[1]-x):(x-ZX[0]))/(ZX[1]-ZX[0])*w,(ZY[1]-y)/(ZY[1]-ZY[0])*h]}
+function zMir(){const a=pt([0.3,0.75,0]),b=pt([-0.3,0.75,0]);return !!(a&&b&&a.x<b.x)}
+function drawZoom(on){const c=$('#zoomZ');if(!c)return;if(c.classList.contains('on')!==on)c.classList.toggle('on',on);if(!on)return;
+  const d=Math.min(2,window.devicePixelRatio||1);if(c.width!==128*d){c.width=128*d;c.height=160*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,128,160);
+  const [x0,y0]=zMap(-0.22,1.05),[x1,y1]=zMap(0.22,0.45),L=Math.min(x0,x1),T=y0,Wd=Math.abs(x1-x0),Hd=y1-y0;
+  x.fillStyle='rgba(255,214,0,.1)';x.fillRect(L,T,Wd,Hd);x.strokeStyle='#ffd400';x.lineWidth=2;x.strokeRect(L,T,Wd,Hd);x.lineWidth=1;x.strokeStyle='rgba(255,214,0,.45)';
+  for(let i=1;i<3;i++){x.beginPath();x.moveTo(L+Wd*i/3,T);x.lineTo(L+Wd*i/3,T+Hd);x.moveTo(L,T+Hd*i/3);x.lineTo(L+Wd,T+Hd*i/3);x.stroke()}
+  {const b=curBatter(),side=b.curHand==='R'?-1:1,[hx]=zMap(side*0.62,0);x.fillStyle='rgba(255,255,255,.5)';x.font='10px sans-serif';x.textAlign='center';x.fillText(b.curHand==='R'?'우타':'좌타',Math.max(14,Math.min(114,hx)),154)}
+  if(G.paP)G.paP.forEach((q,i)=>{const [px,py]=zMap(q.x,q.y);x.fillStyle=q.k==='B'?'#2fbf4a':q.k==='S'?'#ffb300':'#3fa9ff';x.strokeStyle='#fff';x.lineWidth=1.5;x.beginPath();x.arc(px,py,7,0,7);x.fill();x.stroke();
+    x.fillStyle='#fff';x.font='bold 9px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(i+1,px,py+0.5)});
+  if(PAD_ON){const pit=fieldTeam().pitcher,sd=aimSD(pit,effCtl(pit),fatigue(pit)),[ax,ay]=zMap(st.aim.x,st.aim.y),r=sd/(ZX[1]-ZX[0])*128;
+    x.setLineDash([3,3]);x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=1.5;x.beginPath();x.arc(ax,ay,Math.max(4,r),0,7);x.stroke();x.setLineDash([]);
+    x.strokeStyle='#ff4d4d';x.lineWidth=2;x.beginPath();x.moveTo(ax-7,ay);x.lineTo(ax+7,ay);x.moveTo(ax,ay-7);x.lineTo(ax,ay+7);x.stroke()}}
+function zoomAim(e){if(!PAD_ON)return;const c=$('#zoomZ'),r=c.getBoundingClientRect(),fx=(e.clientX-r.left)/r.width,fy=(e.clientY-r.top)/r.height,mir=zMir();
+  const wx=mir?ZX[1]-fx*(ZX[1]-ZX[0]):ZX[0]+fx*(ZX[1]-ZX[0]),wy=ZY[1]-fy*(ZY[1]-ZY[0]);st.aim={x:clamp(wx,-0.46,0.46),y:clamp(wy,0.23,1.27)};
+  {const nx=st.aim.x/(0.46*SX),ny=(0.75-st.aim.y)/0.52,j=$('#joy'),R0=j.getBoundingClientRect().width/2-14,W0=j.getBoundingClientRect().width||116;$('#knob').style.left=(50+nx*(R0/W0)*100)+'%';$('#knob').style.top=(50+ny*(R0/W0)*100)+'%'}}
+{const c=$('#zoomZ');let dn=false;c.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();dn=true;try{c.setPointerCapture(e.pointerId)}catch(_){}zoomAim(e)});
+  c.addEventListener('pointermove',e=>{if(dn)zoomAim(e)});['pointerup','pointercancel'].forEach(t=>c.addEventListener(t,()=>dn=false))}
 $('#btnSwing').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#stage').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#btnTactic').onclick=tacticModal;
