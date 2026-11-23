@@ -66,7 +66,7 @@ canvas{display:block;width:100%;height:100%}
 .tslot{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(0,0,0,.25);border:1.5px dashed #b89a4a;border-radius:10px;padding:4px 2px;color:#e9cf7a;font:inherit}.tslot small{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72px}.tslot.on{border-style:solid;background:rgba(226,189,92,.12)}.tslot.lock{border:none;background:none;color:#6f8f93;font-size:11px;justify-content:center}
 .hexadd{display:flex;align-items:center;justify-content:center;width:30px;height:33px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#3b3215;color:#e9cf7a;font-size:20px;font-weight:900}
 .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tcell{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(#22343a,#16252a);border:1.5px solid #3c5a5e;border-radius:10px;padding:8px 4px;color:#fff;font:inherit;text-align:center}.tcell b{font-size:12.5px;color:#ffd98a}.tcell small{font-size:10px;color:#a9cdd1;line-height:1.3}.tcell.on{border-color:#ffd23f;box-shadow:0 0 10px rgba(255,210,63,.5)}
-.card{cursor:pointer;position:relative}.hexes{position:absolute;right:6px;top:24px;transform:none;display:flex;gap:3px;cursor:pointer}.hexw{display:flex;flex-direction:column;align-items:center}.hexw span{font-size:8.5px;color:#ffe08a;margin-top:-2px;white-space:nowrap;text-shadow:0 1px 0 #000}.hexi{filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.hexi.on{animation:hexon 1s infinite}@keyframes hexon{50%{filter:drop-shadow(0 0 7px #ff6a3a) brightness(1.25)}}.hexs{display:inline-block;vertical-align:-4px;margin-left:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hexs .hexn{color:#ffe08a;font-size:9px;margin-left:1px}.nm,.hexes,.hexw{cursor:pointer}.hexn{font-size:9px;color:#ffd98a;margin-left:1px;vertical-align:4px}.card .tg{float:right;font-size:9px;color:#8fc3c9;border:1px solid #2b6d74;border-radius:6px;padding:0 4px}.trts{display:flex;flex-wrap:wrap;gap:3px;margin:1px 0}.trt{font-size:10px;background:#3a2a0a;border:1px solid #c9922a;color:#ffd98a;border-radius:8px;padding:0 5px;white-space:nowrap}.trt.on{background:#c9302a;border-color:#ff8a5a;color:#fff;animation:blink 1s infinite}@keyframes blink{50%{opacity:.55}}
+.card{cursor:pointer;position:relative}.hexes{position:absolute;right:6px;top:24px;transform:none;display:flex;gap:3px;cursor:pointer}.hexw{display:flex;flex-direction:column;align-items:center}.hexw span{font-size:8.5px;color:#ffe08a;margin-top:-2px;white-space:nowrap;text-shadow:0 1px 0 #000}.hexi{filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.hexst{position:relative;width:40px;height:40px}.hexst>div{position:absolute;left:0;top:0;line-height:0}.hexg{opacity:.35;pointer-events:none}.hexes .hexw{position:relative;padding-bottom:12px}.hexes .hexw span{position:absolute;right:-2px;top:38px;margin:0}.hexi.on{animation:hexon 1s infinite}@keyframes hexon{50%{filter:drop-shadow(0 0 7px #ff6a3a) brightness(1.25)}}.hexs{display:inline-block;vertical-align:-4px;margin-left:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}.hexs .hexn{color:#ffe08a;font-size:9px;margin-left:1px}.nm,.hexes,.hexw{cursor:pointer}.hexn{font-size:9px;color:#ffd98a;margin-left:1px;vertical-align:4px}.card .tg{float:right;font-size:9px;color:#8fc3c9;border:1px solid #2b6d74;border-radius:6px;padding:0 4px}.trts{display:flex;flex-wrap:wrap;gap:3px;margin:1px 0}.trt{font-size:10px;background:#3a2a0a;border:1px solid #c9922a;color:#ffd98a;border-radius:8px;padding:0 5px;white-space:nowrap}.trt.on{background:#c9302a;border-color:#ff8a5a;color:#fff;animation:blink 1s infinite}@keyframes blink{50%{opacity:.55}}
 .card{background:linear-gradient(#174a50,#0f3438);border:2px solid #000;border-radius:10px;padding:4px 7px;min-width:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
 .card .lb{font-family:'Black Han Sans';font-size:10px;color:#8fc3c9}
 .card .nm{font-family:'Black Han Sans';font-size:16px;white-space:normal;word-break:keep-all;line-height:1.15;-webkit-text-stroke:.3px #000}
@@ -252,7 +252,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.1</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.2</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -3542,7 +3542,7 @@ function batHandModal(i){const HN={R:'우타',L:'좌타',S:'양타'};
 function traitModal(i,f){i=i||0;f=f||'B';
   const nameOf=k=>G?([G.away,G.home].find(t=>t.key===k)||G.teams[k]).name:S.names[k];
   const raw=f==='P'?livePitchers(i):liveBatters(i),list=raw.filter((p,j,a)=>p&&a.findIndex(q=>q&&q.name===p.name)===j);
-  const row=(d,j)=>{const b=baseOf(d),cs=custT(d.name).filter(c=>!b.includes(c)&&TRAIT_ENGINE[c]),free=MAXT-b.length;
+  const row=(d,j)=>{const b=baseOf(d),cs=custT(d.name).filter(c=>!b.includes(c)&&TRAIT_ENGINE[c]),free=MAXT-nonU(b).length;
     const slot=free<=0?`<span class="tslot lock">보유 ${MAXT}/${MAXT}</span>`:Array.from({length:Math.min(free,cs.length+1)},(_,k)=>{const c=cs[k];
       return`<button class="tslot ${c?'on':''}" data-pk="${j}" data-sl="${k}">${c?hexIcon(c,22):'<span class="hexadd">＋</span>'}<small>${c?esc(c):(b.length+k+1)+'번째 특성'}</small></button>`}).join('');
     return`<div class="trow"><div class="tnm"><b>${esc(d.name)}</b><small>${f==='P'?(d.role==='SP'?'선발':'구원'):esc(posK(posCode(d.pos))||d.pos||'')}</small></div><div class="tbase">${b.map(t=>`<span title="${esc(t)}">${hexIcon(t,22)}</span>`).join('')||'<small class="note">기본 특성 없음</small>'}</div>${slot}</div>`};
@@ -3866,7 +3866,8 @@ const saveTr=()=>{LS.set('dny_trait',TR_OVR);cloudPush('trait',TR_OVR)};
 const tRole=t=>(TRAIT_ENGINE[t]&&TRAIT_ENGINE[t].role)||'B';
 const baseTraits=n=>TRAIT_BY_PLAYER[n]||[];
 // v4.0: 선수당 특성 최대 3개(고유+직접 고른 것). 직접 고른 특성은 TR_OVR[이름] = [특성,…]
-const MAXT=3;
+const MAXT=3;   // 일반 특성 최대 개수. 고유 기술(UNIQUE_T)은 여기에 포함하지 않고 별도로 1개(CSV로만 부여)
+const nonU=a=>a.filter(t=>!UNIQUE_T.includes(t));
 const custT=n=>{const v=TR_OVR[n];return v?(Array.isArray(v)?v:[v]).filter(Boolean):[]};
 // 특성별 제한(시트 '비고'): 포지션·보직
 const TRESTRICT={'완투 본능':{role:'SP'},'센터라인 지배자':{pos:['CF','DH']},'내야 사령관':{pos:['SS','DH']},'통솔력':{pos:['C','DH']},'철통 보안':{pos:['C','DH']},'코너 날개':{pos:['LF','RF']},'파이널보스':{role:'RP'},'매덕스':{role:'SP'}};
@@ -3877,7 +3878,7 @@ function restrictOK(o,t){const r=TRESTRICT[t];if(!r||!o||typeof o!=='object')ret
 const baseOf=o=>{const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseTraits(n);return typeof o==='object'&&o?b.filter(t=>!(TRESTRICT[t]&&TRESTRICT[t].role)||restrictOK(o,t)):b};
 function traitsOf(o){const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseOf(o);
   const cs=custT(n).filter((c,k,a)=>a.indexOf(c)===k&&TRAIT_ENGINE[c]&&!NO_PICK.includes(c)&&!b.includes(c)&&!(o&&o.trOffs&&o.trOffs.includes(c))&&pitchOK(o,c)&&restrictOK(o,c));
-  return[...b,...cs].slice(0,MAXT)}
+  const u=b.filter(t=>UNIQUE_T.includes(t)).slice(0,1);return[...[...nonU(b),...cs].slice(0,MAXT),...u]}
 const TCAP={B:4,P:5};
 // 한 팀(타자·투수 명단)에서 같은 특성 보유 인원 제한. 고유 특성 보유자가 이미 한도 이상이면 직접 고른 특성 1명까지만 허용
 function capOK(list,t,self){const nb=list.filter(p=>baseTraits(p.name).includes(t)).length,nc=list.filter(p=>p!==self&&p.name!==(self&&self.name)&&custT(p.name).includes(t)&&!baseTraits(p.name).includes(t)&&!(p.trOffs&&p.trOffs.includes(t))).length,cap=TCAP[tRole(t)];
@@ -3893,7 +3894,7 @@ function autoPickTeam(i,f){const roster=(f==='P'?livePitchers(i):liveBatters(i))
   const order=list.slice().sort((a,b)=>(starter(b)-starter(a))||(stat(b)-stat(a)));
   const pool=TRAIT_DATA.map(t=>t.name).filter(t=>TRAIT_ENGINE[t]&&!NO_PICK.includes(t)&&tRole(t)===f);let n=0;
   for(const d of order){let guard=0;
-    while(traitsOf(d).length<MAXT&&guard++<MAXT){const have=traitsOf(d),bench=f==='B'&&!lu.some(x=>x&&x.name===d.name);
+    while(nonU(traitsOf(d)).length<MAXT&&guard++<MAXT){const have=traitsOf(d),bench=f==='B'&&!lu.some(x=>x&&x.name===d.name);
       const ok=pool.filter(t=>!have.includes(t)&&capOK(roster,t,d)&&pitchOK(d,t)&&restrictOK(d,t));if(!ok.length)break;
       const o={bench,closer:f==='P'&&d.cl},sc=t=>recScore(d,t,o);ok.sort((a,b)=>sc(b)-sc(a));   // 추천 점수 높은 것부터, 추천이 없으면 남은 것 중에서
       const t=ok[0],a=custT(d.name).slice();a.push(t);TR_OVR[d.name]=a;n++;
@@ -4013,7 +4014,8 @@ const tIcons=o=>{const ts=traitsOf(o);if(!ts.length)return'';const i=(T_IDX[o.na
 document.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('.hexs[data-tn]');if(!h)return;const n=h.dataset.tn,ts=traitsOf(n);if(ts.length<2)return;e.stopPropagation();e.preventDefault();T_IDX[n]=((T_IDX[n]||0)+1)%ts.length;h.outerHTML=tIcons({name:n})},true);
 // 선수 카드: 특성 1개씩, 선수 이름을 누르면 다음 특성으로
 const tHexes=o=>{const ts=traitsOf(o);if(!ts.length)return'';const i=(T_IDX[o.name]||0)%ts.length,t=ts[i];
-  return`<div class="hexes"><div class="hexw" title="${esc(t)}: ${esc(TDESC(t))}">${hexIcon(t,40,tOn(o,t)&&!TRAIT_ENGINE[t].always)}<span>${esc(t)}${isCustomT(o.name,t)?'<i style="color:#9fe0ff;font-style:normal">*</i>':''}${ts.length>1?` ${i+1}/${ts.length} ▸`:''}</span></div></div>`};
+  const back=ts.length>1?ts.map((_,k)=>ts[(i+ts.length-1-k)%ts.length]).slice(0,ts.length-1).reverse():[];   // 뒤에 겹쳐 놓인 나머지 특성(반투명)
+  return`<div class="hexes"><div class="hexw" title="${esc(t)}: ${esc(TDESC(t))}"><div class="hexst">${back.map((b,k)=>`<div class="hexg" style="transform:translate(${-(back.length-k)*6}px,${-(back.length-k)*3}px)">${hexIcon(b,40,false)}</div>`).join('')}<div class="hexf">${hexIcon(t,40,tOn(o,t)&&!TRAIT_ENGINE[t].always)}</div></div><span>${esc(t)}${isCustomT(o.name,t)?'<i style="color:#9fe0ff;font-style:normal">*</i>':''}${ts.length>1?` ${i+1}/${ts.length} ▸`:''}</span></div></div>`};
 function traitRulesHTML(){return TRAIT_DATA.map(t=>`<div style="display:flex;gap:8px;align-items:center;margin:4px 0"><span style="flex:none">${hexIcon(t.name,30)}</span><div><b>${esc(t.name)}</b> — ${esc(t.desc)}${TRAIT_ENGINE[t.name]?'':' <small style="color:#ff9a7a">(효과 준비 중)</small>'}<br><small style="color:#8fc3c9">${esc(t.holders.join(', '))}</small></div></div>`).join('')}
 
 const csD=()=>fieldTeam().lineup.some(x=>x&&x.pos==='C'&&hasTrait(x,'철통 보안'))?0.1:0;   // 철통 보안 포수
