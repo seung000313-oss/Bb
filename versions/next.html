@@ -268,7 +268,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.6</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.7</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -3181,7 +3181,11 @@ function bipJudge(q,pw,ct,sf,K,R,N){
   // 펜스 직격: 비거리가 해당 구장·방향의 펜스 거리에 닿은 타구만(확률 판정 없음)
   const grd=!wall&&type!=='gb'&&dist>=fr-12&&ev>=K.grdEv&&R()<K.grdP;   // 바운드로 펜스를 넘긴 인정 2루타
   const line=Math.abs(th)>=K.lineTh;
-  const roll=wall?-2.5:Math.min(fr-1-dist,(v*Math.cos(lr))*K.rollK);
+  const rollV=(v*Math.cos(lr))*K.rollK;
+  // 원바운드 펜스 직격: 펜스 앞에 떨어진 뒤 튀어서 실제로 펜스까지 닿는 타구(물리 판정, 확률 없음)
+  const hop=!wall&&!grd&&dist>=fr-(K.hopR??20)&&dist+rollV>=fr-0.5;
+  if(hop)wall=true;
+  const roll=wall?(hop?fr-1-dist:-2.5):Math.min(fr-1-dist,rollV);
   const fin=P(Math.max(5,Math.min(dist,fr-0.5)+roll),th);
   const n=nearest(fin,OF);
   const ret=Math.max(hang+ (wall?0.8:0.3), n.d/(K.ofV*K.rangeOF)+K.ofReact)+0.45+(line?K.ldLine:0);   // 라인선상: 코너 펜스까지 굴러가 회수 지연
@@ -3194,7 +3198,7 @@ function bipJudge(q,pw,ct,sf,K,R,N){
   const res=['','1B','2B','3B'][b];
   // 호수비: 외야 안타 중 일부를 잡아냄(외야 깊이의 타구만)
   if(OF.includes(n.k)&&!wall&&dist>=50&&bestF.m>-6&&R()<gcOf(n.k))return{th,dist:Math.min(dist,fr-0.6),type,res:'OUT',how:'FO',fielder:n.k,great:true,T:hang,h:apex,ev,la};
-  return{th,dist:Math.min(dist,fr-0.6),type,res,how:wall?'FENCE':'OFHIT',fielder:n.k,T:hang,h:apex,ev,la,mw:blk,great:fp,fp,line:line&&b>=2};
+  return{th,dist:Math.min(dist,fr-0.6),type,res,how:wall?'FENCE':'OFHIT',fielder:n.k,T:hang,h:apex,ev,la,mw:blk,hop,great:fp,fp,line:line&&b>=2};
 }
 
 const BN=()=>{let u=0;while(!u)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R())};
@@ -3222,7 +3226,7 @@ function hitPos(h,u){const L=h.land;u=clamp(u,0,1);
     return[L[0]*sx,y,L[2]*sx]}
   // 공중: 공기저항으로 수평 감속(꼭짓점이 뒤로), 낙하가 더 가파름
   const k=h.type==='ld'?1.6:h.how==='HR'?1.0:1.25,sx=(1-Math.exp(-k*u))/(1-Math.exp(-k));
-  const ye=h.how==='HR'?9:h.how==='FENCE'?(h.mw?Math.max(1.8,wallH(h.th)*0.6):1.8):h.res==='OUT'?1.6:0.3,a=1,b=0.72,mx=Math.pow(a/(a+b),a)*Math.pow(b/(a+b),b);
+  const ye=h.how==='HR'?9:h.how==='FENCE'&&!h.hop?(h.mw?Math.max(1.8,wallH(h.th)*0.6):1.8):h.res==='OUT'?1.6:0.3,a=1,b=0.72,mx=Math.pow(a/(a+b),a)*Math.pow(b/(a+b),b);
   const y=lerp(1,ye,u)+h.h*Math.pow(u,a)*Math.pow(1-u,b)/mx;
   return[L[0]*sx,y,L[2]*sx]}
 function startHit(o){if(o.how!=='BUNT')markPitch('X','타격');else markPitch('X','번트');st.hit=o;st.hitT0=NOW;st.mode='inplay';st.until=NOW+o.T+0.45;st.camMode='field';st.ballAnim='hit';st.cp=[0,32,-34];st.cl=[0,0,52];showPinfo()}
@@ -3250,7 +3254,7 @@ function applyHit(){const h=st.hit;if(h.how==='BUNT')return applyBunt(h);const b
     else{G.outs++;pit.st.outs++;txt=h.how==='FF'?'파울 플라이 아웃':h.how==='IF'?'내야 플라이':'직선타 아웃'}}
   else{const n={'1B':1,'2B':2,'3B':3,'HR':4}[h.res];b.st.ab++;b.st.h++;bt.hits++;pit.st.h++;if(n===4){b.st.hr++;pit.st.hr++}if(n===2)b.st.d2++;if(n===3)b.st.d3++;
     sc=advanceHit(n,me,h.how==='GRD');txt=n===4&&PARK&&PARK.id==='oracle'&&h.th>22?'스플래시 히트!!':n===4&&h.outPark?'장외 홈런!!':n===1&&h.how==='IFH'?'내야안타!':h.how==='GRD'?'인정 2루타!':{1:'안타!',2:'2루타!',3:'3루타!',4:'홈런!!'}[n];
-    if(h.how==='FENCE'&&!h.mw&&n<4)txt='펜스 직격 '+txt;else if(h.line&&n>=2&&n<4)txt='라인선상 '+txt;cls=n===4?'hr':'hit';if(h.mw&&n<4)txt=(PARK&&(PARK.th.special||[]).includes('monster')&&h.th<0?'그린 몬스터 직격 ':PARK&&(PARK.th.special||[]).includes('owall')&&h.th>0?'몬스터월 직격 ':'펜스 직격 ')+txt}
+    if(h.how==='FENCE'&&!h.mw&&n<4)txt=(h.hop?'원바운드 펜스 직격 ':'펜스 직격 ')+txt;else if(h.line&&n>=2&&n<4)txt='라인선상 '+txt;cls=n===4?'hr':'hit';if(h.mw&&n<4)txt=(PARK&&(PARK.th.special||[]).includes('monster')&&h.th<0?'그린 몬스터 직격 ':PARK&&(PARK.th.special||[]).includes('owall')&&h.th>0?'몬스터월 직격 ':'펜스 직격 ')+txt}
   if(h.great)sub=(POSK[h.fielder]||'야수')+(h.fp?' 펜스 플레이 호수비! ':' 호수비! ');
   const runs=sc.length;if(runs){score(sc,b,rbi);sub+=`+${runs}점`}
   if(h.trait)sub+=`${sub?' · ':''}⬢${h.trait}`;
