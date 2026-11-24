@@ -3299,10 +3299,43 @@ function endHalf(){const last=G.inning>=G.innings;
   fieldTeam().lineup.forEach(x=>{if(x)delete x.offField});G.stealReq=0;G.tacHold=0;
   st.camMode='pitch';st.ballAnim=null;st.mode='idle';G.halt=true;bgKey='';updateHUD();showChange()}
 
+/* ===== 컴퓨터 감독: 컴퓨터가 맡은 팀(빠른 진행·경기 모드 B팀·투수 모드 공격 팀)의 투수 교체·대타·대수비 ===== */
+function aiField(){return !!G&&(MODE==='cpu'||(MODE==='game'&&fieldTeam()!==G.teams[0]))}
+function aiBatT(){return !!G&&(MODE==='cpu'||MODE==='pitch'||(MODE==='game'&&batTeam()!==G.teams[0]))}
+function aiManage(){const ft=fieldTeam(),bt=batTeam(),k=G.inning+'|'+G.half+'|'+bt.idx+'|'+G.outs+'|'+tot(bt);if(G._amK===k)return;G._amK=k;
+  const hk=G.inning+'|'+G.half,newHalf=ft._amH!==hk;ft._amH=hk;
+  try{if(aiField())aiPitchMgr(ft,newHalf);if(aiField()&&newHalf)aiDefMgr(ft)}catch(e){console.error(e)}
+  try{if(aiBatT())aiPHMgr(bt)}catch(e){console.error(e)}}
+function aiPitchMgr(ft,newHalf){if(!ft.bullpen.length)return;
+  const p=ft.pitcher,lim=pLimit(p),fat=fatigue(p),sp=p===ft.pitchLog[0],lead=leadOf(ft),N=G.innings,last=G.inning>=N,on=G.bases.filter(Boolean).length;
+  const clIdx=ft.bullpen.findIndex(q=>q.cl),save=N>=6&&last&&lead>0&&lead<=3;
+  let go=false;
+  if(p.pc>=Math.min(lim*0.95,112))go=true;                             // 한계 투구 수(최대 112구)
+  else if(sp&&newHalf&&N>=6&&G.inning>=N-1&&p.pc>=95)go=true;            // 경기 후반 95구 넘은 선발
+  else if(fat>=0.6&&(on>0||newHalf))go=true;                            // 지쳤는데 주자가 있거나 새 이닝
+  else if(p.st.r>=(sp?5:3))go=true;                                     // 많이 맞음(선발 5점·구원 3점)
+  else if(sp&&p.st.r>=4&&fat>0.25)go=true;
+  else if(!sp&&newHalf&&p.st.outs>=3&&!(p.cl&&save)&&(lead>=-3||p.st.outs>=6||fat>0.3))go=true;   // 구원은 보통 1이닝씩(크게 지고 있으면 2이닝까지 끌고 감)
+  else if(!sp&&p.pc>=lim*0.8)go=true;
+  if(save&&newHalf&&!p.cl&&clIdx>=0&&!(sp&&fat<0.2))go=true;             // 마지막 이닝 3점 차 이내 리드: 마무리
+  else if(N>=6&&newHalf&&G.inning===N-1&&lead>0&&lead<=3&&sp&&fat>0.15)go=true; // 셋업 타이밍
+  if(!go)return;
+  let i=save&&clIdx>=0?clIdx:-1;
+  if(i<0){const cand=ft.bullpen.map((q,j)=>[j,q]).filter(([j,q])=>!(q.cl&&!(G.inning>=N-1)&&ft.bullpen.length>1));   // 마무리는 아껴 둠
+    const r=recPit(ft).filter(j=>cand.some(c=>c[0]===j));i=r.length?r[0]:cand.length?cand[0][0]:0}
+  subDo('P',i)}
+function aiDefMgr(ft){recDefOut(ft).forEach(i=>{const old=ft.lineup[i],r=recDef(ft,old);if(r.length)subDo('D',i,r[0])})}
+function aiPHMgr(bt){const N=G.innings,late=G.inning>=Math.max(1,N-2),lead=leadOf(bt);if(!late||lead<-3||lead>1||!bt.bench.length)return;
+  if((bt._phN||0)>=2)return;const cur=bt.lineup[bt.idx];if(!cur||cur.special)return;
+  const pit=fieldTeam().pitcher,val=q=>{const h=q.hand||'R',pl=(h==='S'||h!==pit.hand)?6:0;return q.contact+q.power+pl+(hasTrait(q,'대타 신화')?14:0)+tSum(q,'c')+tSum(q,'p')};
+  const r=recPH(bt);if(!r.length)return;const q=bt.bench[r[0]];if(val(q)<val(cur)*(posBad(cur)?0.5:1)+6)return;
+  if(G.bases.filter(Boolean).length===0&&G.outs<2&&lead<0&&R()<0.5)return;
+  if(subDo('H',r[0])){bt._phN=(bt._phN||0)+1;q.curHand=decideHand?decideHand(q):q.curHand}}
 function update(){if(!G)return;
   if(NET.on&&!NET.host){if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}else if(st.mode==='flight'&&humanBat()&&!st.swung&&!NET.took&&(NOW-st.fs)/st.pitch.D>1.12){NET.took=true;netSend({t:'take'})}return}
   if(G.halt)return;
   if(anyOpen())return;
+  if(st.mode==='ready'&&!(MODE==='pvp'))aiManage();
   if(st.mode==='ready'&&!humanBat()&&st._stp!==G.paP.length+'|'+G.bases.map(Boolean)){st._stp=G.paP.length+'|'+G.bases.map(Boolean);if(!G.stealReq){const v=stealFrom();if(v){G.stealReq=v;G.stealAI=true}}}
   if(st.mode==='ready'&&aiPitch()){if(!st._aiT)st._aiT=NOW+0.9;else if(NOW>=st._aiT){st._aiT=0;startPitch()}}
   if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}
