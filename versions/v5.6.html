@@ -3347,7 +3347,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     for(let i=1;i<3;i++){polyS([[-0.22+0.44*i/3,0.45,0],[-0.22+0.44*i/3,1.05,0]],'rgba(255,214,0,.35)',1);polyS([[-0.22,0.45+0.6*i/3,0],[0.22,0.45+0.6*i/3,0]],'rgba(255,214,0,.35)',1)}
     drawTraj();
     if(PAD_ON&&G){const m=pt([st.aim.x,st.aim.y,0]),pit=fieldTeam().pitcher;if(m){const sd=aimSD(pit,effCtl(pit),fatigue(pit)),r=Math.max(6,sd*m.k);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
-      ctx.strokeStyle='#ff4d4d';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(m.x-9,m.y);ctx.lineTo(m.x+9,m.y);ctx.moveTo(m.x,m.y-9);ctx.lineTo(m.x,m.y+9);ctx.stroke()}}
+}}
     if(G&&G.paP&&!MC)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
       ctx.fillStyle=q.k==='B'?'#2fbf4a':q.k==='S'?'#ffb300':'#3fa9ff';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.fill();ctx.stroke();
       ctx.fillStyle='#fff';ctx.font=`${Math.round(r*1.25)}px "Black Han Sans"`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i+1,m.x,m.y+1)})}
@@ -4477,7 +4477,7 @@ function pitchPreview(pit,n,aim){const ptp=PITCHES.find(x=>x.n===n);if(!ptp)retu
   return{tx:aim.x,ty:aim.y,bx,by,k:ptp.k,rev:ptp.rev||0,rel}}
 const TRAJ_C=['#ffd23f','#5ad1ff','#ff7ab6','#7dff8a','#ffa24c','#c59bff','#ffffff','#ff5a5a','#9be7c4'];
 function drawTraj(){if(!PAD_ON||!TRAJ||!G)return;const pit=fieldTeam().pitcher,L=padPitches();
-  L.forEach((n,i)=>{const q=pitchPreview(pit,n,st.aim);if(!q)return;const sel=n===st.selP;ctx.strokeStyle=TRAJ_C[i%TRAJ_C.length];ctx.globalAlpha=sel?0.85:0.4;ctx.lineWidth=sel?3.5:2;ctx.beginPath();let f=true;
+  L.forEach((n,i)=>{if(n!==st.selP)return;const q=pitchPreview(pit,n,st.aim);if(!q)return;const sel=true;ctx.strokeStyle=TRAJ_C[i%TRAJ_C.length];ctx.globalAlpha=sel?0.85:0.4;ctx.lineWidth=sel?3.5:2;ctx.beginPath();let f=true;
     for(let t=0.04;t<=1.0001;t+=0.04){const m=pt(pitchPos(q,t));if(!m)continue;if(f){ctx.moveTo(m.x,m.y);f=false}else ctx.lineTo(m.x,m.y)}ctx.stroke();
     if(sel){const m=pt(pitchPos(q,1));if(m){ctx.fillStyle=TRAJ_C[i%TRAJ_C.length];ctx.beginPath();ctx.arc(m.x,m.y,3,0,7);ctx.fill()}}});ctx.globalAlpha=1}
 function syncTrajBtn(){const b=$('#trajB');if(b){b.textContent='궤적 '+(TRAJ?'ON':'OFF');b.classList.toggle('on',!!TRAJ)}}
