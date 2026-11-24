@@ -85,7 +85,17 @@ canvas{display:block;width:100%;height:100%}
 .joy:before,.joy:after{content:'';position:absolute;background:rgba(255,255,255,.25)}.joy:before{left:50%;top:8px;bottom:8px;width:1px}.joy:after{top:50%;left:8px;right:8px;height:1px}
 .joy .knob{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#9aa);box-shadow:0 2px 6px rgba(0,0,0,.6);left:50%;top:50%;pointer-events:none}
 #zoomZ{position:absolute;right:6px;top:80px;width:128px;height:160px;display:none;z-index:5;border-radius:10px;background:rgba(8,16,24,.55);border:1px solid rgba(255,255,255,.35);touch-action:none}#zoomZ.on{display:block}
-#modeTag{position:absolute;left:50%;transform:translateX(-50%);top:4px;font:11px 'Black Han Sans',sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:8px;pointer-events:none}#modeTag:empty{display:none}
+#side{display:none}#ttip{position:fixed;z-index:200;max-width:260px;background:rgba(10,16,22,.96);color:#fff;border:1px solid #ffd23f;border-radius:10px;padding:8px 10px;font:12px/1.45 sans-serif;display:none;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.6)}#ttip.on{display:block}#ttip b{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:15px;color:#ffd23f}#ttip .tuq{background:#000;color:#ffd23f;border:1px solid #ffd23f;border-radius:6px;padding:0 4px;font-size:10px}#ttip .trs{display:block;color:#9fd3ff;margin-top:3px}
+.xbtn{position:sticky;top:-6px;float:right;margin:-6px -6px 4px 6px;z-index:6;width:34px;height:34px;border-radius:50%;border:2px solid #000;background:#c0392b;color:#fff;font:900 17px sans-serif;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.pcol{display:flex;flex-direction:column;gap:5px;align-items:flex-start}#trajB{padding:3px 8px;font-size:11px;min-height:0;opacity:.85}#trajB.on{background:#2e7d4f;color:#fff}
+@media (min-width:600px) and (max-width:899px){#app{max-width:760px}}
+@media (min-width:900px){body{display:flex;justify-content:center;gap:12px;background:#061a1c}#app{flex:0 1 560px;max-width:560px;margin:0}
+ #side{display:block;flex:0 1 520px;height:100vh;height:100dvh;overflow:auto;padding:10px 6px 18px;color:#fff;font:13px sans-serif}
+ .sideH{font:20px 'Black Han Sans',sans-serif;margin:4px 0 10px;color:#ffd23f}.sideH small{font:12px sans-serif;color:#cfe;margin-left:6px}.sideE{opacity:.7;padding:30px 8px}
+ .sideT{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:8px 10px;margin-bottom:10px}.sideT h4{margin:0 0 6px;font:17px 'Black Han Sans',sans-serif}
+ .sbat{background:#c0392b;border-radius:6px;padding:1px 6px;font:11px sans-serif}.sfld{background:#2c6fb3;border-radius:6px;padding:1px 6px;font:11px sans-serif}
+ .sideL>div,.sideP>div{display:flex;gap:6px;align-items:center;padding:3px 4px;border-bottom:1px dashed rgba(255,255,255,.1)}.sideL .sn{width:16px;opacity:.7}.sideL .sp{width:16px;color:#ffd23f}.snm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sst{opacity:.85;font-size:12px;white-space:nowrap}
+ .scur{background:rgba(255,210,63,.18);border-radius:6px}.sideP{margin-top:6px}}left:50%;transform:translateX(-50%);top:4px;font:11px 'Black Han Sans',sans-serif;color:#fff;background:rgba(0,0,0,.45);padding:1px 8px;border-radius:8px;pointer-events:none}#modeTag:empty{display:none}
 .modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.modes button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px;border-radius:12px;border:2px solid #3c5a5e;background:linear-gradient(#22343a,#16252a);color:#fff;font:17px 'Black Han Sans',sans-serif;cursor:pointer}
 .modes button i{font-style:normal;font-size:20px}.modes button small{font:10px sans-serif;opacity:.75}.modes button.on{border-color:#ffd23f;background:linear-gradient(#5a4a12,#3a2f0a);box-shadow:0 0 8px rgba(255,210,63,.5)}
 .btn{font-family:'Black Han Sans';border:2px solid #000;border-radius:12px;color:#fff;font-size:17px;padding:9px 14px;background:linear-gradient(#4a96ff,#1f5fd0);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #000;text-shadow:0 2px 0 rgba(0,0,0,.45)}
@@ -255,7 +265,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.4</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v5.5</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -264,7 +274,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
       <button data-m="career">기록실</button>
       <button data-m="more">⋯</button>
     </nav>
-    <div id="moreMenu"><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button></div>
+    <div id="moreMenu"><button data-m="ff">⏩ 빠른 진행</button><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button></div>
   </header>
   <section class="board">
     <table class="ls" id="ls"></table>
@@ -283,7 +293,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
     <div id="plist"></div>
     <div id="banner"><div class="t"></div><div class="s"></div></div>
     <div id="spTag">★ 스페셜</div>
-    <div id="pad"><div class="pbtns" id="pbtns"></div><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
+    <div id="pad"><div class="pcol"><button class="btn sm" id="trajB">궤적 ON</button><div class="pbtns" id="pbtns"></div></div><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
     <div id="modeTag"></div>
     <canvas id="zoomZ" width="128" height="160"></canvas>
   </div>
@@ -298,6 +308,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
     <button class="btn" id="btnBunt">번트</button><button class="btn" id="btnSwing">SWING!</button>
   </footer>
 </div>
+<aside id="side"></aside><div id="ttip"></div>
 <div class="ov" id="overlay"><div class="panel" id="ovp"></div></div>
 <div class="ov" id="modal"><div class="panel" id="mdp"></div></div>
 
@@ -3331,6 +3342,7 @@ function render(){if(!ctx)return;{const pl=document.getElementById('plist');if(p
     const c=[[-0.22,0.45,0],[0.22,0.45,0],[0.22,1.05,0],[-0.22,1.05,0]];
     poly(c,'rgba(255,214,0,.07)');polyS(c,'#ffd400',2,true);
     for(let i=1;i<3;i++){polyS([[-0.22+0.44*i/3,0.45,0],[-0.22+0.44*i/3,1.05,0]],'rgba(255,214,0,.35)',1);polyS([[-0.22,0.45+0.6*i/3,0],[0.22,0.45+0.6*i/3,0]],'rgba(255,214,0,.35)',1)}
+    drawTraj();
     if(PAD_ON&&G){const m=pt([st.aim.x,st.aim.y,0]),pit=fieldTeam().pitcher;if(m){const sd=aimSD(pit,effCtl(pit),fatigue(pit)),r=Math.max(6,sd*m.k);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(m.x,m.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
       ctx.strokeStyle='#ff4d4d';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(m.x-9,m.y);ctx.lineTo(m.x+9,m.y);ctx.moveTo(m.x,m.y-9);ctx.lineTo(m.x,m.y+9);ctx.stroke()}}
     if(G&&G.paP&&!MC)G.paP.forEach((q,i)=>{const m=pt([q.x,q.y,0]);if(!m)return;const r=Math.max(7,0.04*m.k);
@@ -3350,7 +3362,7 @@ function resize(){const r=cv.getBoundingClientRect();W=Math.max(200,r.width);H=M
   cv.width=W*DPR;cv.height=H*DPR;bg.width=W*DPR;bg.height=H*DPR;bgKey=''}
 
 /* ================= HUD ================= */
-function updateHUD(){try{updateModeTag()}catch(e){}
+function updateHUD(){try{updateModeTag()}catch(e){}try{renderSide()}catch(e){}
   const ls=$('#ls');
   if(!G){const N=S.innings;let h='<tr><th class="tn"></th>';for(let i=1;i<=N;i++)h+=`<th>${i}</th>`;h+='<th>R</th><th>H</th></tr>';
     [S.first,1-S.first].forEach(i=>{h+=`<tr><td class="tn">${esc(S.names[i])}</td>`;for(let j=0;j<N;j++)h+='<td>-</td>';h+='<td class="R">0</td><td>0</td></tr>'});ls.innerHTML=h}
@@ -3378,7 +3390,7 @@ function showPinfo(){const p=st.pitch;if(!p)return;$('#pinfo').innerHTML=`${esc(
 /* ================= 오버레이/모달 ================= */
 function overlay(html,bind){$('#ovp').innerHTML=html;$('#overlay').classList.add('on');bind&&bind($('#ovp'))}
 function closeOverlay(){$('#overlay').classList.remove('on')}
-function modal(html,bind){$('#mdp').innerHTML=html;$('#modal').classList.add('on');$('#mdp').scrollTop=0;bind&&bind($('#mdp'))}
+function modal(html,bind){$('#mdp').innerHTML='<button class="xbtn" aria-label="닫기" onclick="closeModal()">✕</button>'+html;$('#modal').classList.add('on');$('#mdp').scrollTop=0;bind&&bind($('#mdp'))}
 function closeModal(){$('#modal').classList.remove('on');if(typeof tacHold==='function')tacHold(false)}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 
@@ -4090,10 +4102,10 @@ const HEX_SYM={
     <path d="M24 76 L76 76" stroke="#1d4f9c" stroke-width="5" stroke-linecap="round"/><text x="50" y="36" text-anchor="middle" font-size="11" font-weight="900" fill="${INK}">TEAM</text>`,
   _:`<circle cx="50" cy="56" r="20" fill="none" stroke="${INK}" stroke-width="5"/><text x="50" y="64" text-anchor="middle" font-size="24" font-weight="900" font-family="Arial,sans-serif" fill="${INK}">?</text>`};
 function hexIcon(t,size,on){const e=TRAIT_ENGINE[t],sym=HEX_SYM[e?e.sym:'_']||HEX_SYM._,id='hg'+(e?e.sym:'x')+(on?'on':'')+size,oc=on==='half'?' on half':on==='full'?' on full':on?' on':'';
-  if(UNIQUE_T.includes(t))return `<svg class="hexi uq${oc}" width="${size}" height="${Math.round(size*1.1)}" viewBox="0 0 100 110" aria-label="${esc(t)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#e2bd5c"/><stop offset="1" stop-color="#9c7425"/></linearGradient></defs>
+  if(UNIQUE_T.includes(t))return `<svg data-t="${esc(t)}" class="hexi uq${oc}" width="${size}" height="${Math.round(size*1.1)}" viewBox="0 0 100 110" aria-label="${esc(t)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#e2bd5c"/><stop offset="1" stop-color="#9c7425"/></linearGradient></defs>
     <polygon class="bgk" points="50,3 95,28.5 95,81.5 50,107 5,81.5 5,28.5" fill="#0d0d0f" stroke="url(#${id})" stroke-width="6" stroke-linejoin="round"/>
     <polygon points="50,13 86,33.5 86,76.5 50,97 14,76.5 14,33.5" fill="none" stroke="rgba(226,189,92,.45)" stroke-width="1.6"/>${sym.replace(/GOLDFILL/g,`url(#${id})`)}</svg>`;
-  return `<svg class="hexi${oc}" width="${size}" height="${Math.round(size*1.1)}" viewBox="0 0 100 110" aria-label="${esc(t)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#e2bd5c"/><stop offset="1" stop-color="#9c7425"/></linearGradient></defs>
+  return `<svg data-t="${esc(t)}" class="hexi${oc}" width="${size}" height="${Math.round(size*1.1)}" viewBox="0 0 100 110" aria-label="${esc(t)}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#e2bd5c"/><stop offset="1" stop-color="#9c7425"/></linearGradient></defs>
     <polygon points="50,3 95,28.5 95,81.5 50,107 5,81.5 5,28.5" fill="url(#${id})" stroke="#4d3a10" stroke-width="5" stroke-linejoin="round"/>
     <polygon points="50,12 87,33 87,77 50,98 13,77 13,33" fill="none" stroke="rgba(255,248,210,.55)" stroke-width="2"/>${sym}</svg>`}
 // 목록용: 대표 특성 1개 + 개수
@@ -4232,6 +4244,7 @@ function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:1
 const navAct=e=>{const b=e.target.closest('button');if(!b)return;const m=b.dataset.m;const mm=$('#moreMenu');
   if(m==='more'){mm.classList.toggle('on');return}mm.classList.remove('on');
   if(m==='theme'){modal(`<h3>화면 테마</h3><p class="note">언제든 바꿀 수 있고 이 기기에 저장돼요.</p><div class="list">${[['classic','4.0 이전 (청록·금색)'],['v4','현재 (스코어북 톤)'],['mc','마인크래프트']].map(([k,n])=>`<div class="it click" data-th="${k}"><span>${THEME===k?'✔ ':''}${n}</span></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{el.querySelectorAll('[data-th]').forEach(x=>x.onclick=()=>{setTheme(x.dataset.th);closeModal()});el.querySelector('#cl').onclick=closeModal});return}
+  if(m==='ff')return ffModal();
   if(m==='pitches')pitchModal();else if(m==='ars')arsModal(0);else if(m==='line0')lineupModal(0);else if(m==='line1')lineupModal(1);else if(m==='log')logModal();else if(m==='career')careerModal('bat');else if(m==='rules')rulesModal()};
 document.querySelector('nav').onclick=navAct;$('#moreMenu').onclick=navAct;document.addEventListener('pointerdown',e=>{const mm=$('#moreMenu');if(mm&&mm.classList.contains('on')&&!e.target.closest('#moreMenu')&&!e.target.closest('nav'))mm.classList.remove('on')});
 /* ===== v5.0 모드: 투수 / 타자 / 경기 / PvP ===== */
@@ -4430,6 +4443,55 @@ function zoomAim(e){if(!PAD_ON)return;const c=$('#zoomZ'),r=c.getBoundingClientR
   {const nx=st.aim.x/(0.46*SX),ny=(0.75-st.aim.y)/0.52,j=$('#joy'),R0=j.getBoundingClientRect().width/2-14,W0=j.getBoundingClientRect().width||116;$('#knob').style.left=(50+nx*(R0/W0)*100)+'%';$('#knob').style.top=(50+ny*(R0/W0)*100)+'%'}}
 {const c=$('#zoomZ');let dn=false;c.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();dn=true;try{c.setPointerCapture(e.pointerId)}catch(_){}zoomAim(e)});
   c.addEventListener('pointermove',e=>{if(dn)zoomAim(e)});['pointerup','pointercancel'].forEach(t=>c.addEventListener(t,()=>dn=false))}
+/* ===== v5.5: PC 우측 패널 · 특성 설명 팝업 · 팝업 닫기(X) · 예상 궤적 · 빠른 진행 ===== */
+const WIDE=window.matchMedia('(min-width:900px)');
+let sideT=0;function renderSide(){const el=$('#side');if(!el||!WIDE.matches)return;if(!G){el.innerHTML='<div class="sideE">경기를 시작하면 라인업과 오늘 기록이 여기에 보여요.</div>';return}
+  const now=performance.now();if(now-sideT<250){clearTimeout(renderSide._t);renderSide._t=setTimeout(renderSide,260);return}sideT=now;
+  const cur=curBatter(),fp=fieldTeam().pitcher;
+  el.innerHTML=`<div class="sideH">${esc(G.away.name)} <b>${tot(G.away)}</b> : <b>${tot(G.home)}</b> ${esc(G.home.name)} <small>${halfTxt()} · ${G.outs}아웃</small></div>`+
+   [G.away,G.home].map(t=>`<div class="sideT"><h4>${esc(t.name)} ${t===batTeam()?'<small class="sbat">공격</small>':'<small class="sfld">수비</small>'}</h4>
+    <div class="sideL">${t.lineup.map((b,i)=>`<div class="${b===cur?'scur':''}"><span class="sn">${i+1}</span><span class="sp ${posBad(b)?'pbad':''}">${esc(POS1[b.pos]||b.pos||'')}</span><span class="snm">${esc(b.name)}</span><span class="sst">${b.st.ab||0}-${b.st.h||0}${b.st.hr?` ${b.st.hr}HR`:''}${b.st.rbi?` ${b.st.rbi}타점`:''}${b.st.bb?` ${b.st.bb}BB`:''}</span></div>`).join('')}</div>
+    <div class="sideP">${(t.pitchLog||[t.pitcher]).map(p=>`<div class="${p===fp?'scur':''}"><span class="snm">⚾ ${esc(p.name)}</span><span class="sst">${Math.floor((p.st.outs||0)/3)}.${(p.st.outs||0)%3}이닝 ${p.st.h||0}피안타 ${p.st.r||0}실점 ${p.st.k||0}K ${p.st.bb||0}BB · ${p.pc||0}구</span></div>`).join('')}</div></div>`).join('')+
+   `<div class="row"><button class="btn sm" data-sb="bat">타자 상세</button><button class="btn sm" data-sb="pit">투수 상세</button></div>`;
+  el.querySelectorAll('[data-sb]').forEach(b=>b.onclick=()=>boxModal(b.dataset.sb))}
+WIDE.addEventListener&&WIDE.addEventListener('change',()=>{renderSide();try{resize()}catch(e){}});
+/* 특성 설명 팝업: 마우스를 올리거나 터치 → 아무 곳이나 누르면 닫힘 */
+function tipShow(svg,x,y){const t=svg.getAttribute('data-t');if(!t)return;const tp=$('#ttip');const e=TRAIT_ENGINE[t]||{};
+  tp.innerHTML=`<b>${esc(t)}</b>${UNIQUE_T.includes(t)?' <small class="tuq">고유 기술</small>':''}<div>${esc(TDESC(t))}</div>${TRESTRICT[t]&&TRESTRICT[t].pos?`<small class="trs">제한: ${TRESTRICT[t].pos.map(p=>posK(p)).join('·')}</small>`:''}`;
+  tp.classList.add('on');const w=tp.offsetWidth,h=tp.offsetHeight;tp.style.left=Math.max(6,Math.min(innerWidth-w-6,x-w/2))+'px';tp.style.top=(y-h-14<6?y+18:y-h-14)+'px'}
+function tipHide(){$('#ttip').classList.remove('on')}
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const s=e.target.closest&&e.target.closest('svg.hexi[data-t]');if(s){const r=s.getBoundingClientRect();tipShow(s,r.left+r.width/2,r.top)}});
+document.addEventListener('pointerout',e=>{if(e.pointerType!=='mouse')return;const s=e.target.closest&&e.target.closest('svg.hexi[data-t]');if(s&&!(e.relatedTarget&&s.contains(e.relatedTarget)))tipHide()});
+document.addEventListener('pointerdown',e=>{const s=e.target.closest&&e.target.closest('svg.hexi[data-t]');if(s&&e.pointerType!=='mouse'){const r=s.getBoundingClientRect();tipShow(s,r.left+r.width/2,r.top);return}if(!s)tipHide()},true);
+/* 예상 궤적(투구 모드·내가 던질 때) */
+let TRAJ=LS.get('dny_traj',true);
+function pitchPreview(pit,n,aim){const ptp=PITCHES.find(x=>x.n===n);if(!ptp)return null;const sgn=pit.hand==='L'?-1:1,arm=pit.arm||'over';let bx=ptp.bx*sgn*MOVE,by=ptp.by*MOVE;
+  if(/커브/.test(n)&&hasTrait(pit,'12-6')){bx*=1.15;by*=1.25}if(/슬라이더|스위퍼/.test(n)&&hasTrait(pit,'슬러브?')){bx*=1.2;by*=1.1}if(/포크|스플리터|스플릿/.test(n)&&hasTrait(pit,'조핑크')){by*=1.35;bx*=0.85}
+  if(/슬라이더|스위퍼/.test(n)&&hasTrait(pit,'무등산폭격기')){bx*=1.35;by*=1.15}if(/커브/.test(n)&&hasTrait(pit,'무쇠팔')){bx*=1.25;by*=1.4}
+  if(FASTB.includes(n)&&hasTrait(pit,'뱀직구'))bx=bx*1.7+(bx>=0?0.12:-0.12)*sgn;
+  const rel=arm==='under'?[-0.8*sgn,0.55,17.0]:arm==='side'?[-1.0*sgn,1.2,17.1]:[-0.5*sgn,1.85,17.2];if(arm==='side'){bx-=0.16*sgn;by+=0.03}else if(arm==='under'){bx-=0.12*sgn;by+=0.16}
+  return{tx:aim.x,ty:aim.y,bx,by,k:ptp.k,rev:ptp.rev||0,rel}}
+const TRAJ_C=['#ffd23f','#5ad1ff','#ff7ab6','#7dff8a','#ffa24c','#c59bff','#ffffff','#ff5a5a','#9be7c4'];
+function drawTraj(){if(!PAD_ON||!TRAJ||!G)return;const pit=fieldTeam().pitcher,L=padPitches();
+  L.forEach((n,i)=>{const q=pitchPreview(pit,n,st.aim);if(!q)return;const sel=n===st.selP;ctx.strokeStyle=TRAJ_C[i%TRAJ_C.length];ctx.globalAlpha=sel?0.85:0.4;ctx.lineWidth=sel?3.5:2;ctx.beginPath();let f=true;
+    for(let t=0.04;t<=1.0001;t+=0.04){const m=pt(pitchPos(q,t));if(!m)continue;if(f){ctx.moveTo(m.x,m.y);f=false}else ctx.lineTo(m.x,m.y)}ctx.stroke();
+    if(sel){const m=pt(pitchPos(q,1));if(m){ctx.fillStyle=TRAJ_C[i%TRAJ_C.length];ctx.beginPath();ctx.arc(m.x,m.y,3,0,7);ctx.fill()}}});ctx.globalAlpha=1}
+function syncTrajBtn(){const b=$('#trajB');if(b){b.textContent='궤적 '+(TRAJ?'ON':'OFF');b.classList.toggle('on',!!TRAJ)}}
+$('#trajB').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();TRAJ=!TRAJ;LS.set('dny_traj',TRAJ);syncTrajBtn()});syncTrajBtn();
+/* 빠른 진행: 남은 투구를 컴퓨터가 빠르게 진행 */
+const hIdx=()=>G.inning*2+(G.half?1:0);
+function ffModal(){if(!G||G.over)return showBanner('경기 중이 아니에요','foul','');if(MODE==='pvp')return showBanner('빠른 진행 불가','foul','PvP에선 쓸 수 없어요');
+  const myAtk=MODE==='bat'||humanBat(),myDef=MODE==='bat'||humanPitch()||(MODE==='game'&&!humanBat());
+  modal(`<h3>⏩ 빠른 진행</h3><p class="note">선택한 구간을 컴퓨터가 대신 빠르게 진행해요(양 팀 모두 컴퓨터 판단). ${halfTxt()} ${G.outs}아웃 진행 중.</p>
+   <div class="tacg"><button class="btn" id="ffA" ${myAtk&&batTeam()===G.teams[0]||MODE==='bat'?'':'disabled'}>공격 건너뛰기</button><button class="btn" id="ffD" ${MODE==='bat'||fieldTeam()===G.teams[0]?'':'disabled'}>수비 건너뛰기</button><button class="btn" id="ff1">1이닝 건너뛰기</button>
+   <button class="btn" id="ff3">3이닝 건너뛰기</button><button class="btn gold" id="ffE">결과 보기</button></div>`,el=>{
+   const go=k=>{closeModal();fastForward(k)};el.querySelector('#ffA').onclick=()=>go(1);el.querySelector('#ffD').onclick=()=>go(1);el.querySelector('#ff1').onclick=()=>go(2);el.querySelector('#ff3').onclick=()=>go(6);el.querySelector('#ffE').onclick=()=>go(999)})}
+function fastForward(n){if(!G||G.over)return;showBanner('⏩ 빠른 진행 중…','strike','');setTimeout(()=>{const keep=MODE,tgt=hIdx()+n,real=NOW;MODE='cpu';let t=NOW,it=0;
+  try{if(st.mode==='ready'||st.mode==='idle'){}
+    while(!G.over&&it++<600000){t+=1/60;NOW=t;if(G.halt&&st.mode==='idle'&&!G.over){closeOverlay();G.halt=false;st.mode='ready';if(hIdx()>=tgt)break}
+      if(st.mode==='ready'&&!G.halt&&hIdx()>=tgt)break;update()}}catch(e){console.error(e)}
+  MODE=keep;NOW=real;closeOverlay();if(!G.over){G.halt=false;st.mode='ready';st.until=0;st.ballAnim=null;st.camMode='pitch';st._aiT=0;bgKey=''}
+  updateHUD();renderPList&&renderPList();if(!G.over)showBanner('빠른 진행 완료',  'hit',`${halfTxt()} · ${esc(G.away.name)} ${tot(G.away)} : ${tot(G.home)} ${esc(G.home.name)}`);else if(!$('#overlay').classList.contains('on'))endGame()},40)}
 $('#btnSwing').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#stage').addEventListener('pointerdown',e=>{e.preventDefault();doSwing()});
 $('#btnTactic').onclick=tacticModal;
