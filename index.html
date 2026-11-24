@@ -165,6 +165,22 @@ nav button{min-height:34px;min-width:36px;padding:4px 7px!important;font-size:12
 .tnm{min-width:64px}.tnm b{white-space:normal!important;word-break:keep-all;overflow:visible!important;text-overflow:clip!important;line-height:1.15}
 .tslot{width:50px!important;padding:3px 1px!important}.tslot small{font-size:9px!important;max-width:48px!important}.hexadd{width:22px!important;height:24px!important;font-size:15px!important}.tbase{gap:1px!important}.trow{gap:4px!important}
 .tacg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tacg .btn{width:100%;min-height:54px;margin:0;font-size:15px;line-height:1.15;white-space:normal;word-break:keep-all;padding:6px 4px}
+
+/* ===== v6.0 시작 화면·마이너 모드·튜토리얼 ===== */
+body.minor #btnTactic,body.minor #btnBunt,body.minor nav button[data-m="ars"]{display:none!important}
+.startm{display:flex;flex-direction:column;gap:12px;margin:22px 0 6px}
+.startm .btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:16px 10px;font-size:24px}
+.startm .btn small{font-size:13px;opacity:.85;font-family:'Noto Sans KR',system-ui,sans-serif}
+.cblk{position:fixed;z-index:10000;background:rgba(0,0,0,.7)}
+#coachR{position:fixed;z-index:10001;border:3px solid #ffd23f;border-radius:12px;box-shadow:0 0 0 4px rgba(255,210,63,.35),0 0 18px #ffd23f;pointer-events:none;transition:all .2s;display:none}
+#coachT{position:fixed;z-index:10002;left:12px;right:12px;max-width:440px;margin:0 auto;background:#fff8e1;color:#1d1d1d;border-radius:14px;padding:12px 14px;font:15px/1.5 'Noto Sans KR',system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+#coachT .h{display:block;font-size:17px;font-weight:800;margin-bottom:2px}
+#coachT .pg{float:right;font-size:12px;color:#8a7a50}
+#coachT .cr{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+#coachT button{border:0;border-radius:10px;padding:8px 14px;font:700 15px 'Noto Sans KR',system-ui,sans-serif;background:#1f6f78;color:#fff}
+#coachT button.sk{background:#d9d2bd;color:#333}
+#coachT button:disabled{opacity:.4}
+#coachT .tap{color:#b5651d;font-weight:700}
 </style>
 <style id="thV4">
 /* ===== v4.0 테마: 차분한 야구장 스코어북 톤 (네온·형광 그라데이션 제거, 폰트 유지) ===== */
@@ -268,7 +284,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v5.7</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v6.0</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -277,7 +293,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
       <button data-m="career">기록실</button>
       <button data-m="more">⋯</button>
     </nav>
-    <div id="moreMenu"><button data-m="ff">⏩ 빠른 진행</button><button data-m="install">📲 앱으로 설치</button><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button></div>
+    <div id="moreMenu"><button data-m="ff">⏩ 빠른 진행</button><button data-m="install">📲 앱으로 설치</button><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button><button data-m="tut">📘 튜토리얼</button></div>
   </header>
   <section class="board">
     <table class="ls" id="ls"></table>
@@ -2350,8 +2366,8 @@ NC,류진욱,투수,시즌 출전,구원투수,40,,,8.72,,,직구 146 (60.5%) / 
 키움,정현우,투수,시즌 출전,구원투수,15,,,9.9,,,직구 143 (49.6%) / 슬라이더 125 (34.5%) / 커브 112 (15.9%),좌투
 </script>
 <datalist id="clubs"></datalist>
-<script src="assets/motion.js?v=5.7"></script>
-<script src="assets/traits.js?v=5.7"></script>
+<script src="assets/motion.js?v=6.0"></script>
+<script src="assets/traits.js?v=6.0"></script>
 <script>
 /* ================= 유틸 ================= */
 const $=s=>document.querySelector(s);
@@ -3302,7 +3318,7 @@ function endHalf(){const last=G.inning>=G.innings;
 /* ===== 컴퓨터 감독: 컴퓨터가 맡은 팀(빠른 진행·경기 모드 B팀·투수 모드 공격 팀)의 투수 교체·대타·대수비 ===== */
 function aiField(){return !!G&&(MODE==='cpu'||(MODE==='game'&&fieldTeam()!==G.teams[0]))}
 function aiBatT(){return !!G&&(MODE==='cpu'||MODE==='pitch'||(MODE==='game'&&batTeam()!==G.teams[0]))}
-function aiManage(){const ft=fieldTeam(),bt=batTeam(),k=G.inning+'|'+G.half+'|'+bt.idx+'|'+G.outs+'|'+tot(bt);if(G._amK===k)return;G._amK=k;
+function aiManage(){if(MINOR)return;const ft=fieldTeam(),bt=batTeam(),k=G.inning+'|'+G.half+'|'+bt.idx+'|'+G.outs+'|'+tot(bt);if(G._amK===k)return;G._amK=k;
   const hk=G.inning+'|'+G.half,newHalf=ft._amH!==hk;ft._amH=hk;
   try{if(aiField())aiPitchMgr(ft,newHalf);if(aiField()&&newHalf)aiDefMgr(ft)}catch(e){console.error(e)}
   try{if(aiBatT())aiPHMgr(bt)}catch(e){console.error(e)}}
@@ -3331,12 +3347,99 @@ function aiPHMgr(bt){const N=G.innings,late=G.inning>=Math.max(1,N-2),lead=leadO
   const r=recPH(bt);if(!r.length)return;const q=bt.bench[r[0]];if(val(q)<val(cur)*(posBad(cur)?0.5:1)+6)return;
   if(G.bases.filter(Boolean).length===0&&G.outs<2&&lead<0&&R()<0.5)return;
   if(subDo('H',r[0])){bt._phN=(bt._phN||0)+1;q.curHand=decideHand?decideHand(q):q.curHand}}
+/* ===== v6.0: 시작 화면(마이너/메이저/종료), 마이너 모드, 튜토리얼 ===== */
+function setMinor(v){MINOR=!!v;document.body.classList.toggle('minor',MINOR)}
+function resetStage(){G=null;try{buildStands()}catch(e){}st.mode='idle';st.camMode='pitch';st.ballAnim=null;bgKey='';updateHUD()}
+function showStart(){closeModal();resetStage();setMinor(false);MODE=LS.get('dny_mode','bat');if(!MODES.some(m=>m[0]===MODE))MODE='bat';updateModeTag();
+  overlay(`<div class="title">동네야구 3D<small>RETRO BASEBALL DUEL</small></div>
+   <div class="startm">
+    <button class="btn" id="stMi">마이너 모드<small>교체·작전·특성 없이 경기만 해요</small></button>
+    <button class="btn gold" id="stMa">메이저 모드<small>구장·등록 선수·특성·작전·PvP까지 모든 기능</small></button>
+    <button class="btn gray" id="stEx">게임 종료</button>
+   </div>`,el=>{
+    el.querySelector('#stMi').onclick=()=>askTut(()=>{setMinor(true);showMinorSetup()});
+    el.querySelector('#stMa').onclick=()=>askTut(()=>{setMinor(false);showMajorSetup()});
+    el.querySelector('#stEx').onclick=exitGame})}
+function askTut(next){if(LS.get('dny_tut_done',0))return next();
+  modal(`<h3>처음이신가요?</h3><p class="note" style="font-size:15px">버튼을 하나씩 눌러 보면서 게임을 배우는 튜토리얼(약 2분)이 있어요.</p>
+   <div class="row"><button class="btn gold" id="tY">튜토리얼 시작</button><button class="btn gray" id="tN">건너뛰기</button></div>
+   <p class="note">튜토리얼은 설정 화면이나 ⋯ 메뉴에서 언제든 다시 할 수 있어요.</p>`,el=>{
+   el.querySelector('#tY').onclick=()=>{closeModal();startTutorial()};
+   el.querySelector('#tN').onclick=()=>{LS.set('dny_tut_done',1);closeModal();next()}})}
+function exitGame(){try{saveLive()}catch(e){}try{window.close()}catch(e){}
+  setTimeout(()=>overlay(`<div class="big">게임 종료</div><p class="center note" style="font-size:16px">즐겁게 하셨나요?<br>이제 앱(브라우저 탭)을 닫으면 돼요.</p>
+   <div class="row"><button class="btn gold" id="re">시작 화면으로</button></div>`,el=>el.querySelector('#re').onclick=showStart),250)}
+function showMinorSetup(){closeModal();resetStage();setMinor(true);const opp=LS.get('dny_minor_opp','game');
+  overlay(`<div class="title">마이너 모드<small>경기만 즐겨요</small></div>
+   <div class="row"><span class="lbl">A팀</span><select id="mA" style="flex:1">${clubOpts(0)}</select></div>
+   <div class="row"><span class="lbl">B팀</span><select id="mB" style="flex:1">${clubOpts(1)}</select></div>
+   <div class="row"><span class="lbl">이닝</span><div class="seg" id="mI"><button data-v="3">3이닝</button><button data-v="6">6이닝</button><button data-v="9">9이닝</button></div></div>
+   <div class="row"><span class="lbl">상대</span><div class="seg" id="mO"><button data-v="game">컴퓨터</button><button data-v="bat">친구 (폰 넘기기)</button></div></div>
+   <p class="note">선수 교체·작전·번트·도루·특성·등록 선수 없이 경기만 진행해요. 컴퓨터와 하면 내가 A팀(공격은 SWING!, 수비는 조이스틱 투구), 친구와 하면 폰을 넘겨 가며 번갈아 해요.</p>
+   <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button></div>
+   <div class="row playbar"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
+    [0,1].forEach(i=>{const se=el.querySelector(i?'#mB':'#mA');se.onchange=()=>{if(!se.value)return;S.names[i]=se.value;setClub(i,se.value);updateHUD()}});
+    const sI=el.querySelector('#mI'),setI=()=>sI.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.innings));setI();sI.onclick=e=>{const b=e.target.closest('button');if(!b)return;S.innings=+b.dataset.v;setI()};
+    let o=opp;const sO=el.querySelector('#mO'),setO=()=>sO.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===o));setO();sO.onclick=e=>{const b=e.target.closest('button');if(!b)return;o=b.dataset.v;LS.set('dny_minor_opp',o);setO()};
+    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;
+    el.querySelector('#bPlay').onclick=()=>{MODE=o;updateModeTag();const sp=S.sp,f=S.first;S.sp=['',''];S.first=0;startGame();S.sp=sp;S.first=f;G.minor=true;const go=$('#ovp #go');if(go)go.click()}})}
+/* ----- 튜토리얼: 화면의 버튼을 직접 눌러 보며 배움 ----- */
+const TUT={on:false,i:0,poll:0,adv:false};
+const TUT_STEPS=[
+ {h:'환영해요!',t:'버튼을 하나씩 직접 눌러 보면서 동네야구 3D를 배워 봐요. 3이닝 연습 경기가 열렸어요.',btn:'시작'},
+ {sel:'.board',h:'점수판',t:'이닝별 점수와 R(득점)·H(안타). 오른쪽은 B(볼)·S(스트라이크)·O(아웃)와 1·2·3루 주자예요.'},
+ {sel:'#cardP',h:'투수 카드',t:'지금 던지는 투수예요. 구속·평균자책점·투구 수, 아래 막대는 남은 체력이에요.',tap:'투수 카드를 눌러 보세요'},
+ {sel:'#cardP',h:'시즌 ⇄ 능력치',t:'카드를 누를 때마다 시즌 기록과 게임 능력치(제구·구위)가 바뀌어요. 육각형 아이콘은 선수 특성(메이저 모드)이고, 아이콘을 누르면 설명이 떠요.'},
+ {sel:'#cardB',h:'타자 카드',t:'지금 타석의 타자예요. 시즌 타율·홈런과 오늘 기록이 보여요.'},
+ {sel:'#btnPitch',h:'투구',t:'두 사람이 폰을 넘겨 가며 할 때는 수비 쪽이 [투구]를 눌러 공을 던져요(키보드 Enter).',tap:'[투구]를 눌러 보세요',when:()=>G&&!G.halt&&st.mode==='ready'},
+ {sel:'#btnSwing',h:'SWING!',t:'공이 노란 스트라이크 존에 들어오는 순간 누르세요. 너무 빠르거나 늦으면 헛스윙, 살짝 어긋나면 파울이에요(키보드 Space).',tap:'지금 SWING!'},
+ {sel:'.stage',h:'판정 확인',t:'판정이 화면 가운데에 떠요. 이번 타석의 공은 번호 동그라미로 남아요(초록 볼·노랑 스트라이크·파랑 타격).',until:()=>G&&(G.halt||st.mode==='ready')},
+ {sel:'#btnPitch',h:'한 번 더',t:'다시 [투구] → [SWING!]. 타이밍을 익혀 보세요.',tap:'[투구]',when:()=>G&&!G.halt&&st.mode==='ready'},
+ {sel:'#btnSwing',h:'타이밍!',t:'존에 들어올 때!',tap:'SWING!'},
+ {sel:'#btnTactic',h:'작전 (메이저 모드)',t:'투수 교체·대타·대주자·대수비·수비 위치·고의사구·번트를 여기서 해요.',tap:'[작전]을 눌러 보세요',when:()=>G&&!G.halt&&st.mode==='ready'},
+ {sel:'#mdp',h:'작전 창',t:'고르면 바로 적용돼요. 지금은 그냥 닫아 볼게요.',hint:'오른쪽 위 ✕ 또는 닫기를 누르세요',done:()=>!$('#modal').classList.contains('on')},
+ {sel:'.bases',h:'도루·견제 (메이저 모드)',t:'주자가 있을 때 베이스를 누르면 도루를 준비해요. 수비할 때는 베이스를 눌러 견제해요.'},
+ {sel:'nav button[data-m="log"]',h:'중계',t:'문자 중계로 지금까지의 플레이를 모두 볼 수 있어요.',tap:'[중계]를 눌러 보세요'},
+ {sel:'#mdp',h:'문자 중계',t:'타석마다 결과가 쌓여요.',hint:'다 봤으면 닫아 주세요',done:()=>!$('#modal').classList.contains('on')},
+ {sel:'nav button[data-m="career"]',h:'기록실',t:'저장한 경기의 누적 기록(타율·홈런·승·세이브 등)이 쌓여요.'},
+ {sel:'nav button[data-m="ars"]',h:'편집 (메이저 모드)',t:'선수의 좌우, 구종·구속·구사율, 특성을 직접 바꿀 수 있어요.'},
+ {sel:'nav button[data-m="more"]',h:'⋯ 더보기',t:'빠른 진행(컴퓨터가 대신 진행), 앱으로 설치, 구종 인덱스, 규칙, 화면 테마, 튜토리얼이 있어요.'},
+ {h:'준비 끝!',t:'마이너 모드는 교체·작전·특성 없이 경기만, 메이저 모드는 구장·등록 선수·특성·작전·PvP까지 전부예요.',end:true}];
+function startTutorial(){closeModal();closeOverlay();tutClose(false);setMinor(false);MODE='bat';updateModeTag();
+  const sp=S.sp,inn=S.innings,f=S.first;S.sp=['',''];S.innings=3;S.first=0;startGame();S.sp=sp;S.innings=inn;S.first=f;
+  const go=$('#ovp #go');if(go)go.click();setTimeout(()=>{const ok=$('#ovp #ok');if(ok)ok.click();TUT.on=true;TUT.i=0;tutShow()},120)}
+function tutEls(){let r=$('#coachR');if(!r){r=document.createElement('div');r.id='coachR';document.body.appendChild(r);
+    for(let k=0;k<4;k++){const b=document.createElement('div');b.className='cblk';b.dataset.k=k;document.body.appendChild(b)}
+    const t=document.createElement('div');t.id='coachT';document.body.appendChild(t)}return{r,b:[...document.querySelectorAll('.cblk')],t:$('#coachT')}}
+function tutClose(done){TUT.on=false;clearInterval(TUT.poll);['#coachR','#coachT'].forEach(s=>{const e=$(s);if(e)e.remove()});document.querySelectorAll('.cblk').forEach(e=>e.remove());if(done)LS.set('dny_tut_done',1)}
+function tutStep(){return TUT_STEPS[TUT.i]}
+function tutNext(){TUT.adv=false;TUT.i++;if(TUT.i>=TUT_STEPS.length)return tutClose(true);tutShow()}
+function tutLayout(){if(!TUT.on)return;const s=tutStep(),E=tutEls(),W=innerWidth,H=innerHeight,el=s.sel&&document.querySelector(s.sel);
+  if($('#overlay').classList.contains('on')){E.r.style.display='none';E.b.forEach(x=>Object.assign(x.style,{width:'0px',height:'0px'}));Object.assign(E.t.style,{top:'12px',bottom:''});return}   // 이닝 교대 안내 등은 그대로 누를 수 있게
+  const waiting=s.when&&!s.when();let R=null;if(el&&!waiting){const q=el.getBoundingClientRect();if(q.width>0&&q.height>0)R={l:q.left-6,t:q.top-6,r:q.right+6,b:q.bottom+6}}
+  const open=R&&(s.tap||s.done);   // 눌러야 하는 단계만 구멍을 열어 둠
+  if(R){E.r.style.display='block';Object.assign(E.r.style,{left:R.l+'px',top:R.t+'px',width:(R.r-R.l)+'px',height:(R.b-R.t)+'px'})}else E.r.style.display='none';
+  const set=(b,l,t,w,h)=>Object.assign(b.style,{left:l+'px',top:t+'px',width:Math.max(0,w)+'px',height:Math.max(0,h)+'px'});
+  if(open){set(E.b[0],0,0,W,R.t);set(E.b[1],0,R.b,W,H-R.b);set(E.b[2],0,R.t,R.l,R.b-R.t);set(E.b[3],R.r,R.t,W-R.r,R.b-R.t)}
+  else{set(E.b[0],0,0,W,H);[1,2,3].forEach(k=>set(E.b[k],0,0,0,0))}
+  const t=E.t;t.style.top=t.style.bottom='';if(!R){t.style.top=Math.max(20,H/2-90)+'px'}else if((R.t+R.b)/2>H/2)t.style.bottom=(H-R.t+14)+'px';else t.style.top=(R.b+14)+'px';
+  const nb=t.querySelector('#tNx');if(nb&&s.until)nb.disabled=!s.until();
+  const w=t.querySelector('.tap');if(w)w.style.opacity=waiting?.4:1}
+function tutShow(){if(!TUT.on)return;const s=tutStep(),E=tutEls(),n=TUT_STEPS.length;
+  E.t.innerHTML=`<span class="pg">${TUT.i+1}/${n}</span><span class="h">${esc(s.h)}</span>${esc(s.t)}${s.tap?`<div class="tap">👉 ${esc(s.tap)}</div>`:s.hint?`<div class="tap">👉 ${esc(s.hint)}</div>`:''}
+   <div class="cr">${s.end?'<button id="tCo" class="sk">연습 경기 계속</button><button id="tSt">시작 화면으로</button>':`${TUT.i<n-1?'<button class="sk" id="tSk">건너뛰기</button>':''}${s.tap||s.done?'':`<button id="tNx">${esc(s.btn||'다음')}</button>`}`}</div>`;
+  const q=id=>E.t.querySelector(id);
+  if(q('#tNx'))q('#tNx').onclick=tutNext;if(q('#tSk'))q('#tSk').onclick=()=>tutClose(true);
+  if(q('#tCo'))q('#tCo').onclick=()=>tutClose(true);if(q('#tSt'))q('#tSt').onclick=()=>{tutClose(true);showStart()};
+  clearInterval(TUT.poll);TUT.poll=setInterval(()=>{if(!TUT.on)return;const s=tutStep();if(s.done&&!TUT.adv&&s.done()){TUT.adv=true;setTimeout(tutNext,250)}tutLayout()},200);tutLayout()}
+document.addEventListener('pointerdown',e=>{if(!TUT.on||TUT.adv)return;const s=tutStep();if(!s.tap)return;if(s.when&&!s.when())return;const el=s.sel&&document.querySelector(s.sel);if(el&&el.contains(e.target)){TUT.adv=true;setTimeout(tutNext,450)}},true);
+window.addEventListener('resize',()=>{if(TUT.on)tutLayout()});
 function update(){if(!G)return;
   if(NET.on&&!NET.host){if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}else if(st.mode==='flight'&&humanBat()&&!st.swung&&!NET.took&&(NOW-st.fs)/st.pitch.D>1.12){NET.took=true;netSend({t:'take'})}return}
   if(G.halt)return;
   if(anyOpen())return;
   if(st.mode==='ready'&&!(MODE==='pvp'))aiManage();
-  if(st.mode==='ready'&&!humanBat()&&st._stp!==G.paP.length+'|'+G.bases.map(Boolean)){st._stp=G.paP.length+'|'+G.bases.map(Boolean);if(!G.stealReq){const v=stealFrom();if(v){G.stealReq=v;G.stealAI=true}}}
+  if(st.mode==='ready'&&!MINOR&&!humanBat()&&st._stp!==G.paP.length+'|'+G.bases.map(Boolean)){st._stp=G.paP.length+'|'+G.bases.map(Boolean);if(!G.stealReq){const v=stealFrom();if(v){G.stealReq=v;G.stealAI=true}}}
   if(st.mode==='ready'&&aiPitch()){if(!st._aiT)st._aiT=NOW+0.9;else if(NOW>=st._aiT){st._aiT=0;startPitch()}}
   if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}
   else if(st.mode==='flight'){const t=(NOW-st.fs)/st.pitch.D;
@@ -3431,7 +3534,8 @@ function modal(html,bind){$('#mdp').innerHTML='<button class="xbtn" aria-label="
 function closeModal(){$('#modal').classList.remove('on');if(typeof tacHold==='function')tacHold(false)}
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 
-function showSetup(){G=null;try{buildStands()}catch(e){}st.mode='idle';st.camMode='pitch';st.ballAnim=null;bgKey='';updateHUD();
+function showSetup(){return MINOR?showMinorSetup():showMajorSetup()}
+function showMajorSetup(){setMinor(false);G=null;try{buildStands()}catch(e){}st.mode='idle';st.camMode='pitch';st.ballAnim=null;bgKey='';updateHUD();
   overlay(`<div class="title">동네야구 3D<small>RETRO BASEBALL DUEL</small></div>
   <h4>팀 설정</h4>
   <div class="row"><span class="lbl">A팀</span><input id="nA" list="clubs" value="${esc(S.names[0])}" maxlength="12" style="flex:2"><select id="cA">${clubOpts(0)}</select></div>
@@ -3451,7 +3555,9 @@ function showSetup(){G=null;try{buildStands()}catch(e){}st.mode='idle';st.camMod
   <div class="row"><button class="btn sm gray" id="bArs">⚾ 선수 편집 (좌우·구종·구속)</button></div>
   <div class="row"><button class="btn sm" id="bReg">★ 등록 선수 관리 (${SPECIALS.length}명)</button><button class="btn sm gray" id="bCar">📊 누적 기록실</button></div>
   <p class="note">등록 선수는 팀마다 1명까지 직접 골라 선발 라인업에 넣어요(타자는 같은 포지션 자리, 없으면 지명타자 자리 / 선발투수는 선발, 구원투수는 마무리). 구장은 경기 시작 뒤에는 바꿀 수 없어요.</p>
+  <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button></div>
   <div class="row playbar"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
+    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;
     {const sg=el.querySelector('#sgTh'),set=()=>sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.th===THEME));set();sg.onclick=e=>{const b=e.target.closest('button');if(!b)return;setTheme(b.dataset.th);set()}}
     const seg=(id,key,num)=>{const s=el.querySelector(id);const set=()=>s.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S[key]));set();
       s.onclick=e=>{const b=e.target.closest('button');if(!b)return;S[key]=+b.dataset.v;set();updateHUD()}};
@@ -3532,7 +3638,8 @@ function endGame(){try{localStorage.removeItem(LIVE_KEY)}catch(e){};G.over=true;
    ${mvp?`<div class="jrow"><span>MVP</span><span class="n">${mvp.special?'★':''}${esc(mvp.name)} — ${mvp.st.ab}타수 ${mvp.st.h}안타 ${mvp.st.hr}HR ${mvp.st.rbi}타점</span></div>`:''}
    <div class="row"><button class="btn sm" id="bxB">타자 기록</button><button class="btn sm" id="bxP">투수 기록</button><button class="btn sm gray" id="lg">문자 중계</button></div>
    <div class="row"><button class="btn gold" id="sv">💾 기록 저장</button><button class="btn gray" id="cr">누적 기록실</button></div>
-   <div class="row"><button class="btn" id="again">다시 하기</button></div>`,el=>{el.querySelector('#again').onclick=showSetup;el.querySelector('#lg').onclick=logModal;
+   <div class="row"><button class="btn" id="again">다시 하기</button></div>
+   <div class="row"><button class="btn gray" id="toStart">시작 화면으로</button></div>`,el=>{el.querySelector('#again').onclick=showSetup;el.querySelector('#toStart').onclick=showStart;el.querySelector('#lg').onclick=logModal;
      el.querySelector('#bxB').onclick=()=>boxModal('bat');el.querySelector('#bxP').onclick=()=>boxModal('pit');el.querySelector('#cr').onclick=()=>careerModal('bat');
      const sv=el.querySelector('#sv');const mark=()=>{sv.textContent=CLOUD.ok?'☁ 자동 저장됨 ✓':'자동 저장됨 ✓';sv.disabled=true};if(G.saved)mark();
      sv.onclick=()=>{if(saveCareer()){mark();showBanner('기록 저장 완료','ball','누적 기록실에서 확인')}}}),900)}
@@ -3838,7 +3945,7 @@ let _liveT=0;
 function saveLive(){try{if(NET.on&&!NET.host)return;if(!G||G.over){localStorage.removeItem(LIVE_KEY);return}
   localStorage.setItem(LIVE_KEY,JSON.stringify({at:Date.now(),uid:UID,innings:S.innings,park:PARK&&PARK.id,g:graphEnc(G)}))}catch(e){}}
 function liveInfo(){try{const d=JSON.parse(localStorage.getItem(LIVE_KEY)||'null');if(!d)return null;const g=graphDec(d.g);if(!g||g.over)return null;return{d,g}}catch(e){return null}}
-function resumeLive(){const L=liveInfo();if(!L)return false;G=L.g;UID=Math.max(UID,L.d.uid||0);if(L.d.innings)S.innings=L.d.innings;if(L.d.park)setPark(L.d.park);else buildStands();
+function resumeLive(){const L=liveInfo();if(!L)return false;G=L.g;setMinor(!!G.minor);UID=Math.max(UID,L.d.uid||0);if(L.d.innings)S.innings=L.d.innings;if(L.d.park)setPark(L.d.park);else buildStands();
   st.mode='ready';st.camMode='pitch';st.ballAnim=null;st.hit=null;st.pitch=null;st.buntNext=false;G.halt=false;bgKey='';
   closeOverlay();closeModal&&closeModal();updateHUD();renderPList();if(typeof renderLog==='function')renderLog();
   showBanner('이어하기','ball',`${G.inning}회${G.half?'말':'초'} ${G.outs}아웃`);return true}
@@ -3996,7 +4103,7 @@ const P_TRAITS=['파이널보스','매덕스','파이어볼러','12-6','팔색�
 const isPitObj=o=>!!o&&(o.stuff!=null||o.velo!=null||o.arsenal!=null)&&o.contact==null;
 const roleFit=(o,t)=>BOTH_T.includes(t)||(isPitObj(o)?P_TRAITS.includes(t):!P_TRAITS.includes(t));   // 투수 특성은 투수에게만, 타자 특성은 타자에게만
 const baseOf=o=>{const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseTraits(n);return typeof o==='object'&&o?b.filter(t=>roleFit(o,t)&&(!(TRESTRICT[t]&&TRESTRICT[t].role)||restrictOK(o,t))):b};
-function traitsOf(o){const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseOf(o);
+function traitsOf(o){if(MINOR)return[];const n=typeof o==='string'?o:(o&&o.name)||'';const b=baseOf(o);
   const cs=custT(n).filter((c,k,a)=>a.indexOf(c)===k&&TRAIT_ENGINE[c]&&!NO_PICK.includes(c)&&!b.includes(c)&&!(o&&o.trOffs&&o.trOffs.includes(c))&&pitchOK(o,c)&&restrictOK(o,c));
   const u=b.filter(t=>UNIQUE_T.includes(t)).slice(0,1);return[...[...nonU(b),...cs].slice(0,MAXT),...u]}
 const TCAP={B:4,P:5};
@@ -4222,7 +4329,7 @@ function subReq(k,a,b){if(NET.on&&!NET.host){netSend({t:'sub',k,a,b});closeModal
 /* PvP: 공격 팀이 작전 창을 열고 있는 동안 상대는 투구할 수 없음 */
 function tacHold(on){if(MODE!=='pvp'||!NET.on||!G)return;if(on&&!humanBat())return;if(!on&&!NET.tacOpen)return;NET.tacOpen=on;
   if(NET.host){G.tacHold=on?1:0;NET.lk=''}else netSend({t:'hold',v:on?1:0})}
-function tacticModal(){if(!G||G.halt)return;setTimeout(()=>tacHold(true),0);
+function tacticModal(){if(MINOR)return;if(!G||G.halt)return;setTimeout(()=>tacHold(true),0);
   const pvp=MODE==='pvp',myF=!pvp||humanPitch(),myB=!pvp||humanBat();   // PvP: 내 팀 교체만(번트는 번트 버튼, 고의사구·스퀴즈 없음)
   if(!(st.mode==='ready'||st.mode==='idle')){showBanner('투구 중엔 불가','foul','');return}
   const ft=fieldTeam(),bt=batTeam(),p=ft.pitcher;
@@ -4280,12 +4387,14 @@ function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:1
 /* ================= 이벤트 ================= */
 const navAct=e=>{const b=e.target.closest('button');if(!b)return;const m=b.dataset.m;const mm=$('#moreMenu');
   if(m==='more'){mm.classList.toggle('on');return}mm.classList.remove('on');
+  if(m==='tut'){if(G&&!G.over)return modal(`<h3>튜토리얼</h3><p class="note">진행 중인 경기를 끝내고 연습 경기로 튜토리얼을 시작할까요?</p><div class="row"><button class="btn gold" id="tY">시작</button><button class="btn gray" id="tN">취소</button></div>`,el=>{el.querySelector('#tY').onclick=startTutorial;el.querySelector('#tN').onclick=closeModal});return startTutorial()}
   if(m==='theme'){modal(`<h3>화면 테마</h3><p class="note">언제든 바꿀 수 있고 이 기기에 저장돼요.</p><div class="list">${[['classic','4.0 이전 (청록·금색)'],['v4','현재 (스코어북 톤)'],['mc','마인크래프트']].map(([k,n])=>`<div class="it click" data-th="${k}"><span>${THEME===k?'✔ ':''}${n}</span></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{el.querySelectorAll('[data-th]').forEach(x=>x.onclick=()=>{setTheme(x.dataset.th);closeModal()});el.querySelector('#cl').onclick=closeModal});return}
   if(m==='ff')return ffModal();
   if(m==='install')return installModal();
   if(m==='pitches')pitchModal();else if(m==='ars')arsModal(0);else if(m==='line0')lineupModal(0);else if(m==='line1')lineupModal(1);else if(m==='log')logModal();else if(m==='career')careerModal('bat');else if(m==='rules')rulesModal()};
 document.querySelector('nav').onclick=navAct;$('#moreMenu').onclick=navAct;document.addEventListener('pointerdown',e=>{const mm=$('#moreMenu');if(mm&&mm.classList.contains('on')&&!e.target.closest('#moreMenu')&&!e.target.closest('nav'))mm.classList.remove('on')});
 /* ===== v5.0 모드: 투수 / 타자 / 경기 / PvP ===== */
+var MINOR=false;   // v6.0 마이너 모드: 교체·작전·특성 없음
 const MODES=[['pitch','⚾','투수','조이스틱 투구'],['bat','🏏','타자','2인 번갈아'],['game','🏟','경기','A팀 공수'],['pvp','⚔','PvP','방 코드 1:1']];
 let MODE=LS.get('dny_mode','bat');if(!MODES.some(m=>m[0]===MODE))MODE='bat';
 const NET={on:false,host:false,me:0,code:'',opp:'',sent:false,took:false,dec:false,lk:'',over:false};
@@ -4417,7 +4526,7 @@ function applySnap(m){const o=graphDec(m.g),off=NOW-m.now,s=o.s,first=!G;G=o.G;
   updateHUD();renderPList();updateModeTag();
   if(G.over&&!NET.over){NET.over=true;const a=tot(G.away),h=tot(G.home),win=a===h?'무승부':(a>h?G.away:G.home).name+' 승리!';
     setTimeout(()=>overlay(`<div class="big">GAME SET</div><p class="center" style="font-family:'Black Han Sans';font-size:30px;color:#ffe066">${esc(win)}</p><p class="center" style="font-family:'Black Han Sans';font-size:24px">${esc(G.away.name)} ${a} : ${h} ${esc(G.home.name)}</p>
-      <div class="row"><button class="btn sm" id="bxB">타자 기록</button><button class="btn sm" id="bxP">투수 기록</button></div><div class="row"><button class="btn" id="again">처음으로</button></div>`,el=>{el.querySelector('#again').onclick=()=>{netClose();showSetup()};el.querySelector('#bxB').onclick=()=>boxModal('bat');el.querySelector('#bxP').onclick=()=>boxModal('pit')}),900)}}
+      <div class="row"><button class="btn sm" id="bxB">타자 기록</button><button class="btn sm" id="bxP">투수 기록</button></div><div class="row"><button class="btn" id="again">다시 하기</button></div><div class="row"><button class="btn gray" id="toStart">시작 화면으로</button></div>`,el=>{el.querySelector('#again').onclick=()=>{netClose();showSetup()};el.querySelector('#toStart').onclick=()=>{netClose();showStart()};el.querySelector('#bxB').onclick=()=>boxModal('bat');el.querySelector('#bxP').onclick=()=>boxModal('pit')}),900)}}
 /* ===== v5.1: 도루·견제, 번트 버튼, 투수 뒤 카메라, 교체 추천 ===== */
 function moundCam(){return !!G&&MODE!=='bat'&&humanPitch()&&st.camMode==='pitch'}
 function setMoundCam(){lookAt([-0.9,3.3,28.5],[0,0.95,0],Math.min(W*1.3,H*1.05)*3.1,0.45)}
@@ -4430,7 +4539,7 @@ function backstop(){const th=PARK?PARK.th:{seats:['#3e4d70','#34425f','#2b3653']
 function stealVisible(){return MODE==='bat'||humanBat()}
 function stealPick(){const v=G.stealReq||0,B=G.bases;G.stealReq=0;G.stealAI=false;if(v===3&&B[2]&&hasTrait(B[2].b,'바람의아들'))return 3;
   if(v===1&&B[0]&&!B[1])return 1;if(v===2&&B[1]&&!B[2]&&hasTrait(B[1].b,'대주자'))return 2;return 0}
-function baseTap(i){if(!G||G.halt||st.mode!=='ready'||anyOpen())return;const B=G.bases;if(!B[i])return;
+function baseTap(i){if(MINOR)return;if(!G||G.halt||st.mode!=='ready'||anyOpen())return;const B=G.bases;if(!B[i])return;
   const steal=MODE==='bat'||humanBat(),pick=!steal&&humanPitch();
   if(steal){if(i===2&&!hasTrait(B[2].b,'바람의아들'))return showBanner('홈 도루 불가','foul','');
     if(i===2){const v=G.stealReq===3?0:3;if(NET.on&&!NET.host){netSend({t:'steal',v});G.stealReq=v;updateHUD();return}G.stealReq=v;G.stealAI=false;updateHUD();if(v)showBanner('홈스틸 준비','strike',`${B[2].b.name} · 바람의아들(성공 7%)`);return}
@@ -4449,7 +4558,7 @@ function pickoff(i){const B=G.bases,r=B[i];if(!r||st.mode!=='ready'||G.halt)retu
 ['b1','b2','b3'].forEach((id,i)=>{const e=$('#'+id);e.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();baseTap(i)})});
 // 번트 버튼(PvP·경기 모드): 다음 투구에 번트(3루 주자 있으면 스퀴즈)
 function buntOK(){return !!G&&!G.halt&&st.mode==='ready'&&humanBat()&&(canBunt()||canSqueeze()||st.buntNext)}
-function buntTap(){if(!G)return;if(st.buntNext){if(NET.on&&!NET.host)return netSend({t:'bunt',v:0});st.buntNext=false;return}
+function buntTap(){if(MINOR)return;if(!G)return;if(st.buntNext){if(NET.on&&!NET.host)return netSend({t:'bunt',v:0});st.buntNext=false;return}
   if(!buntOK())return showBanner('번트 불가','foul','주자 있고 2아웃 전일 때만');const v=canSqueeze()?'squeeze':true;
   if(NET.on&&!NET.host){st.buntNext=v;return netSend({t:'bunt',v:1})}
   st.buntNext=v;log(`${curBatter().name}: ${v==='squeeze'?'스퀴즈':'번트'} 작전`);showBanner(v==='squeeze'?'스퀴즈!':'번트!','strike','다음 투구에 번트를 대요')}
@@ -4553,7 +4662,7 @@ $('#btnPitch').addEventListener('pointerdown',e=>{e.preventDefault();doPitch()})
 window.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();doSwing()}else if(e.code==='Enter'||e.code==='KeyP'){e.preventDefault();doPitch()}});
 window.addEventListener('resize',resize);try{new ResizeObserver(()=>{const r=cv.getBoundingClientRect();if(Math.abs(r.width-W)>0.5||Math.abs(r.height-H)>0.5)resize()}).observe(cv)}catch(e){}
 ['#cardP','#cardB'].forEach(id=>$(id).addEventListener('click',e=>{if(G&&e.target.closest('.nm,.hexes')){const o=id==='#cardP'?fieldTeam().pitcher:curBatter(),n=traitsOf(o).length;if(n>1){T_IDX[o.name]=((T_IDX[o.name]||0)+1)%n;updateHUD();return}}st.cardRt=!st.cardRt;updateHUD()}));cv=$('#cv');ctx=cv.getContext('2d');bg=document.createElement('canvas');bgctx=bg.getContext('2d');
-resize();updateHUD();loadDefaultDB().finally(()=>{updateHUD();showSetup();recFromHash();
+resize();updateHUD();loadDefaultDB().finally(()=>{updateHUD();showStart();recFromHash();
   const L=liveInfo();if(L){const g=L.g,a=g.away,h=g.home;
     modal(`<h3>진행 중이던 경기</h3><p class="note" style="font-size:16px">${esc(a.name)} <b>${tot(a)}</b> : <b>${tot(h)}</b> ${esc(h.name)}<br>${g.inning}회${g.half?'말':'초'} ${g.outs}아웃</p>
       <p class="note">페이지가 다시 열려도 경기는 타석마다 자동 저장돼요.</p>
