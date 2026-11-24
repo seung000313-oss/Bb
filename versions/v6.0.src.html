@@ -1779,8 +1779,10 @@ function showMinorSetup(){closeModal();resetStage();setMinor(true);const opp=LS.
    <div class="row"><span class="lbl">이닝</span><div class="seg" id="mI"><button data-v="3">3이닝</button><button data-v="6">6이닝</button><button data-v="9">9이닝</button></div></div>
    <div class="row"><span class="lbl">상대</span><div class="seg" id="mO"><button data-v="game">컴퓨터</button><button data-v="bat">친구 (폰 넘기기)</button></div></div>
    <p class="note">선수 교체·작전·번트·도루·특성·등록 선수 없이 경기만 진행해요. 컴퓨터와 하면 내가 A팀(공격은 SWING!, 수비는 조이스틱 투구), 친구와 하면 폰을 넘겨 가며 번갈아 해요.</p>
+   <div class="row"><button class="btn sm" id="bCar">📊 누적 기록실</button></div>
    <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button></div>
    <div class="row playbar"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
+    el.querySelector('#bCar').onclick=()=>careerModal();
     [0,1].forEach(i=>{const se=el.querySelector(i?'#mB':'#mA');se.onchange=()=>{if(!se.value)return;S.names[i]=se.value;setClub(i,se.value);updateHUD()}});
     const sI=el.querySelector('#mI'),setI=()=>sI.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.innings));setI();sI.onclick=e=>{const b=e.target.closest('button');if(!b)return;S.innings=+b.dataset.v;setI()};
     let o=opp;const sO=el.querySelector('#mO'),setO=()=>sO.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===o));setO();sO.onclick=e=>{const b=e.target.closest('button');if(!b)return;o=b.dataset.v;LS.set('dny_minor_opp',o);setO()};
