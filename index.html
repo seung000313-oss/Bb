@@ -165,17 +165,6 @@ nav button{min-height:34px;min-width:36px;padding:4px 7px!important;font-size:12
 .tnm{min-width:64px}.tnm b{white-space:normal!important;word-break:keep-all;overflow:visible!important;text-overflow:clip!important;line-height:1.15}
 .tslot{width:50px!important;padding:3px 1px!important}.tslot small{font-size:9px!important;max-width:48px!important}.hexadd{width:22px!important;height:24px!important;font-size:15px!important}.tbase{gap:1px!important}.trow{gap:4px!important}
 .tacg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tacg .btn{width:100%;min-height:54px;margin:0;font-size:15px;line-height:1.15;white-space:normal;word-break:keep-all;padding:6px 4px}
-
-/* 다이내믹 아일랜드 결과 알림(앱 실행 시) */
-#dyn{position:fixed;left:50%;top:-26px;z-index:9999;width:126px;height:37px;margin-left:-63px;border-radius:19px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;pointer-events:none;overflow:hidden;font:700 17px 'Noto Sans KR',system-ui,sans-serif;letter-spacing:.02em;white-space:nowrap;transition:width .38s cubic-bezier(.2,1.3,.4,1),height .38s cubic-bezier(.2,1.3,.4,1),margin-left .38s cubic-bezier(.2,1.3,.4,1),border-radius .38s,transform .38s cubic-bezier(.2,1.2,.4,1),opacity .25s}
-#dyn .ic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;background:var(--dc,#888);color:#000;opacity:0;transform:scale(.4);transition:opacity .2s .12s,transform .3s .12s}
-#dyn b{opacity:0;transform:translateY(4px);transition:opacity .2s .14s,transform .25s .14s;color:var(--dc,#fff)}
-#dyn.isl{opacity:1}
-#dyn.drop{top:8px;transform:translateY(-70px)}
-#dyn.drop.on{opacity:1;transform:translateY(0)}
-#dyn.on{width:210px;height:44px;margin-left:-105px;border-radius:22px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-#dyn.on.big{width:240px;margin-left:-120px}
-#dyn.on .ic,#dyn.on b{opacity:1;transform:none}
 </style>
 <style id="thV4">
 /* ===== v4.0 테마: 차분한 야구장 스코어북 톤 (네온·형광 그라데이션 제거, 폰트 유지) ===== */
@@ -277,7 +266,6 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 </style>
 </head>
 <body>
-<div id="dyn" aria-live="polite"><span class="ic"></span><b></b></div>
 <div id="app">
   <header class="top">
     <div class="logo">동네야구<span>3D</span><small class="ver">v5.7</small></div>
@@ -3400,24 +3388,7 @@ function updateHUD(){try{updateModeTag()}catch(e){}try{renderSide()}catch(e){}
    ${tHexes(b)}
    <div class="sub">${RT||!(b.season&&b.season.avg!=null)?`컨택 <b>${effC(b)}</b>${effC(b)>b.contact?`<small style="color:#ffd23f">+${effC(b)-b.contact}</small>`:''} 파워 <b>${effP(b)}</b>${effP(b)>b.power?`<small style="color:#ffd23f">+${effP(b)-b.power}</small>`:''}`:`시즌 ${String(b.season.avg.toFixed(3)).replace(/^0/,'')} ${b.season.hr}HR`}</div><div class="sub">오늘 ${b.st.ab}타수 ${b.st.h}안타${b.st.hr?` ${b.st.hr}HR`:''}</div>`;
   const sp=$('#spTag');if(b.special||p.special){sp.style.display='block';sp.textContent='★ 스페셜 '+[p.special?p.name:null,b.special?b.name:null].filter(Boolean).join(' vs ')}else sp.style.display='none'}
-function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls;dynIsland(t)}
-/* ===== 다이내믹 아일랜드 결과 알림: 앱(홈 화면)으로 실행할 때 타석 결과를 아일랜드 자리에서 잠깐 펼쳐 보여 줌 ===== */
-const DYN_C={'삼진':['#ff5a5a','K'],'땅볼':['#b9c4cf','G'],'뜬공':['#b9c4cf','F'],'볼넷':['#6fc3ff','B'],'안타':['#5fe08a','1'],'2루타':['#ffb347','2'],'3루타':['#ff8c42','3'],'홈런':['#ffd23f','H']};
-function dynKind(t){t=String(t||'');if(/홈런|스플래시 히트/.test(t))return'홈런';if(/3루타/.test(t))return'3루타';if(/2루타/.test(t))return'2루타';if(/삼진/.test(t))return'삼진';
-  if(/볼넷|몸에 맞는 공|고의사구/.test(t))return'볼넷';if(/안타/.test(t))return'안타';if(/땅볼|병살/.test(t))return'땅볼';if(/플라이|직선타/.test(t))return'뜬공';return null}
-function dynMode(){const q=/[?&]dyn=1/.test(location.search);let app=false;try{app=IS_APP()}catch(e){}if(!app&&!q)return null;
-  const ios=/iPhone/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1&&screen.width<500);
-  const H=Math.max(screen.width,screen.height),port=window.innerHeight>window.innerWidth;
-  return ios&&port&&[852,874,932,956].includes(H)?'isl':'drop'}
-let DYN_T=[];
-function dynIsland(t){try{if(typeof MODE!=='undefined'&&MODE==='cpu')return;const k=dynKind(t);if(!k)return;const m=dynMode();if(!m)return;const el=$('#dyn');if(!el)return;
-  DYN_T.forEach(clearTimeout);DYN_T=[];const [c,ic]=DYN_C[k];el.style.setProperty('--dc',c);el.querySelector('.ic').textContent=ic;
-  const walkoff=/끝내기/.test(t),lbl=(walkoff?'끝내기 ':'')+(k==='볼넷'&&/몸에 맞는 공/.test(t)?'사구':k==='볼넷'&&/고의사구/.test(t)?'고의사구':k);el.querySelector('b').textContent=lbl;
-  el.className=m;void el.offsetWidth;   // isl: 아일랜드 자리의 검은 알약이 보인 채로 시작 / drop: 화면 위에 숨긴 채로 시작
-  DYN_T.push(setTimeout(()=>{el.className=m+' on'+(lbl.length>4?' big':'')},30));
-  DYN_T.push(setTimeout(()=>{el.className=m},1700));                       // 다시 아일랜드 크기로 접힘(drop은 위로 올라감)
-  DYN_T.push(setTimeout(()=>{el.className=m==='drop'?'drop':''},2150))}catch(e){}}
-
+function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls}
 function showPinfo(){const p=st.pitch;if(!p)return;$('#pinfo').innerHTML=`${esc(p.name)}<br><b>${p.velo}</b> km/h`;$('#pinfo').style.opacity=1}
 
 /* ================= 오버레이/모달 ================= */
@@ -4284,7 +4255,7 @@ document.querySelector('nav').onclick=navAct;$('#moreMenu').onclick=navAct;docum
 /* ===== v5.0 모드: 투수 / 타자 / 경기 / PvP ===== */
 const MODES=[['pitch','⚾','투수','조이스틱 투구'],['bat','🏏','타자','2인 번갈아'],['game','🏟','경기','A팀 공수'],['pvp','⚔','PvP','방 코드 1:1']];
 let MODE=LS.get('dny_mode','bat');if(!MODES.some(m=>m[0]===MODE))MODE='bat';
-const NET={on:false,host:false,me:0,code:'',sent:false,took:false,dec:false,lk:'',over:false};
+const NET={on:false,host:false,me:0,code:'',opp:'',sent:false,took:false,dec:false,lk:'',over:false};
 const NETX={mq:null,bc:null,buf:{},seen:0,jt:0,welcomed:false};
 let PAD_ON=false,PAD_KEY='',SX=1;st.aim={x:0,y:0.75};st.selP='';
 const PCODE={'포심':'4FB','투심':'2FB','커터':'CUT','싱커':'SNK','슬라이더':'SLD','스위퍼':'SWP','커브':'CRV','너클커브':'KCV','체인지업':'CHG','스플리터':'SPL','포크':'FRK','서클체인지':'CCH','슬러브':'SLV','너클볼':'KNK','팜볼':'PLM','스크루볼':'SCR','슈트':'SHT','자이로볼':'GYR','종슬라이더':'VSL','킥체인지업':'KCH','프리즈비 슬라이더':'FRZ','업슛':'UPS'};
@@ -4294,7 +4265,7 @@ function setMode(m){MODE=m;LS.set('dny_mode',m);updateModeTag()}
 function modeInfo(){return{pitch:'조이스틱으로 코스를, 버튼으로 구종을 고른 뒤 [투구]. 타격은 컴퓨터가 해요(양 팀 모두 내가 투구).',
   bat:'기존 방식: 두 사람이 폰을 넘겨 가며 투구·타격.',game:'A팀을 맡아 공격(타격)과 수비(조이스틱 투구)를 모두 해요. B팀은 컴퓨터.',
   pvp:`다른 기기의 친구와 방 코드로 1:1 실시간 대결. 방장=A팀, 참가자=B팀.${NET.on?` <b style="color:#8ef0a8">● 연결됨 (방 ${NET.code}, ${NET.host?'방장':'참가자'})</b>`:''}`}[MODE]}
-function updateModeTag(){const el=$('#modeTag');if(!el)return;const n=(MODES.find(m=>m[0]===MODE)||[])[2];el.textContent=G&&MODE!=='bat'?`${n} 모드${MODE==='pvp'?` · 방 ${NET.code}`:''}`:''}
+function updateModeTag(){const el=$('#modeTag');if(!el)return;const n=(MODES.find(m=>m[0]===MODE)||[])[2];el.textContent=G&&MODE!=='bat'?`${n} 모드${MODE==='pvp'?` · 방 ${NET.code}${NET.opp?' · vs '+NET.opp:''}`:''}`:''}
 function myTeamIdx(){return MODE==='pvp'?NET.me:0}
 function humanPitch(){if(!G)return false;if(MODE==='pitch')return true;if(MODE==='game'||MODE==='pvp')return fieldTeam()===G.teams[myTeamIdx()];return false}
 function humanBat(){if(!G)return true;if(MODE==='bat')return true;if(MODE==='pitch'||MODE==='cpu')return false;return batTeam()===G.teams[myTeamIdx()]}
@@ -4352,11 +4323,15 @@ function netRecv(raw){let m;try{m=typeof raw==='string'?JSON.parse(raw):raw}catc
   try{(NET.host?hostMsg:guestMsg)(m)}catch(e){console.error(e)}}
 // 연결 확인(3초마다 신호, 15초 동안 없으면 끊김 처리)
 setInterval(()=>{if(!NET.on)return;netSend({t:'hb'});if(NETX.seen&&Date.now()-NETX.seen>15000){NETX.seen=0;netLost()}},3000);
-function netClose(){try{NETX.mq&&NETX.mq.close()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}clearTimeout(NETX.jt);NETX.mq=NETX.bc=null;NETX.seen=0;NET.on=false;NET.code='';updateModeTag()}
+function netClose(){try{NETX.mq&&NETX.mq.close()}catch(e){}try{NETX.bc&&NETX.bc.close()}catch(e){}clearTimeout(NETX.jt);NETX.mq=NETX.bc=null;NETX.seen=0;NET.on=false;NET.code='';NET.opp='';updateModeTag()}
 function netLost(){if(!NET.on)return;const wasHost=NET.host;NET.on=false;
   if(wasHost&&G&&!G.over){setMode('game');showBanner('상대 연결 끊김','out','B팀은 컴퓨터가 이어서 해요')}
   else if(wasHost)lobbyMsg('상대 연결이 끊겼어요. 방 코드는 그대로예요 — 다시 참가하면 돼요');
   else overlay(`<div class="big">연결 끊김</div><p class="center note">방장과 연결이 끊겼어요.</p><div class="row"><button class="btn gold" id="ok">처음으로</button></div>`,el=>el.querySelector('#ok').onclick=()=>{netClose();setMode('bat');showSetup()})}
+/* PvP 닉네임: 이 기기에 저장, 상대에게 hello/welcome으로 전달 */
+function nickClean(v){return String(v||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,10)}
+function myNick(){try{return nickClean(localStorage.getItem('dny_nick'))}catch(e){return ''}}
+function setNick(v){try{localStorage.setItem('dny_nick',nickClean(v))}catch(e){}}
 function lobbyMsg(t){const e=document.getElementById('pvS');if(e)e.innerHTML=t}
 async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const code=String(1000+Math.floor(Math.random()*9000));NET.code=code;
   const ready=()=>lobbyMsg(`방 코드 <b style="font-size:26px;color:#ffd23f">${code}</b><br>상대가 참가하길 기다리는 중…`);
@@ -4364,22 +4339,24 @@ async function pvpHost(){netClose();NET.host=true;NET.me=0;NET.over=false;const 
   lobbyMsg('중계 서버에 연결하는 중…');
   NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/h`)netRecv(s)});NETX.mq.sub(`dny5/${code}/h`);ready();return code}
 async function pvpJoin(code){netClose();NET.host=false;NET.me=1;NET.code=code;NET.over=false;
-  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='h')netRecv(e.data.d)};NET.on=true;netSend({t:'hello'});return}
+  if(window.NET_BC){NETX.bc=new BroadcastChannel('dny-'+code);NETX.bc.onmessage=e=>{if(e.data.from==='h')netRecv(e.data.d)};NET.on=true;netSend({t:'hello',n:myNick()});return}
   lobbyMsg('중계 서버에 연결하는 중…');
   NETX.mq=await mqOpen((t,s)=>{if(t===`dny5/${code}/g`)netRecv(s)});NETX.mq.sub(`dny5/${code}/g`);NET.code=code;
-  lobbyMsg('방 찾는 중…');NET.on=true;let n=0;const tryHello=()=>{if(NETX.welcomed||!NETX.mq)return;if(n++>=4){NET.on=false;lobbyMsg('✖ 그 코드의 방이 없거나 방장이 응답하지 않아요');return}netSend({t:'hello'});NETX.jt=setTimeout(tryHello,2500)};
+  lobbyMsg('방 찾는 중…');NET.on=true;let n=0;const tryHello=()=>{if(NETX.welcomed||!NETX.mq)return;if(n++>=4){NET.on=false;lobbyMsg('✖ 그 코드의 방이 없거나 방장이 응답하지 않아요');return}netSend({t:'hello',n:myNick()});NETX.jt=setTimeout(tryHello,2500)};
   NETX.welcomed=false;setTimeout(tryHello,400)}
 function pvpModal(){modal(`<h3>⚔ PvP — 방 코드로 1:1</h3><p class="note">방장(A팀)이 팀·이닝·구장을 정하고 PLAY BALL을 눌러요. 참가자는 B팀. 공격 땐 SWING!, 수비 땐 조이스틱으로 던져요. 작전은 내 팀 선수 교체만 쓸 수 있어요.</p>
+  <div class="row"><input id="pvN" maxlength="10" placeholder="닉네임 (최대 10자)" value="${esc(myNick())}" style="flex:1;font-size:18px;text-align:center" autocomplete="nickname"></div>
   <div class="row"><button class="btn gold" id="pvH">방 만들기</button></div>
   <div class="row"><input id="pvC" inputmode="numeric" maxlength="4" placeholder="코드 4자리" style="flex:1;font-size:20px;text-align:center"><button class="btn" id="pvJ">참가</button></div>
   <div class="status" id="pvS" style="text-align:center">${NET.on?`● 연결됨 (방 ${NET.code})`:''}</div>
   <div class="row"><button class="btn sm gray" id="pvX">닫기</button>${NET.on||NETX.mq||NETX.bc?'<button class="btn sm gray" id="pvQ">방 나가기</button>':''}</div>`,el=>{
+  const nk=el.querySelector('#pvN');nk.oninput=()=>setNick(nk.value);nk.onchange=()=>{setNick(nk.value);nk.value=myNick()};
   el.querySelector('#pvH').onclick=()=>pvpHost().catch(e=>lobbyMsg('✖ '+e.message+'<br><small>와이파이/데이터 연결을 확인해 주세요</small>'));
   el.querySelector('#pvJ').onclick=()=>{const c=el.querySelector('#pvC').value.trim();if(!/^\d{4}$/.test(c))return lobbyMsg('코드 4자리를 넣어 주세요');pvpJoin(c).catch(e=>lobbyMsg('✖ '+e.message))};
   el.querySelector('#pvX').onclick=closeModal;const q=el.querySelector('#pvQ');if(q)q.onclick=()=>{netClose();lobbyMsg('방에서 나왔어요')}})}
 function setupRefresh(){const e=document.getElementById('mdI');if(e)e.innerHTML=modeInfo()}
 function hostMsg(m){
-  if(m.t==='hello'){NET.on=true;netSend({t:'welcome',a:S.names[0],b:S.names[1],inn:S.innings,park:PARK&&PARK.name});lobbyMsg(`● 참가자 연결됨! (방 ${NET.code})<br>설정을 마치고 PLAY BALL을 누르세요`);setupRefresh();if(G)NET.lk='';return}
+  if(m.t==='hello'){NET.on=true;NET.opp=nickClean(m.n)||'참가자';netSend({t:'welcome',n:myNick()||'방장',a:S.names[0],b:S.names[1],inn:S.innings,park:PARK&&PARK.name});lobbyMsg(`● <b>${esc(NET.opp)}</b> 님 연결됨! (방 ${NET.code})<br>설정을 마치고 PLAY BALL을 누르세요`);updateModeTag();setupRefresh();if(G)NET.lk='';return}
   if(!G||G.over)return;
   if(m.t==='pitch'){if(!G.halt&&st.mode==='ready'&&fieldTeam()===G.teams[1]&&!G.tacHold)startPitch(m.o);else if(G.tacHold){NET.lk=''}}
   else if(m.t==='hold'){if(batTeam()===G.teams[1]){G.tacHold=+m.v?1:0;NET.lk=''}}
@@ -4390,7 +4367,7 @@ function hostMsg(m){
   else if(m.t==='pick'){if(fieldTeam()===G.teams[1])pickoff(+m.i)}
   else if(m.t==='bunt'){if(batTeam()===G.teams[1]){if(!m.v)st.buntNext=false;else if(canBunt()||canSqueeze())st.buntNext=canSqueeze()?'squeeze':true}}}
 function guestMsg(m){
-  if(m.t==='welcome'){NETX.welcomed=true;clearTimeout(NETX.jt);lobbyMsg(`● 연결됨! 방장: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
+  if(m.t==='welcome'){NETX.welcomed=true;clearTimeout(NETX.jt);NET.opp=nickClean(m.n)||'방장';updateModeTag();lobbyMsg(`● 연결됨! 방장 <b>${esc(NET.opp)}</b> 님: ${esc(m.a)} vs <b>${esc(m.b)}</b>(내 팀) · ${m.inn}이닝 · ${esc(m.park||'')}<br>방장이 시작하면 경기가 열려요`);setupRefresh();return}
   if(m.t==='ban'){showBanner(...m.a);return}
   if(m.t==='snap')applySnap(m)}
 const ST_SYNC=['mode','wpNote','pitch','hit','buntNext','ballAnim','camMode','swung','whiff','foulDir','paEnd'],ST_T=['until','fs','swingAt','hitT0','foulT0','buntAt'];
