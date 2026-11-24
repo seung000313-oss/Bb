@@ -165,6 +165,17 @@ nav button{min-height:34px;min-width:36px;padding:4px 7px!important;font-size:12
 .tnm{min-width:64px}.tnm b{white-space:normal!important;word-break:keep-all;overflow:visible!important;text-overflow:clip!important;line-height:1.15}
 .tslot{width:50px!important;padding:3px 1px!important}.tslot small{font-size:9px!important;max-width:48px!important}.hexadd{width:22px!important;height:24px!important;font-size:15px!important}.tbase{gap:1px!important}.trow{gap:4px!important}
 .tacg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}.tacg .btn{width:100%;min-height:54px;margin:0;font-size:15px;line-height:1.15;white-space:normal;word-break:keep-all;padding:6px 4px}
+
+/* 다이내믹 아일랜드 결과 알림(앱 실행 시) */
+#dyn{position:fixed;left:50%;top:11px;z-index:9999;width:126px;height:37px;margin-left:-63px;border-radius:19px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;pointer-events:none;overflow:hidden;font:700 17px 'Noto Sans KR',system-ui,sans-serif;letter-spacing:.02em;white-space:nowrap;transition:width .38s cubic-bezier(.2,1.3,.4,1),height .38s cubic-bezier(.2,1.3,.4,1),margin-left .38s cubic-bezier(.2,1.3,.4,1),border-radius .38s,transform .38s cubic-bezier(.2,1.2,.4,1),opacity .25s}
+#dyn .ic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;background:var(--dc,#888);color:#000;opacity:0;transform:scale(.4);transition:opacity .2s .12s,transform .3s .12s}
+#dyn b{opacity:0;transform:translateY(4px);transition:opacity .2s .14s,transform .25s .14s;color:var(--dc,#fff)}
+#dyn.isl{opacity:1}
+#dyn.drop{top:8px;transform:translateY(-70px)}
+#dyn.drop.on{opacity:1;transform:translateY(0)}
+#dyn.on{width:210px;height:44px;margin-left:-105px;border-radius:22px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#dyn.on.big{width:240px;margin-left:-120px}
+#dyn.on .ic,#dyn.on b{opacity:1;transform:none}
 </style>
 <style id="thV4">
 /* ===== v4.0 테마: 차분한 야구장 스코어북 톤 (네온·형광 그라데이션 제거, 폰트 유지) ===== */
@@ -266,6 +277,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 </style>
 </head>
 <body>
+<div id="dyn" aria-live="polite"><span class="ic"></span><b></b></div>
 <div id="app">
   <header class="top">
     <div class="logo">동네야구<span>3D</span><small class="ver">v5.7</small></div>
@@ -3391,7 +3403,24 @@ function updateHUD(){try{updateModeTag()}catch(e){}try{renderSide()}catch(e){}
    ${tHexes(b)}
    <div class="sub">${RT||!(b.season&&b.season.avg!=null)?`컨택 <b>${effC(b)}</b>${effC(b)>b.contact?`<small style="color:#ffd23f">+${effC(b)-b.contact}</small>`:''} 파워 <b>${effP(b)}</b>${effP(b)>b.power?`<small style="color:#ffd23f">+${effP(b)-b.power}</small>`:''}`:`시즌 ${String(b.season.avg.toFixed(3)).replace(/^0/,'')} ${b.season.hr}HR`}</div><div class="sub">오늘 ${b.st.ab}타수 ${b.st.h}안타${b.st.hr?` ${b.st.hr}HR`:''}</div>`;
   const sp=$('#spTag');if(b.special||p.special){sp.style.display='block';sp.textContent='★ 스페셜 '+[p.special?p.name:null,b.special?b.name:null].filter(Boolean).join(' vs ')}else sp.style.display='none'}
-function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls}
+function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls;dynIsland(t)}
+/* ===== 다이내믹 아일랜드 결과 알림: 앱(홈 화면)으로 실행할 때 타석 결과를 아일랜드 자리에서 잠깐 펼쳐 보여 줌 ===== */
+const DYN_C={'삼진':['#ff5a5a','K'],'땅볼':['#b9c4cf','G'],'뜬공':['#b9c4cf','F'],'볼넷':['#6fc3ff','B'],'안타':['#5fe08a','1'],'2루타':['#ffb347','2'],'3루타':['#ff8c42','3'],'홈런':['#ffd23f','H']};
+function dynKind(t){t=String(t||'');if(/홈런|스플래시 히트/.test(t))return'홈런';if(/3루타/.test(t))return'3루타';if(/2루타/.test(t))return'2루타';if(/삼진/.test(t))return'삼진';
+  if(/볼넷|몸에 맞는 공|고의사구/.test(t))return'볼넷';if(/안타/.test(t))return'안타';if(/땅볼|병살/.test(t))return'땅볼';if(/플라이|직선타/.test(t))return'뜬공';return null}
+function dynMode(){const q=/[?&]dyn=1/.test(location.search);let app=false;try{app=IS_APP()}catch(e){}if(!app&&!q)return null;
+  const ios=/iPhone/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1&&screen.width<500);
+  const H=Math.max(screen.width,screen.height),port=window.innerHeight>window.innerWidth;
+  return ios&&port&&[852,874,932,956].includes(H)?'isl':'drop'}
+let DYN_T=[];
+function dynIsland(t){try{if(typeof MODE!=='undefined'&&MODE==='cpu')return;const k=dynKind(t);if(!k)return;const m=dynMode();if(!m)return;const el=$('#dyn');if(!el)return;
+  DYN_T.forEach(clearTimeout);DYN_T=[];const [c,ic]=DYN_C[k];el.style.setProperty('--dc',c);el.querySelector('.ic').textContent=ic;
+  const walkoff=/끝내기/.test(t),lbl=(walkoff?'끝내기 ':'')+(k==='볼넷'&&/몸에 맞는 공/.test(t)?'사구':k==='볼넷'&&/고의사구/.test(t)?'고의사구':k);el.querySelector('b').textContent=lbl;
+  el.className=m;void el.offsetWidth;   // isl: 아일랜드 자리의 검은 알약이 보인 채로 시작 / drop: 화면 위에 숨긴 채로 시작
+  DYN_T.push(setTimeout(()=>{el.className=m+' on'+(lbl.length>4?' big':'')},30));
+  DYN_T.push(setTimeout(()=>{el.className=m},1700));                       // 다시 아일랜드 크기로 접힘(drop은 위로 올라감)
+  DYN_T.push(setTimeout(()=>{el.className=m==='drop'?'drop':''},2150))}catch(e){}}
+
 function showPinfo(){const p=st.pitch;if(!p)return;$('#pinfo').innerHTML=`${esc(p.name)}<br><b>${p.velo}</b> km/h`;$('#pinfo').style.opacity=1}
 
 /* ================= 오버레이/모달 ================= */
