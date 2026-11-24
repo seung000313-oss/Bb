@@ -1979,6 +1979,7 @@ function showMajorSetup(){setMinor(false);G=null;try{buildStands()}catch(e){}st.
   <div class="row"><span class="lbl">화면</span><div class="seg" id="sgTh"><button data-th="classic">4.0 이전</button><button data-th="v4">현재</button><button data-th="mc">마인크래프트</button></div></div>
   <h4>모드</h4><div class="modes" id="mdS">${MODES.map(([k,ic,n,d])=>`<button data-m="${k}" class="${MODE===k?'on':''}"><i>${ic}</i>${n}<small>${d}</small></button>`).join('')}</div>
   <div class="status" id="mdI">${modeInfo()}</div>
+  <div class="row"><button class="btn sm" id="bEA">📋 A팀 라인업·타순</button><button class="btn sm" id="bEB">📋 B팀 라인업·타순</button></div>
   <div class="row"><button class="btn sm gray" id="bArs">⚾ 선수 편집 (좌우·구종·구속)</button></div>
   <div class="row"><button class="btn sm" id="bReg">★ 등록 선수 관리 (${SPECIALS.length}명)</button><button class="btn sm gray" id="bCar">📊 누적 기록실</button></div>
   <p class="note">등록 선수는 팀마다 1명까지 직접 골라 선발 라인업에 넣어요(타자는 같은 포지션 자리, 없으면 지명타자 자리 / 선발투수는 선발, 구원투수는 마무리). 구장은 경기 시작 뒤에는 바꿀 수 없어요.</p>
@@ -1997,7 +1998,7 @@ function showMajorSetup(){setMinor(false);G=null;try{buildStands()}catch(e){}st.
     el.querySelector('#stA').onclick=el.querySelector('#stB').onclick=e=>{const b=e.target.closest('[data-rr]');if(!b)return;const i=+b.dataset.rr;setClub(i,S.club[i]);refresh(i)};
     el.querySelector('#bReg').onclick=regModal;
     el.querySelector('#bCar').onclick=()=>careerModal();
-    el.querySelector('#bArs').onclick=()=>arsModal(0);
+    el.querySelector('#bArs').onclick=()=>arsModal(0);el.querySelector('#bEA').onclick=()=>lineupModal(0);el.querySelector('#bEB').onclick=()=>lineupModal(1);
     el.querySelector('#pkS').onchange=e=>{setPark(e.target.value);LS.set('dny_park',PARK.id);el.querySelector('#pkI').innerHTML=parkInfo();updateHUD()};
     [0,1].forEach(i=>{const se=el.querySelector(i?'#spB':'#spA');se.onchange=()=>{S.sp[i]=se.value;if(S.sp[1-i]&&S.sp[1-i]===S.sp[i]){S.sp[1-i]='';el.querySelector(i?'#spA':'#spB').value=''}}});
     el.querySelector('#bPlay').onclick=()=>{if(MODE==='pvp'){if(!NET.on)return pvpModal();if(!NET.host)return showBanner('호스트 대기 중','ball','방장이 경기를 시작해요')}startGame()}})}
