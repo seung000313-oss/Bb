@@ -284,7 +284,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v6.0</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v6.1</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -293,7 +293,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
       <button data-m="career">기록실</button>
       <button data-m="more">⋯</button>
     </nav>
-    <div id="moreMenu"><button data-m="ff">⏩ 빠른 진행</button><button data-m="install">📲 앱으로 설치</button><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button><button data-m="tut">📘 튜토리얼</button></div>
+    <div id="moreMenu"><button data-m="ff">⏩ 빠른 진행</button><button data-m="install">📲 앱으로 설치</button><button data-m="pitches">⚾ 구종 인덱스</button><button data-m="rules">📖 규칙</button><button data-m="theme">🎨 화면 테마</button><button data-m="tut">📘 튜토리얼</button><button data-m="snd">🔊 소리 설정</button></div>
   </header>
   <section class="board">
     <table class="ls" id="ls"></table>
@@ -3104,7 +3104,7 @@ function doSwing(force,dtO){if(!G||G.halt||(!force&&anyOpen())||st.buntNext)retu
   if(st.mode==='windup')return;
   if(st.swung)return;
   if(NET.on&&!NET.host){st.swung=true;st.swingAt=NOW;netSend({t:'swing',dt:NOW-(st.fs+st.pitch.D)});return}
-  st.swung=true;st.swingAt=dtO!=null?st.fs+st.pitch.D+dtO:NOW;{const t=batTeam();t.tk=(t.tk??0.55)*0.9}
+  st.swung=true;st.swingAt=dtO!=null?st.fs+st.pitch.D+dtO:NOW;sfxWhoosh('swing');{const t=batTeam();t.tk=(t.tk??0.55)*0.9}
   const p=st.pitch,b=curBatter(),pit=fieldTeam().pitcher,dt=dtO!=null?dtO:NOW-(st.fs+p.D);
   if(dt>0.2){st.whiff=true;return}
   const w=BAL.win*(0.10+effC(b)*0.0012)*(1.1-effS(pit)*0.002),wF=w*BAL.wF,ad=Math.abs(dt);
@@ -3128,7 +3128,7 @@ function doFoul(){
   if(st.pitch&&st.swung&&!st.buntNext&&R()<BAL.ffP&&R()<BAL.ffC){const r=R(),k=r<.4?'C':r<.7?'1B':'3B',side=k==='1B'?1:k==='3B'?-1:(R()<.5?-1:1);
     const th=k==='C'?side*(150+R()*20):side*(58+R()*14),dist=k==='C'?8+R()*8:24+R()*14;
     return startHit({th,dist,type:'fb',res:'OUT',how:'FF',fielder:k,T:3+R()*1.2,h:18+R()*10,ev:90+R()*30,la:60+R()*15})}
-  markPitch('S','파울');if(G.strikes<2)G.strikes++;st.ballAnim='foul';st.foulT0=NOW;st.foulDir=R()<.5?-1:1;finishPitch('파울','foul',false,'')}
+  markPitch('S','파울');sfxBat('foul');if(G.strikes<2)G.strikes++;st.ballAnim='foul';st.foulT0=NOW;st.foulDir=R()<.5?-1:1;finishPitch('파울','foul',false,'')}
 
 function nearest(land,keys){return keys.map(k=>({k,d:Math.hypot(FP[k][0]-land[0],FP[k][2]-land[2])})).sort((a,b)=>a.d-b.d)[0]}
 /* ===== 타구 물리 판정 (펜스 구간 판정 없음) =====
@@ -3246,10 +3246,10 @@ function hitPos(h,u){const L=h.land;u=clamp(u,0,1);
   const ye=h.how==='HR'?9:h.how==='FENCE'&&!h.hop?(h.mw?Math.max(1.8,wallH(h.th)*0.6):1.8):h.res==='OUT'?1.6:0.3,a=1,b=0.72,mx=Math.pow(a/(a+b),a)*Math.pow(b/(a+b),b);
   const y=lerp(1,ye,u)+h.h*Math.pow(u,a)*Math.pow(1-u,b)/mx;
   return[L[0]*sx,y,L[2]*sx]}
-function startHit(o){if(o.how!=='BUNT')markPitch('X','타격');else markPitch('X','번트');st.hit=o;st.hitT0=NOW;st.mode='inplay';st.until=NOW+o.T+0.45;st.camMode='field';st.ballAnim='hit';st.cp=[0,32,-34];st.cl=[0,0,52];showPinfo()}
+function startHit(o){try{if(o.how==='BUNT'||o.how==='FF')sfxBat('foul');else sfxBat(o.res==='HR'?'hr':'hit',o.ev)}catch(e){}if(o.how!=='BUNT')markPitch('X','타격');else markPitch('X','번트');st.hit=o;st.hitT0=NOW;st.mode='inplay';st.until=NOW+o.T+0.45;st.camMode='field';st.ballAnim='hit';st.cp=[0,32,-34];st.cl=[0,0,52];showPinfo()}
 
 // list = 득점한 주자들 {b:타자, p:출루 당시 투수} → 실점/자책점은 그 주자를 내보낸 투수에게
-function score(list,b,rbi){const bt=batTeam(),ft=fieldTeam();if(rbi&&b)b.st.rbi+=list.length;
+function score(list,b,rbi){SND.pend+=list.length;const bt=batTeam(),ft=fieldTeam();if(rbi&&b)b.st.rbi+=list.length;
   list.forEach(e=>{const before=leadOf(bt);bt.ls[G.inning-1]=(bt.ls[G.inning-1]||0)+1;e.p.st.r++;if(!e.ue&&G.outs+(G.eo||0)<3)e.p.st.er++;
     if(before<=0&&leadOf(bt)>0)G.goAhead={winP:bt.pitcher,loseP:e.p};
     if(ft.pitcher.entryLead>0&&leadOf(ft)<=0)ft.pitcher.blown=true});
@@ -3290,11 +3290,11 @@ function windIdx(B){for(let i=0;i<3;i++)if(B[i]&&hasTrait(B[i].b,'바람의아�
 function windPush(B,sc,w){if(!w)return;const i=B.indexOf(w.r);if(i<0||i!==w.i)return;if(i===2){sc.push(w.r);B[2]=null}else if(!B[i+1]){B[i+1]=w.r;B[i]=null}else return;log(`${w.r.b.name}: 바람의아들 — 한 베이스 더`)}
 function wpAdv(){const p=st.pitch;if(!p||!p.wp||p.wpDone)return;p.wpDone=true;const B=G.bases;if(!(B[0]||B[1]||B[2]))return;
   const sc=B[2]?[B[2]]:[];if(B[1]&&hasTrait(B[1].b,'바람의아들')&&R()<0.10){sc.push(B[1]);B[1]=null;log(`${sc[sc.length-1].b.name}: 바람의아들 — 폭투에 2루에서 홈인`)}G.bases=[null,B[0],B[1]];log(`${R()<.7?'폭투':'포일'} — 주자 한 베이스씩 진루${sc.length?' +1점':''}`);st.wpNote=sc.length?'폭투 +1점':'폭투·주자 진루';if(sc.length)score(sc,null,false);updateHUD()}
-function judgeTake(){const p=st.pitch;{const t=batTeam();t.tk=(t.tk??0.55)*0.9+0.1}if(stealRes())return;wpAdv();
+function judgeTake(){const p=st.pitch;if(p.hbp)sfxThud();else sfxMitt(p.velo);{const t=batTeam();t.tk=(t.tk??0.55)*0.9+0.1}if(stealRes())return;wpAdv();
   if(p.zone){markPitch('S','스트라이크');G.strikes++;if(G.strikes>=3)return strikeout(true);finishPitch('STRIKE','strike',false,'')}
   else if(p.hbp){markPitch('B','몸에 맞는 공');return walk(true)}
   else{markPitch('B','볼');G.balls++;if(G.balls>=4)return walk();finishPitch('BALL','ball',false,'')}}
-function whiffStrike(){if(stealRes())return;wpAdv();markPitch('S','헛스윙');G.strikes++;if(G.strikes>=3)return strikeout(false);finishPitch('헛스윙!','strike',false,'')}
+function whiffStrike(){sfxMitt(st.pitch&&st.pitch.velo);if(stealRes())return;wpAdv();markPitch('S','헛스윙');G.strikes++;if(G.strikes>=3)return strikeout(false);finishPitch('헛스윙!','strike',false,'')}
 function strikeout(look,txt){const b=curBatter(),p=fieldTeam().pitcher;b.st.pa++;b.st.ab++;b.st.k++;p.st.k++;G.outs++;p.st.outs++;
   log(`${b.name}: ${look?'루킹 ':''}삼진`);finishPitch(txt||(look?'루킹 삼진!':'삼진!'),'k',true,'')}
 function walk(hbp,ibb){const b=curBatter(),p=fieldTeam().pitcher,B=G.bases,sc=[];b.st.pa++;if(hbp){b.st.hbp++;if(hasTrait(b,'악바리'))b.hbpB=(b.hbpB||0)+2}else b.st.bb++;p.st.bb++;
@@ -3381,13 +3381,13 @@ function showMinorSetup(){closeModal();resetStage();setMinor(true);const opp=LS.
    <div class="row"><span class="lbl">상대</span><div class="seg" id="mO"><button data-v="game">컴퓨터</button><button data-v="bat">친구 (폰 넘기기)</button></div></div>
    <p class="note">선수 교체·작전·번트·도루·특성·등록 선수 없이 경기만 진행해요. 컴퓨터와 하면 내가 A팀(공격은 SWING!, 수비는 조이스틱 투구), 친구와 하면 폰을 넘겨 가며 번갈아 해요.</p>
    <div class="row"><button class="btn sm" id="bCar">📊 누적 기록실</button></div>
-   <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button></div>
+   <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button><button class="btn sm gray" id="bSnd">🔊 소리</button></div>
    <div class="row playbar"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
     el.querySelector('#bCar').onclick=()=>careerModal();
     [0,1].forEach(i=>{const se=el.querySelector(i?'#mB':'#mA');se.onchange=()=>{if(!se.value)return;S.names[i]=se.value;setClub(i,se.value);updateHUD()}});
     const sI=el.querySelector('#mI'),setI=()=>sI.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.innings));setI();sI.onclick=e=>{const b=e.target.closest('button');if(!b)return;S.innings=+b.dataset.v;setI()};
     let o=opp;const sO=el.querySelector('#mO'),setO=()=>sO.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===o));setO();sO.onclick=e=>{const b=e.target.closest('button');if(!b)return;o=b.dataset.v;LS.set('dny_minor_opp',o);setO()};
-    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;
+    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;el.querySelector('#bSnd').onclick=sndModal;
     el.querySelector('#bPlay').onclick=()=>{MODE=o;updateModeTag();const sp=S.sp,f=S.first;S.sp=['',''];S.first=0;startGame();S.sp=sp;S.first=f;G.minor=true;const go=$('#ovp #go');if(go)go.click()}})}
 /* ----- 튜토리얼: 화면의 버튼을 직접 눌러 보며 배움 ----- */
 const TUT={on:false,i:0,poll:0,adv:false};
@@ -3456,14 +3456,105 @@ function bodyHit(tx,ty,hand,r){r=r??0.037;if(Math.abs(tx)<=0.257&&ty>=0.413&&ty<
     if(inn)return true}return false}
 function bodySpot(hand){const P=bodySil(hand).filter(p=>p.y0>0.25&&p.y1<1.75);for(let k=0;k<40;k++){const p=P[Math.floor(R()*P.length)],c=p.q.reduce((a,[x,y])=>[a[0]+x/p.q.length,a[1]+y/p.q.length],[0,0]);if(bodyHit(c[0],c[1],hand,0))return c}
   const s=hand==='L'?1:-1;return[s*0.6,1.0]}
+/* ===== v6.1 사운드: 외부 음원 없이 Web Audio로 직접 합성(BGM·타격음·미트·관중), 심판 콜은 기기 음성(TTS) ===== */
+const SND={ctx:null,on:{all:1,bgm:1,sfx:1,ump:1,crowd:1},vol:0.8,bus:{},seq:null,bed:null,pend:0,lastChant:0,duckT:0};
+try{Object.assign(SND.on,JSON.parse(localStorage.getItem('dny_snd')||'{}'));const v=localStorage.getItem('dny_vol');if(v!=null)SND.vol=+v}catch(e){}
+function sndSave(){try{localStorage.setItem('dny_snd',JSON.stringify(SND.on));localStorage.setItem('dny_vol',String(SND.vol))}catch(e){}}
+function sndInit(){if(SND.ctx){if(SND.ctx.state==='suspended'&&!document.hidden)SND.ctx.resume();return}
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=new AC();SND.ctx=c;
+  const comp=c.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(c.destination);
+  SND.master=c.createGain();SND.master.connect(comp);['bgm','sfx','crowd'].forEach(k=>{const g=c.createGain();g.connect(SND.master);SND.bus[k]=g});
+  const mk=pink=>{const b=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=b.getChannelData(0);let b0=0,b1=0,b2=0;
+    for(let i=0;i<d.length;i++){const w=Math.random()*2-1;if(!pink){d[i]=w;continue}b0=0.99765*b0+w*0.099046;b1=0.963*b1+w*0.2965164;b2=0.57*b2+w*1.0526913;d[i]=(b0+b1+b2+w*0.1848)*0.2}return b};
+  SND.white=mk(false);SND.pink=mk(true);sndApply();
+  try{if('speechSynthesis' in window){speechSynthesis.getVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}}   // iOS: 첫 터치에서 음성 잠금 해제
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,sndInit,{capture:true}));
+document.addEventListener('visibilitychange',()=>{if(!SND.ctx)return;if(document.hidden){SND.ctx.suspend();try{speechSynthesis.cancel()}catch(e){}}else SND.ctx.resume()});
+function sndApply(){if(!SND.ctx)return;const t=SND.ctx.currentTime,o=SND.on;SND.master.gain.setTargetAtTime(o.all?SND.vol:0,t,0.05);
+  SND.bus.bgm.gain.setTargetAtTime(o.bgm?0.30:0,t,0.1);SND.bus.sfx.gain.setTargetAtTime(o.sfx?1:0,t,0.05);SND.bus.crowd.gain.setTargetAtTime(o.crowd?0.6:0,t,0.1)}
+function sndOK(k){return !!(SND.ctx&&SND.on.all&&(!k||SND.on[k])&&MODE!=='cpu'&&!document.hidden)}
+function sNoise(bus,t,dur,o){const c=SND.ctx,s=c.createBufferSource();s.buffer=o.pink?SND.pink:SND.white;s.loop=true;s.loopStart=Math.random();
+  const f=c.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.setValueAtTime(o.f||1000,t);if(o.f2)f.frequency.exponentialRampToValueAtTime(o.f2,t+dur);f.Q.value=o.Q??1;
+  const g=c.createGain(),a=o.a??0.003;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(o.g??0.5,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  s.connect(f);f.connect(g);g.connect(o.dest||SND.bus[bus]);s.start(t,Math.random()*1.5);s.stop(t+dur+0.05);return g}
+function sTone(bus,t,freq,dur,o){const c=SND.ctx,os=c.createOscillator();os.type=o.type||'sine';os.frequency.setValueAtTime(freq,t);if(o.f2)os.frequency.exponentialRampToValueAtTime(o.f2,t+dur);if(o.det)os.detune.value=o.det;
+  const g=c.createGain(),a=o.a??0.004;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(o.g??0.3,t+a);if(o.hold)g.gain.setValueAtTime(o.g??0.3,t+a+o.hold);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  let out=g;if(o.lp){const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=o.lp;g.connect(f);out=f}
+  os.connect(g);out.connect(o.dest||SND.bus[bus]);os.start(t);os.stop(t+dur+0.05)}
+/* --- 효과음 --- */
+function sfxBat(kind,ev){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime,p=Math.min(1.2,Math.max(0.6,(ev||140)/150));
+  if(kind==='hr'){   // 홈런: 더 낮고 묵직하게 + 울림
+    sTone('sfx',t,95,0.45,{f2:42,g:0.7});sTone('sfx',t,190,0.22,{f2:80,g:0.35,type:'triangle'});sNoise('sfx',t,0.16,{f:900,Q:0.9,g:0.7});sNoise('sfx',t,0.05,{f:2600,Q:1.2,g:0.8});
+    sTone('sfx',t+0.005,1180,0.35,{g:0.12,type:'triangle'});sNoise('sfx',t+0.02,0.6,{f:400,Q:0.6,g:0.25,pink:true,a:0.02})}
+  else if(kind==='foul'){sNoise('sfx',t,0.04,{f:3400,Q:1.6,g:0.45});sTone('sfx',t,1900,0.02,{type:'square',g:0.06})}
+  else{sNoise('sfx',t,0.05*p,{f:2500,Q:1.4,g:0.75*p});sTone('sfx',t,1800,0.012,{type:'square',g:0.1});sTone('sfx',t,180,0.08,{f2:90,g:0.35*p})}}
+function sfxMitt(v){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime,k=Math.min(1.25,Math.max(0.6,(v||140)/145));
+  sNoise('sfx',t,0.07,{f:850,Q:2,g:0.75*k});sTone('sfx',t,150,0.09,{f2:70,g:0.5*k});sNoise('sfx',t,0.018,{f:3000,Q:1,g:0.25*k})}
+function sfxWhoosh(kind){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime;if(kind==='swing')sNoise('sfx',t,0.22,{f:350,f2:1700,Q:1.2,g:0.35,a:0.06});else sNoise('sfx',t,0.3,{f:600,f2:1500,Q:2,g:0.12,a:0.08})}
+function sfxThud(){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime;sTone('sfx',t,120,0.14,{f2:55,g:0.7});sNoise('sfx',t,0.09,{f:320,Q:1.2,g:0.6})}
+function sfxJingle(kind){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime,m=n=>440*Math.pow(2,(n-69)/12);
+  const seq=kind==='end'?[[72,0],[76,.12],[79,.24],[84,.36],[79,.6],[84,.72]]:kind==='organ'?[[67,0],[72,.14],[76,.28],[79,.42]]:[[79,0],[84,.09],[88,.18]];
+  seq.forEach(([n,d])=>{sTone('sfx',t+d,m(n),kind==='end'?0.35:0.2,{type:kind==='organ'?'sine':'square',g:kind==='organ'?0.16:0.07,hold:0.08});if(kind==='organ')sTone('sfx',t+d,m(n+12),0.2,{g:0.06,hold:0.08})});
+  if(kind==='end')[60,64,67,72].forEach(n=>sTone('sfx',t+0.72,m(n),1.2,{type:'triangle',g:0.07,hold:0.5}))}
+function sfxTick(){if(!sndOK('sfx'))return;sTone('sfx',SND.ctx.currentTime,1400,0.03,{type:'square',g:0.025})}
+/* --- 관중 --- */
+function crowdBed(on){const c=SND.ctx;if(!c)return;if(on&&!SND.bed){const s=c.createBufferSource();s.buffer=SND.pink;s.loop=true;const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=650;f.Q.value=0.5;
+    const g=c.createGain();g.gain.value=0;const l=c.createOscillator(),lg=c.createGain();l.frequency.value=0.13;lg.gain.value=0.05;l.connect(lg);lg.connect(g.gain);
+    s.connect(f);f.connect(g);g.connect(SND.bus.crowd);s.start();l.start();g.gain.setTargetAtTime(0.22,c.currentTime,1.2);SND.bed={s,g,l}}
+  else if(!on&&SND.bed){const b=SND.bed;SND.bed=null;b.g.gain.setTargetAtTime(0,c.currentTime,0.4);setTimeout(()=>{try{b.s.stop();b.l.stop()}catch(e){}},2000)}}
+function crowdLevel(x){if(SND.bed)SND.bed.g.gain.setTargetAtTime(0.18+0.18*x,SND.ctx.currentTime,0.8)}
+function crowdCheer(lv,dur){if(!sndOK('crowd'))return;const c=SND.ctx,t=c.currentTime;dur=dur||2.5;
+  sNoise('crowd',t,dur,{f:1100,Q:0.5,g:0.9*lv,a:0.25,pink:true});sNoise('crowd',t,dur*0.8,{f:2400,Q:0.7,g:0.35*lv,a:0.3});
+  for(let i=0;i<10;i++){const f0=220+Math.random()*260;sTone('crowd',t+Math.random()*0.15,f0,dur*(0.6+Math.random()*0.4),{type:'sawtooth',f2:f0*(1.05+Math.random()*0.1),g:0.025*lv,a:0.2,lp:1300})}   // "와아~" 목소리 층
+  SND.duckT=performance.now()+dur*900}
+function crowdBoo(){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime;
+  for(let i=0;i<12;i++){const f0=110+Math.random()*70;sTone('crowd',t+Math.random()*0.2,f0,2.2,{type:'sawtooth',f2:f0*0.88,g:0.05,a:0.35,lp:520})}sNoise('crowd',t,2,{f:380,Q:2.5,g:0.3,a:0.3,pink:true})}
+function crowdMurmur(){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime;sNoise('crowd',t,1.4,{f:700,Q:1,g:0.35,a:0.15,pink:true});for(let i=0;i<6;i++){const f0=180+Math.random()*120;sTone('crowd',t+Math.random()*.2,f0,1.1,{type:'sawtooth',f2:f0*1.25,g:0.02,a:0.1,lp:900})}}
+function crowdChant(hot){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime,clap=d=>{for(let k=0;k<7;k++)sNoise('crowd',t+d+Math.random()*0.03,0.06,{f:1300+Math.random()*900,Q:1.1,g:0.07*(hot?1.5:1)})},drum=d=>sTone('crowd',t+d,70,0.25,{f2:48,g:0.25*(hot?1.4:1)});
+  [0,0.3].forEach(d=>{clap(d);drum(d)});[0.75,0.98,1.21].forEach(d=>{clap(d);drum(d)});   // 짝짝 짝짝짝 + 북
+  if(hot){const m=n=>440*Math.pow(2,(n-69)/12);[[69,1.6],[69,1.85],[72,2.1],[74,2.35]].forEach(([n,d])=>{for(let k=0;k<5;k++)sTone('crowd',t+d,m(n-12)*(1+(Math.random()-.5)*0.02),0.22,{type:'sawtooth',g:0.03,lp:1100,a:0.03})})}}   // 득점권: 응원 구호
+/* --- 심판 콜(기기 음성) --- */
+function umpCall(w){if(!sndOK('ump')||!('speechSynthesis' in window))return;try{const u=new SpeechSynthesisUtterance(w);u.lang='ko-KR';u.rate=1.15;u.pitch=0.75;u.volume=Math.min(1,SND.vol+0.2);
+  const v=speechSynthesis.getVoices().find(x=>/^ko/i.test(x.lang)&&/male|남|Minsu|Injoon/i.test(x.name))||speechSynthesis.getVoices().find(x=>/^ko/i.test(x.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+/* --- BGM: 아케이드 야구 게임풍 칩튠(직접 작곡) --- */
+const BGM={menu:{bpm:150,lead:[72,0,76,79,81,79,76,72, 74,0,77,81,79,0,77,74, 72,76,79,84,83,81,79,76, 77,0,0,79,76,0,0,0, 72,0,76,79,81,79,76,72, 74,0,77,81,83,0,81,79, 84,83,81,79,77,76,74,72, 74,0,79,0,72,0,0,0],root:[48,50,45,53,48,50,53,48]},
+  game:{bpm:160,lead:[69,0,69,0,72,0,74,0, 76,0,74,72,74,0,0,0, 69,0,69,0,72,0,74,0, 76,79,76,74,72,0,0,0, 81,0,79,0,76,0,74,0, 76,0,72,0,74,0,0,0, 69,72,76,79,81,79,76,74, 72,0,69,0,69,0,0,0],root:[45,41,45,40,45,41,43,45]}};
+function bgmWant(){if(!SND.ctx||!SND.on.all||!SND.on.bgm||document.hidden||MODE==='cpu')return'';return(!G||G.over)?'menu':'game'}
+function bgmTick(){const c=SND.ctx;if(!c)return;const want=bgmWant();if(!SND.seq||SND.seq.key!==want)SND.seq=want?{key:want,step:0,t:c.currentTime+0.1}:null;if(!SND.seq)return;
+  const S2=BGM[SND.seq.key],sd=60/S2.bpm/2,m=n=>440*Math.pow(2,(n-69)/12),gv=SND.seq.key==='game'?0.55:1,duck=performance.now()<SND.duckT?0.35:1;
+  while(SND.seq.t<c.currentTime+0.25){const i=SND.seq.step%64,t=SND.seq.t,bar=Math.floor(i/8),n=S2.lead[i];
+    if(n)sTone('bgm',t,m(n),sd*0.9,{type:'square',g:0.09*gv*duck,a:0.005});
+    const r=S2.root[bar];sTone('bgm',t,m(i%2?r+12:r),sd*0.85,{type:'triangle',g:0.22*gv*duck});
+    if(i%4===0)sTone('bgm',t,110,0.12,{f2:45,g:0.35*gv*duck});if(i%8===4)sNoise('bgm',t,0.1,{f:1800,Q:0.8,g:0.18*gv*duck});sNoise('bgm',t,0.03,{type:'highpass',f:7000,Q:0.5,g:0.05*gv*duck});
+    SND.seq.step++;SND.seq.t+=sd}}
+setInterval(()=>{try{if(!SND.ctx)return;bgmTick();const live=!!(G&&!G.over&&MODE!=='cpu'&&SND.on.all&&SND.on.crowd&&!document.hidden);crowdBed(live);
+  if(live){const sp=!!(G.bases[1]||G.bases[2]),late=G.inning>=G.innings-1&&Math.abs(tot(G.away)-tot(G.home))<=2;crowdLevel((sp?0.6:0)+(late?0.4:0));
+    if(st.mode==='ready'&&!G.halt&&performance.now()-SND.lastChant>(sp?3600:6500)){SND.lastChant=performance.now();crowdChant(sp)}}}catch(e){}},60);
+/* --- 게임 이벤트 → 소리 --- */
+function sndBanner(t,cls){if(!SND.ctx)return;t=String(t||'');
+  const hr=/홈런|스플래시/.test(t),err=/실책/.test(t);
+  if(hr){umpCall('홈런!');crowdCheer(1,5);SND.pend=0}
+  else{if(t==='STRIKE'||t==='헛스윙!')umpCall('스트라이크!');else if(t==='BALL'||/볼넷|고의사구/.test(t))umpCall('볼!');else if(t==='파울')umpCall('파울!');
+    else if(/삼진/.test(t)){umpCall('스트라이크! 아웃!');crowdCheer(0.3,1.2)}else if(cls==='out'||/아웃|병살|삼중살/.test(t))umpCall('아웃!');
+    if(SND.pend>0){crowdCheer(Math.min(1,0.55+0.12*SND.pend),2.8+SND.pend*0.4);SND.pend=0}}
+  if(err)crowdBoo();if(/몸에 맞는 공/.test(t))crowdMurmur();if(t==='CHANGE!')sfxJingle('change');if(t==='투수 교체')sfxJingle('organ');if(/끝내기/.test(t))crowdCheer(1,6)}
+function sndModal(){const o=SND.on,row=(k,l)=>`<div class="row"><span class="lbl" style="width:auto;flex:1">${l}</span><button class="btn sm ${o[k]?'gold':'gray'}" data-k="${k}">${o[k]?'켜짐':'꺼짐'}</button></div>`;
+  modal(`<h3>🔊 소리 설정</h3>${row('all','전체 소리')}${row('bgm','배경 음악 (BGM)')}${row('sfx','효과음 (타격·미트·스윙)')}${row('ump','심판 콜 (스트라이크·볼·파울·아웃·홈런)')}${row('crowd','관중 (응원·함성·야유)')}
+   <div class="row"><span class="lbl" style="width:auto">음량</span><input type="range" id="sv" min="0" max="1" step="0.05" value="${SND.vol}" style="flex:1"></div>
+   <div class="row"><button class="btn sm" id="sT">🔈 들어보기</button><button class="btn sm gold" id="cl">닫기</button></div>
+   <p class="note">아이폰은 무음 모드(옆 스위치)일 때 소리가 나지 않을 수 있어요. 심판 콜은 기기의 한국어 음성을 써요.</p>`,el=>{sndInit();
+   el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{o[b.dataset.k]=o[b.dataset.k]?0:1;sndSave();sndApply();sndModal()});
+   el.querySelector('#sv').oninput=e=>{SND.vol=+e.target.value;sndSave();sndApply()};
+   el.querySelector('#sT').onclick=()=>{sfxMitt(145);setTimeout(()=>umpCall('스트라이크!'),150);setTimeout(()=>sfxBat('hit',150),1100);setTimeout(()=>sfxBat('hr'),1900);setTimeout(()=>crowdCheer(0.9,3),1950)};
+   el.querySelector('#cl').onclick=()=>{closeModal();if(!G&&$('#overlay').classList.contains('on'))showSetup()}})}
 function update(){if(!G)return;
-  if(NET.on&&!NET.host){if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}else if(st.mode==='flight'&&humanBat()&&!st.swung&&!NET.took&&(NOW-st.fs)/st.pitch.D>1.12){NET.took=true;netSend({t:'take'})}return}
+  if(NET.on&&!NET.host){if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW;sfxWhoosh('pitch')}else if(st.mode==='flight'&&humanBat()&&!st.swung&&!NET.took&&(NOW-st.fs)/st.pitch.D>1.12){NET.took=true;netSend({t:'take'})}return}
   if(G.halt)return;
   if(anyOpen())return;
   if(st.mode==='ready'&&!(MODE==='pvp'))aiManage();
   if(st.mode==='ready'&&!MINOR&&!humanBat()&&st._stp!==G.paP.length+'|'+G.bases.map(Boolean)){st._stp=G.paP.length+'|'+G.bases.map(Boolean);if(!G.stealReq){const v=stealFrom();if(v){G.stealReq=v;G.stealAI=true}}}
   if(st.mode==='ready'&&aiPitch()){if(!st._aiT)st._aiT=NOW+0.9;else if(NOW>=st._aiT){st._aiT=0;startPitch()}}
-  if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW}
+  if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW;sfxWhoosh('pitch')}
   else if(st.mode==='flight'){const t=(NOW-st.fs)/st.pitch.D;
     if(aiBat()&&!st.swung&&!st.buntNext){if(!st._ai)st._ai=aiPlan();if(st._ai.sw&&NOW>=st.fs+st.pitch.D+st._ai.dt)doSwing(true)}
     if(st.buntNext&&!st.swung&&t>=0.96){resolveBunt();return}if(t>1.12){if(MODE==='pvp'&&NET.on&&NET.host&&!humanBat()&&!st.swung&&!NET.dec&&t<6)return;st.whiff?whiffStrike():judgeTake()}}
@@ -3552,7 +3643,7 @@ let CARDH={k:'',h:0};
 function cardLock(){const a=$('#cardP'),b=$('#cardB');if(!a||!b)return;const k=innerWidth+'x'+innerHeight+'|'+document.body.className.replace(/\bminor\b/,'');
   if(CARDH.k!==k){CARDH={k,h:0};a.style.minHeight=b.style.minHeight=''}
   const h=Math.max(a.offsetHeight,b.offsetHeight);if(h>CARDH.h){CARDH.h=h;a.style.minHeight=b.style.minHeight=h+'px';if(typeof resize==='function')resize()}}
-function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls}
+function showBanner(t,cls,sub){if(NET.on&&NET.host)netSend({t:'ban',a:[t,cls,sub||'']});const el=$('#banner');el.className='';void el.offsetWidth;const te=el.querySelector('.t');te.textContent=t;el.querySelector('.s').textContent=sub||'';el.className='show '+cls;try{sndBanner(t,cls)}catch(e){}}
 function showPinfo(){const p=st.pitch;if(!p)return;$('#pinfo').innerHTML=`${esc(p.name)}<br><b>${p.velo}</b> km/h`;$('#pinfo').style.opacity=1}
 
 /* ================= 오버레이/모달 ================= */
@@ -3584,9 +3675,9 @@ function showMajorSetup(){setMinor(false);G=null;try{buildStands()}catch(e){}st.
   <div class="row"><button class="btn sm gray" id="bArs">⚾ 선수 편집 (좌우·구종·구속)</button></div>
   <div class="row"><button class="btn sm" id="bReg">★ 등록 선수 관리 (${SPECIALS.length}명)</button><button class="btn sm gray" id="bCar">📊 누적 기록실</button></div>
   <p class="note">등록 선수는 팀마다 1명까지 직접 골라 선발 라인업에 넣어요(타자는 같은 포지션 자리, 없으면 지명타자 자리 / 선발투수는 선발, 구원투수는 마무리). 구장은 경기 시작 뒤에는 바꿀 수 없어요.</p>
-  <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button></div>
+  <div class="row"><button class="btn sm gray" id="bHome">← 시작 화면</button><button class="btn sm gray" id="bTut">📘 튜토리얼</button><button class="btn sm gray" id="bSnd">🔊 소리</button></div>
   <div class="row playbar"><button class="btn gold" id="bPlay" style="font-size:26px;padding:12px">PLAY BALL!</button></div>`,el=>{
-    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;
+    el.querySelector('#bHome').onclick=showStart;el.querySelector('#bTut').onclick=startTutorial;el.querySelector('#bSnd').onclick=sndModal;
     {const sg=el.querySelector('#sgTh'),set=()=>sg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.th===THEME));set();sg.onclick=e=>{const b=e.target.closest('button');if(!b)return;setTheme(b.dataset.th);set()}}
     const seg=(id,key,num)=>{const s=el.querySelector(id);const set=()=>s.querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S[key]));set();
       s.onclick=e=>{const b=e.target.closest('button');if(!b)return;S[key]=+b.dataset.v;set();updateHUD()}};
@@ -3657,7 +3748,7 @@ function showReveal(){const tm=[G.away,G.home];
 function showChange(){if(MODE!=='bat'){showBanner('CHANGE!','ball',`${halfTxt()} ${batTeam().name} 공격`);setTimeout(()=>{if(G&&!G.over&&G.halt&&st.mode==='idle'){G.halt=false;st.mode='ready';bgKey='';updateHUD()}},1500);return}overlay(`<div class="big">CHANGE!</div><p class="center" style="font-family:'Black Han Sans';font-size:22px;color:#ffe066">${halfTxt()} ${esc(batTeam().name)} 공격</p>
   <p class="center" style="font-size:17px">${esc(G.away.name)} ${tot(G.away)} : ${tot(G.home)} ${esc(G.home.name)}</p><p class="center note">폰을 ${esc(batTeam().name)} 플레이어에게 넘겨주세요</p>
   <div class="row"><button class="btn gold" id="ok" style="font-size:22px">준비 완료</button></div>`,el=>el.querySelector('#ok').onclick=()=>{closeOverlay();G.halt=false;st.mode='ready';bgKey='';updateHUD()})}
-function endGame(){try{localStorage.removeItem(LIVE_KEY)}catch(e){};G.over=true;G.halt=true;st.mode='idle';decideGame();updateHUD();const a=tot(G.away),h=tot(G.home);
+function endGame(){setTimeout(()=>{sfxJingle('end');crowdCheer(0.8,4)},300);try{localStorage.removeItem(LIVE_KEY)}catch(e){};G.over=true;G.halt=true;st.mode='idle';decideGame();updateHUD();const a=tot(G.away),h=tot(G.home);
   const all=[...G.away.lineup,...G.away.used,...G.away.bench,...G.home.lineup,...G.home.used,...G.home.bench].filter(b=>b.st&&b.st.pa);
   const mvp=all.sort((x,y)=>(y.st.h+y.st.hr*2+y.st.rbi)-(x.st.h+x.st.hr*2+x.st.rbi))[0];
   const win=a===h?'무승부':(a>h?G.away:G.home).name+' 승리!';
@@ -4416,6 +4507,7 @@ function rulesModal(){modal(`<h3>규칙</h3><div class="note" style="font-size:1
 /* ================= 이벤트 ================= */
 const navAct=e=>{const b=e.target.closest('button');if(!b)return;const m=b.dataset.m;const mm=$('#moreMenu');
   if(m==='more'){mm.classList.toggle('on');return}mm.classList.remove('on');
+  if(m==='snd')return sndModal();
   if(m==='tut'){if(G&&!G.over)return modal(`<h3>튜토리얼</h3><p class="note">진행 중인 경기를 끝내고 연습 경기로 튜토리얼을 시작할까요?</p><div class="row"><button class="btn gold" id="tY">시작</button><button class="btn gray" id="tN">취소</button></div>`,el=>{el.querySelector('#tY').onclick=startTutorial;el.querySelector('#tN').onclick=closeModal});return startTutorial()}
   if(m==='theme'){modal(`<h3>화면 테마</h3><p class="note">언제든 바꿀 수 있고 이 기기에 저장돼요.</p><div class="list">${[['classic','4.0 이전 (청록·금색)'],['v4','현재 (스코어북 톤)'],['mc','마인크래프트']].map(([k,n])=>`<div class="it click" data-th="${k}"><span>${THEME===k?'✔ ':''}${n}</span></div>`).join('')}</div><div class="row"><button class="btn sm" id="cl">닫기</button></div>`,el=>{el.querySelectorAll('[data-th]').forEach(x=>x.onclick=()=>{setTheme(x.dataset.th);closeModal()});el.querySelector('#cl').onclick=closeModal});return}
   if(m==='ff')return ffModal();
