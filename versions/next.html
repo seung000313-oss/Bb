@@ -2990,10 +2990,17 @@ function pitcherPM(wp,u,pit){const kind=['over','side','under'].includes(pit&&pi
   else J=motJ(kind,-1.3,hand);
   pmShadow([wp[0],wp[1]+.01,wp[2]-.6],.55);
   drawPM(J,p=>[wp[0]+p[0]*PM_S,wp[1]+p[1]*PM_S,wp[2]-p[2]*PM_S],{glove:hand==='R'?'L':'R',U:pmUni(u)})}
-function batterPM(b,u){const side=b.curHand==='R'?-1:1,hand=b.curHand==='L'?'L':'R';let J;const st0=motJ('bat',-.8,hand);
+/* 3D 번트 자세(우타 기준, 좌타는 좌우 반전): 상체를 투수 쪽으로 돌리고 배트를 홈플레이트 위로 수평에 가깝게 */
+const BUNT_PJ={};
+function buntPJ(hand){hand=hand==='L'?'L':'R';if(BUNT_PJ[hand])return BUNT_PJ[hand];const J=motJ('bat',-.8,'R'),o={};for(const k in J)o[k]=J[k].slice();
+  Object.assign(o,{pel:[.78,.46,-.02],hipL:[.74,.46,.05],hipR:[.82,.46,-.09],knL:[.72,.27,.15],knR:[.75,.27,-.16],
+    neck:[.78,.75,0],head:[.765,.865,.035],shL:[.70,.73,.01],shR:[.86,.73,-.03],elL:[.76,.62,.08],elR:[.63,.63,.1],haL:[.71,.575,.2],haR:[.56,.59,.23],batK:[.73,.57,.2],batT:[.36,.615,.27]});
+  if(hand==='L'){const m={};for(const k in o){const v=o[k];m[MIRK(k)]=[-v[0],v[1],v[2]]}return BUNT_PJ[hand]=m}return BUNT_PJ[hand]=o}
+function batterPM(b,u,bun){const side=b.curHand==='R'?-1:1,hand=b.curHand==='L'?'L':'R';let J;const st0=motJ('bat',-.8,hand);
   // v4.3: 스윙은 지금 자세(_bt)에서 바로 이어지고, 버튼을 누른 순간(=판정 시점) 뒤 SW초 안에 컨택 자세에 닿도록 압축 → 판정과 화면의 컨택 타이밍 일치
   const SW=0.07;
-  if(st.swingAt>0&&NOW-st.swingAt<1.4){const e=NOW-st.swingAt,t0=st._bt??-.3,t=e<SW?t0+(0-t0)*ease(e/SW):e-SW;J=t<=.4?motJ('bat',t,hand):lerpPJ(motJ('bat',.4,hand),st0,ease(clamp((t-.4)/.5,0,1)))}
+  if(bun)J=buntPJ(hand);
+  else if(st.swingAt>0&&NOW-st.swingAt<1.4){const e=NOW-st.swingAt,t0=st._bt??-.3,t=e<SW?t0+(0-t0)*ease(e/SW):e-SW;J=t<=.4?motJ('bat',t,hand):lerpPJ(motJ('bat',.4,hand),st0,ease(clamp((t-.4)/.5,0,1)))}
   else if(st.mode==='windup'){st._bt=-.8+clamp(1-(st.until-NOW)/WIND,0,1)*.5;J=motJ('bat',st._bt,hand)}
   else if(st.mode==='flight'&&st.pitch){st._bt=-.3+clamp((NOW-st.fs)/st.pitch.D,0,1)*.15;J=motJ('bat',st._bt,hand)}
   else if(st.fs&&st.pitch&&(st.mode==='post'||st.mode==='inplay')&&NOW-st.fs<st.pitch.D+.7){const x=clamp((NOW-st.fs-st.pitch.D)/.6,0,1);J=lerpPJ(motJ('bat',-.15,hand),st0,ease(x))}
@@ -3021,16 +3028,18 @@ function fig(wp,u,o){o=o||{};const f=pt(wp);if(!f)return;const tp=pt([wp[0],wp[1
 function batter(b,u){const side=b.curHand==='R'?-1:1;const wp=[side*0.95,0,0.75];const f=pt(wp),tp=pt([wp[0],1.85,wp[2]]);if(!f||!tp)return;
   const h=f.y-tp.y;let J;
   const bnS=st.buntNext&&!(NET.on&&!humanBat()&&st.mode!=='flight');   // PvP: 상대 화면에선 공이 날아올 때 번트 자세
-  if(!(bnS||(st.buntAt&&NOW-st.buntAt<1.2))&&h>=36){batterPM(b,u);return}
+  const bun=!!(bnS||(st.buntAt&&NOW-st.buntAt<1.2));
+  if(h>=36){batterPM(b,u,bun);return}
   const s=st.swingAt>0?(NOW+LEAD-st.swingAt)/0.3:9;
-  if(bnS||(st.buntAt&&NOW-st.buntAt<1.2))J=BAT.bunt;
+  if(bun)J=BAT.bunt;
   else if(s<1.3)J=chainJ(x=>keySpline([[0,BAT.load],[.2,MO.STRIDE],[.4,MO.LAUNCH],[.55,BAT.contact],[.9,BAT.follow],[1.3,MO.FINISH]],clamp(x,0,1)),s/1.3,1);
   else if(s<1.7)J=lerpJ(MO.FINISH,BAT.stance,ease((s-1.3)/.4));
   else if(st.mode==='windup')J=lerpJ(BAT.stance,BAT.load,ease(clamp(1-(st.until-NOW)/WIND,0,1)));
   else if(st.mode==='flight')J=BAT.load;
   else{const bob=Math.sin(NOW*2.2)*.008;J={...BAT.stance,ha:[BAT.stance.ha[0],BAT.stance.ha[1]+bob],bat:BAT.stance.bat+Math.sin(NOW*2.2)*.05}}
   J=springJ('B',J,1.3,0.68);
-  drawRig(f.x,f.y,h,J,u,{facing:-side,bat:true,helmet:true})}
+  const pc=pt([0,0.8,0.2]),fc=pc?(pc.x>f.x?1:-1):-side;   // 화면에서 홈플레이트 쪽을 보게(마운드 카메라에서도 배트 방향이 맞도록)
+  drawRig(f.x,f.y,h,J,u,{facing:fc,bat:true,helmet:true})}
 
 function ball(p,scale,spin){const q=pt(p);if(!q)return;const sh=pt([p[0],0.01,p[2]]);const hy=Math.max(0,p[1]),sk=1+hy*0.05;
   if(sh){ctx.fillStyle=`rgba(0,0,0,${0.35/(1+hy*0.12)})`;ctx.beginPath();ctx.ellipse(sh.x,sh.y,Math.max(1.5,sh.k*0.05*scale*sk),Math.max(.8,sh.k*0.02*scale*sk),0,0,7);ctx.fill()}
@@ -3557,8 +3566,8 @@ function update(){if(!G)return;
   if(st.mode==='ready'&&aiPitch()){if(!st._aiT)st._aiT=NOW+0.9;else if(NOW>=st._aiT){st._aiT=0;startPitch()}}
   if(st.mode==='windup'&&NOW>=st.until){st.mode='flight';st.fs=NOW;sfxWhoosh('pitch')}
   else if(st.mode==='flight'){const t=(NOW-st.fs)/st.pitch.D;
-    if(aiBat()&&!st.swung&&!st.buntNext){if(!st._ai)st._ai=aiPlan();if(st._ai.sw&&NOW>=st.fs+st.pitch.D+st._ai.dt)doSwing(true)}
-    if(st.buntNext&&!st.swung&&t>=0.96){resolveBunt();return}if(t>1.12){if(MODE==='pvp'&&NET.on&&NET.host&&!humanBat()&&!st.swung&&!NET.dec&&t<6)return;st.whiff?whiffStrike():judgeTake()}}
+    if(aiBat()&&!st.swung&&!st.buntNext){if(!st._ai)st._ai=aiPlan();if(st._ai.sw&&NOW>=st.fs+st.pitch.D+st._ai.dt){doSwing(true);if(st.mode!=='flight')return}}   // 타격 처리됐으면 같은 프레임에서 도착 판정(스트라이크·헛스윙)을 하지 않음
+    if(st.buntNext&&!st.swung&&t>=0.96){resolveBunt();return}if(t>1.12&&st.mode==='flight'){if(MODE==='pvp'&&NET.on&&NET.host&&!humanBat()&&!st.swung&&!NET.dec&&t<6)return;st.whiff?whiffStrike():judgeTake()}}
   else if(st.mode==='inplay'&&NOW>=st.until)applyHit();
   else if(st.mode==='post'&&NOW>=st.until)afterPost()}
 
