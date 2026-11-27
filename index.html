@@ -4122,7 +4122,7 @@ function careerModal(tab){const C=loadCareer();if(tab)CS.tab=tab;tab=CS.tab;
    ${tab!=='team'?`<div class="row" style="margin-top:6px"><span class="lbl" style="width:auto">팀</span><select id="cteam" style="flex:1"><option value="">전체 팀</option>${teams.map(t=>`<option ${CS.team===t?'selected':''}>${esc(t)}</option>`).join('')}</select></div>`:''}
    <p class="note" style="margin:4px 0">항목 이름을 누르면 그 기록 순으로 정렬돼요. 한 번 더 누르면 오름차순·내림차순이 바뀌어요.</p>
    <div>${body}</div>
-   ${CLOUD.ok?'<p class="note" style="color:#8fe39a">☁ 경기가 끝나면 기록이 로그인한 계정에 자동으로 쌓여요. 다른 기기에서 열어도 그대로 이어져요.</p>':''}<p class="note">${CLOUD.ok?'예비용으로':'기록은 이 기기의 이 브라우저에만 저장돼요.'} <b>🔗 기록 링크 복사</b>를 누르면 지금까지의 기록이 담긴 링크가 바로 복사돼요. 다른 기기에서 그 링크를 열거나, [가져오기]에 붙여넣으면 기록이 옮겨져요.</p>
+   ${CLOUD.ok?'<p class="note" style="color:#8fe39a">☁ 경기가 끝나면 기록이 로그인한 계정에 자동으로 쌓여요. 다른 기기에서 열어도 그대로 이어져요.</p>':''}<p class="note">${CLOUD.ok?'예비용으로':'기록은 이 기기의 이 브라우저에만 저장돼요.'} <b>🔗 기록 링크 복사</b>를 누르면 지금까지의 기록이 담긴 링크가 바로 복사돼요. 다른 기기에서 그 링크를 열거나, [가져오기]에 붙여넣으면 그 기록이 지금 기록에 더해져요.</p>
    <div class="row"><button class="btn sm gold" id="cx">🔗 기록 링크 복사</button><button class="btn sm gray" id="cf">⬇ 파일 저장</button></div>
    <div class="row"><button class="btn sm gray" id="ci">가져오기</button><button class="btn sm red" id="cr">초기화</button></div>
    <div id="cio"></div>
@@ -4140,7 +4140,7 @@ function careerModal(tab){const C=loadCareer();if(tab)CS.tab=tab;tab=CS.tab;
        const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=fn;document.body.appendChild(a);a.click();a.remove()}catch(e){showBanner('저장 취소','k','')}};
    el.querySelector('#ci').onclick=()=>{el.querySelector('#cio').innerHTML='<textarea id="cit" placeholder="기록 링크(또는 내보낸 기록)를 붙여넣으세요"></textarea><div class="row"><input type="file" id="cif" accept=".json,application/json"><button class="btn sm" id="cig">불러오기</button></div>';
      el.querySelector('#cif').onchange=async e=>{const fl=e.target.files[0];if(fl)el.querySelector('#cit').value=await fl.text()};
-     el.querySelector('#cig').onclick=async()=>{const d=await decRec(el.querySelector('#cit').value);if(d){setCareer(d);showBanner('기록 불러옴','ball',d.games+'경기');careerModal(tab)}else showBanner('형식 오류','k','')}};
+     el.querySelector('#cig').onclick=async()=>{const d=await decRec(el.querySelector('#cit').value);if(d){const C=mergeCareer(d);if(C){showBanner('기록 더함','ball','+'+d.games+'경기 → 총 '+C.games+'경기');careerModal(tab)}else showBanner('이미 더한 기록','k','같은 기록은 한 번만')}else showBanner('형식 오류','k','')}};
    const cr=el.querySelector('#cr');cr.onclick=()=>{if(cr.dataset.ok){setCareer({games:0,bat:{},pit:{}});careerModal(tab)}else{cr.dataset.ok=1;cr.textContent='한 번 더 누르면 삭제'}}})}
 
 
@@ -4160,14 +4160,21 @@ async function copyText(t){try{await navigator.clipboard.writeText(t);return tru
   try{const a=document.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e){return false}}
 async function recFromHash(){if(!/rec=/.test(location.hash))return;const d=await decRec(location.hash);try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(!d)return;const cur=loadCareer();
-  modal(`<h3>기록 불러오기</h3><p class="note">링크에 담긴 기록(저장 경기 ${d.games}개)을 불러올까요?<br>이 기기의 현재 기록(${cur.games}개)은 덮어써져요.</p>
+  modal(`<h3>기록 불러오기</h3><p class="note">링크에 담긴 기록(저장 경기 ${d.games}개)을 불러올까요?<br>이 기기의 현재 기록(${cur.games}개)에 더해져요(합계 ${cur.games+(d.games||0)}개).</p>
    <div class="row"><button class="btn sm gold" id="ry">불러오기</button><button class="btn sm gray" id="rn">취소</button></div>`,el=>{
-   el.querySelector('#ry').onclick=()=>{setCareer(d);careerModal()};el.querySelector('#rn').onclick=()=>{closeModal();if(!G)showSetup()}})}
+   el.querySelector('#ry').onclick=()=>{if(!mergeCareer(d))showBanner('이미 더한 기록','k','같은 기록은 한 번만');careerModal()};el.querySelector('#rn').onclick=()=>{closeModal();if(!G)showSetup()}})}
 
 
 /* ===== 계정 저장(클라우드) ===== */
 const CLOUD={ok:false,ref:{},busy:{},pend:{}};
 function setCareer(C){LS.set(CAREER_KEY,C);cloudPush('career',C)}
+// 기록 가져오기: 덮어쓰지 않고 기존 기록에 더함(경기 수·팀 성적·선수별 누적). 같은 기록을 두 번 넣으면 막음
+function recFP(d){const t=JSON.stringify({g:d.games,b:d.bat,p:d.pit,t:d.tg});let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(36)+'.'+t.length}
+function mergeCareer(d){const C=loadCareer(),fp=recFP(d);C.imp=C.imp||[];if(C.imp.includes(fp)||fp===recFP(C))return null;   // 이미 더했거나 지금 기록과 똑같음
+  const add=(dst,src)=>{for(const n in src||{}){const a=src[n];if(!a||typeof a!=='object')continue;const r=dst[n]=dst[n]||{};
+    for(const k in a){if(typeof a[k]==='number')r[k]=(+r[k]||0)+a[k];else if(a[k]!=null&&r[k]==null)r[k]=a[k]}}};
+  C.games=(C.games||0)+(d.games||0);C.bat=C.bat||{};C.pit=C.pit||{};C.tg=C.tg||{};add(C.bat,d.bat);add(C.pit,d.pit);add(C.tg,d.tg);
+  C.imp=[...C.imp,...(d.imp||[]),fp].filter((x,i,a)=>a.indexOf(x)===i).slice(-200);setCareer(C);return C}
 async function cloudPush(k,data){if(!CLOUD.ok||!CLOUD.ref[k])return;if(CLOUD.busy[k]){CLOUD.pend[k]=data;return}
   CLOUD.busy[k]=true;try{await CLOUD.ref[k].set({json:JSON.stringify(data),at:Date.now()})}catch(e){try{await new Promise(r=>setTimeout(r,800+Math.random()*800));await CLOUD.ref[k].set({json:JSON.stringify(data),at:Date.now()})}catch(e2){}}
   CLOUD.busy[k]=false;if(CLOUD.pend[k]){const d=CLOUD.pend[k];CLOUD.pend[k]=null;cloudPush(k,d)}}
