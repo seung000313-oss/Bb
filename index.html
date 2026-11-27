@@ -284,7 +284,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v6.2</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v6.3</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -2366,8 +2366,8 @@ NC,류진욱,투수,시즌 출전,구원투수,40,,,8.72,,,직구 146 (60.5%) / 
 키움,정현우,투수,시즌 출전,구원투수,15,,,9.9,,,직구 143 (49.6%) / 슬라이더 125 (34.5%) / 커브 112 (15.9%),좌투
 </script>
 <datalist id="clubs"></datalist>
-<script src="assets/motion.js?v=6.2"></script>
-<script src="assets/traits.js?v=6.2"></script>
+<script src="assets/motion.js?v=6.3"></script>
+<script src="assets/traits.js?v=6.3"></script>
 <script>
 /* ================= 유틸 ================= */
 const $=s=>document.querySelector(s);
@@ -2398,10 +2398,10 @@ const PITCHES=[
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
 // ===== 밸런스 패치 v1.8 (타구 물리 판정·체공시간↓·코너 외야 범위↓, 선발6·필승조1·1·마무리1 이닝 기준, 홈런·2루타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={wallZ:30,wallP:0.9,grdZ:35,grdEv:135,grdP:0.5,lineTh:37,lineV:18,lineD:0.6,ldLine:0.3,ifDive:0.05,ffP:0.03,ffC:0.75,ballL:0.25,win:0.6813,wF:4,strikeBase:0.15,cntB:0.04,tkK:0.8,tk0:0.62,strikeC:0.003,hbpBase:0.001156,hbpC:5.29e-05,magK:1.3,magR:0.05,
+const BAL={wallZ:30,wallP:0.9,grdZ:35,grdEv:135,grdP:0.22,lineTh:37,lineV:18,lineD:0.6,ldLine:0.3,ifDive:0.05,ffP:0.03,ffC:0.75,ballL:0.25,win:0.6813,wF:4,strikeBase:0.15,cntB:0.04,tkK:0.8,tk0:0.62,strikeC:0.003,hbpBase:0.001156,hbpC:5.29e-05,magK:1.3,magR:0.05,
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
   ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:3.04e-05,qF:0.65,
-  evB:105,evQ:45,evP:30,evS:16,evV:0.18,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.725,dragV:0.15,tK:0.78,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0,safe3:0.4145,rollK:0.9,cornerR:0.85,ifThr:19.5};
+  evB:105,evQ:45,evP:30,evS:16,evV:0.18,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.725,dragV:0.15,tK:0.78,phyD:0.98,phyT:0.75,phyA:0.83,hopR:2,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0.6,safe3:0.5,rollK:0.3,cornerR:0.85,ifThr:19.5};
 const POSK={P:'투수',C:'포수','1B':'1루수','2B':'2루수','3B':'3루수',SS:'유격수',LF:'좌익수',CF:'중견수',RF:'우익수',DH:'지명타자',PH:'대타',PR:'대주자',IF:'내야',OF:'외야'};
 /* v5.1 후보 타자 본 포지션(기록 없는 선수: 이름 → 주/부 포지션, IF=내야 전반, OF=외야 전반, PH/PR=대타·대주자 전문) */
 const BPOS={"'26 손아섭":"LF","'26 한유섬":"RF","'26 박건우":"RF","'26 노진혁":"SS","'26 전준우":"CF","'26 김재현":"C","'82 박종호":"OF","'83 김준환":"LF","'83 송일섭":"LF","'83 조충열":"2B","'85 김동재":"2B","'86 송일섭":"LF","'86 조충열":"2B","'86 김준환":"LF","'86 장채근":"C","'86 이건열":"RF","'87 이순철":"CF","'87 김일권":"CF","'87 김준환":"LF","'87 이건열":"RF","'87 장채근":"C","'87 차영화":"SS","'87 조충열":"2B","'87 박철우":"LF","'88 백인수":"SS","'88 이건열":"RF","'88 차영화":"SS","'88 박철우":"IF","'88 조재환":"CF","'88 김무종":"C","'89 조충열":"2B","'89 이건열":"RF","'89 김종모":"RF","'89 윤재호":"SS","'89 박병호":"C","'90 심재원":"C","'90 최훈재":"1B","'91 백인수":"SS","'91 정회열":"C","'91 김종모":"RF","'92 장효조":"LF","'92 한문연":"IF","'93 장채근":"C","'93 윤재호":"SS","'93 박재벌":"LF","'93 박병호":"C","'94 최훈재":"OF","'95 정수근":"CF","'96 최해식":"C","'96 이호성":"LF","'96 이건열":"RF","'96 이호준":"1B","'97 장성호":"1B","'97 박재벌":"LF","'97 백인수":"SS","'97 이호준":"1B","'98 박종호":"2B","'00 이명수":"2B","'01 최훈재":"OF","'01 이도형":"C","'01 김원섭":"CF","'02 조동찬":"3B","'03 채종국":"2B","'04 이택근":"1B","'05 김대익":"LF","'05 박석민":"3B","'05 박정환":"2B","'05 조영훈":"OF","'06 조영훈":"1B","'06 박정환":"2B","'06 심정수":"RF","'07 박정권":"1B","'07 김재현":"IF","'07 이진영":"CF","'07 이재원":"IF","'07 김태균":"1B","'07 채종국":"2B","'08 이재원":"IF","'08 박정권":"1B","'08 정경배":"2B","'08 박정환":"2B","'09 김선빈":"2B","'09 김종국":"2B","'09 이용규":"CF","'10 이호준":"1B","'10 이재원":"C","'10 박정환":"2B","'11 채태인":"1B","'12 이지영":"C","'12 채태인":"1B","'12 신명철":"2B","'12 김헌곤":"LF","'13 진갑용":"C","'13 신명철":"2B","'14 김헌곤":"LF","'14 조동찬":"3B","'14 진갑용":"C","'15 최주환":"2B","'15 박건우":"RF","'15 김재환":"IF","'16 정수빈":"CF","'16 류지혁":"2B","'16 박세혁":"C","'16 최주환":"2B","'16 조수행":"LF","'16 홍성흔":"IF","'17 김호령":"CF","'17 한승택":"C","'17 최원준":"RF","'18 강승호":"1B","'18 김재현":"RF","'18 박성한":"SS","'19 류지혁":"2B","'19 오재원":"2B","'20 김성욱":"RF","'20 김태군":"C","'20 김형준":"C","'21 권동진":"SS","'21 김민혁":"LF","'21 허도환":"C","'22 김민식":"C","'22 최주환":"2B","'22 김강민":"CF","'22 전의산":"1B","'22 안상현":"3B","'23 김민성":"3B","'23 이재원":"OF","'23 허도환":"C","'23 서건창":"2B","'23 김기연":"C","'23 송찬의":"IF","'24 한준수":"C","'24 서건창":"2B","'24 박정우":"RF","'24 김호령":"CF","'24 박민":"SS","'25 천성호":"3B","'25 송찬의":"LF","'25 홍창기":"RF","'25 문정빈":"1B","'10 황재균":"3B","'10 장성우":"C","'10 박기혁":"SS","'14 박동원":"C","'94 류지현":"SS","'98 박경완":"C","'94 김재현":"RF","'93 전준호":"LF","'02 장성호":"1B","'01 정수근":"CF","'05 진갑용":"C","'08 홍성흔":"C","'08 김태균":"1B","'08 이택근":"OF","'08 진갑용":"C","'09 강민호":"C","'09 이범호":"3B","'09 이종욱":"CF","'09 이택근":"OF","'09 이진영":"CF","'26 장승현":"C","'26 이해승":"2B,SS,3B","'26 김영웅":"3B,SS","'26 김상준":"SS,2B","'26 박계범":"SS,2B,3B","'26 윤정빈":"RF,LF,1B","'26 김현준":"CF,RF","'26 홍현빈":"CF,LF","'26 강현우":"C","'26 문상철":"1B","'26 오윤석":"2B,1B,3B","'26 손민석":"SS,2B","'26 이강민":"SS","'26 주효상":"C","'26 정현창":"SS,2B","'26 변우혁":"1B,3B","'26 하주석":"SS,2B","'26 황대인":"1B","'26 김민규":"OF","'26 김민수(타)":"C","'26 이주헌":"C","'26 손용준":"2B,SS","'26 이영빈":"SS,2B","'26 최원영":"CF,RF","'26 류현준":"C","'26 이유찬":"SS,2B,3B","'26 양석환":"1B,3B","'26 김대한":"RF,CF","'26 김인태":"RF,LF","'26 신범수":"C","'26 김민준(타)":"IF","'26 김요셉":"IF","'26 문상준":"SS,2B","'26 안재연":"IF","'26 김정민":"OF","'26 유강남":"C","'26 김세민":"SS,2B","'26 박승욱":"SS,2B,3B","'26 박찬형":"3B,SS","'26 조세진":"RF,LF","'26 김동혁":"CF,LF","'26 신재인":"IF","'26 홍종표":"2B,SS","'26 한재환":"3B,1B","'26 블레인":"IF","'26 박시원(타)":"RF,LF","'26 최재훈":"C","'26 장규현":"C","'26 이도윤":"SS,2B,3B","'26 정은원":"2B","'26 황영묵":"2B,SS","'26 권광민":"LF,RF,1B","'26 유로결":"CF,RF","'26 이원석":"CF,LF","'26 김시앙":"C","'26 박성빈":"C","'26 권혁빈":"IF","'26 김태진":"2B,3B,SS","'26 어준서":"SS","'26 염승원":"IF","'26 최재영":"IF","'82 이홍범":"OF","'82 김유동":"OF","'82 김경문":"C","'82 김광수":"2B","'82 정종현":"C","'82 구재서":"OF","'82 이근식":"OF","'82 김진홍":"IF","'82 박상열(타)":"IF","'83 김일환":"IF","'83 임정면":"IF","'83 장진범":"IF","'83 조종규":"C","'83 박전섭":"C","'84 조성옥":"RF","'84 박용성":"OF","'84 박영태":"OF","'84 이광길":"OF","'84 김석일":"C","'84 김한조":"IF","'84 김성호":"IF","'84 이석규":"IF","'84 김성관":"OF","'84 김진근":"IF","'85 장태수":"CF","'85 이종두":"LF","'85 정진호":"IF","'85 홍승규":"OF","'85 송일수":"C","'85 정현발":"OF","'85 김근석":"IF","'85 오대석":"SS","'85 김한근":"IF","'86 김평호":"IF","'86 김일환":"IF","'86 장진범":"IF","'86 임정면":"IF","'86 김경호":"IF","'87 김일환":"IF","'87 장진범":"IF","'88 김성규":"OF","'88 김평호":"OF","'88 서창기":"IF","'88 선동열(타)":"1B","'89 김평호":"OF","'89 문승훈":"IF","'89 김태완":"OF","'89 장호익":"C","'89 김성규":"OF","'90 나웅":"IF","'90 민경삼":"2B","'90 김영직":"IF","'90 신언호":"OF","'90 김선진":"IF","'90 유지홍":"IF","'90 김기홍":"IF","'90 조필현":"IF","'91 김성규":"OF","'91 김병두":"OF","'91 김태완":"OF","'91 박현수":"IF","'91 문승훈":"IF","'91 이경복":"OF","'91 양회열":"IF","'92 한영준":"OF","'92 김선일":"C","'92 김민재":"SS","'92 박영태":"2B","'92 최계영":"OF","'92 박상국":"IF","'92 고정식":"C","'92 김종헌":"OF","'93 김훈":"OF","'93 정성룡":"IF","'93 김병조":"IF","'93 이용석":"IF","'93 이경복":"OF","'93 오명종":"IF","'94 김영직":"OF","'94 김정민":"C","'94 윤찬":"OF","'94 허문회":"2B,3B","'94 김태민":"OF","'94 김선진":"IF","'94 서효인":"OF","'94 최규하":"IF","'94 조병일":"IF","'95 김태형(타)":"C","'95 임형석":"IF","'95 박현영":"C","'95 윤기수":"IF","'95 추성건":"IF","'95 소상영":"IF","'95 강형석":"IF","'95 김종성":"IF","'95 김광현(타)":"IF","'96 동봉철":"LF","'96 김병조":"OF","'96 이경복":"OF","'96 최철민":"IF","'96 김태룡":"IF","'96 양회열":"IF","'97 김태룡":"IF","'97 권오성":"C","'97 조현":"OF","'97 이경복":"OF","'97 조남기":"C","'97 김지영":"IF","'98 염경엽":"SS,2B","'98 장정석":"IF","'98 장광호":"C","'98 손차훈":"IF","'98 김인호":"IF","'98 이재주":"PH","'98 최만호":"OF","'98 권준헌(타)":"3B","'98 정수성":"CF","'99 조경택":"C","'99 임주택":"OF","'99 황우구":"IF","'99 최익성":"CF,LF","'99 강인권":"C","'99 허준":"IF","'99 심재윤":"OF","'99 김승권":"OF","'99 심광호":"IF","'99 조효상":"OF","'00 이재주":"PH","'00 장교성":"IF","'00 카펜터":"OF","'00 장정석":"IF","'00 윌리엄스":"IF","'00 브링클리":"IF","'00 황윤성":"IF","'00 전근표":"IF","'00 김일경":"SS,2B","'01 전상렬":"CF","'01 이종민":"IF","'01 강봉규":"LF","'01 송원국":"2B","'01 문희성":"1B","'01 김호":"IF","'01 니일":"IF","'02 김종훈":"LF,RF","'02 임재철":"RF","'02 김재걸":"2B,SS,3B","'02 김승권":"IF","'02 현재윤":"C","'02 하춘동":"OF","'02 김승관":"1B","'02 장성국":"C","'02 이준민":"IF","'03 조재호":"OF","'03 김일경":"SS,2B","'03 강귀태":"C","'03 전근표":"IF","'03 강병식":"IF","'03 프랭클린":"OF","'03 최익성":"CF,LF","'03 김민우":"IF","'03 조승현":"IF","'04 정수성":"CF","'04 조재호":"OF","'04 강귀태":"C","'04 김일경":"SS,2B","'04 전근표":"OF","'04 서한규":"SS,2B","'04 김민우":"IF","'04 강병식":"3B,1B","'04 지석훈":"SS,2B,3B","'05 강명구":"PR,2B","'05 김재걸":"2B,SS,3B","'05 김종훈":"LF,RF","'05 이정식":"C","'05 김영복":"C","'05 손주인":"2B,SS","'06 김재걸":"2B,SS,3B","'06 김종훈":"LF,RF","'06 강명구":"PR,2B","'06 강봉규":"LF","'06 이정식":"C","'06 이태호":"OF","'06 김영복":"C","'07 조동화":"RF,CF","'07 정상호":"C","'07 김재구":"IF","'07 박연수":"OF","'08 조동화":"RF,CF","'08 모창민":"3B,1B","'08 정상호":"C","'08 권영진":"IF","'08 김연훈":"SS,2B","'08 김동건":"IF","'09 박기남":"3B,2B","'09 홍세완":"SS","'09 차일목":"C","'09 최용규":"OF","'09 이재주":"PH","'09 최경환":"OF","'09 신종길":"RF,CF","'10 조동화":"RF,CF","'10 임훈":"CF,RF","'10 김연훈":"SS,2B","'10 모창민":"3B,1B","'10 권용관":"SS,2B","'10 최동수":"PH,1B","'10 최윤석":"SS","'11 이영욱":"CF","'11 강명구":"PR,2B","'11 손주인":"2B,SS","'11 채상병":"C","'11 가코":"1B","'11 강봉규":"LF","'11 정형식":"CF,RF","'11 현재윤":"C","'11 모상기":"PH,1B","'12 강봉규":"LF","'12 손주인":"2B,SS","'12 이정식":"C","'12 우동균":"LF,RF","'12 김종호":"CF,LF","'12 모상기":"PH,1B","'13 정형식":"CF,RF","'13 김태완":"IF","'13 우동균":"OF","'13 강명구":"PR,2B","'13 정병곤":"SS,2B","'13 강봉규":"LF,1B","'13 이상훈(타)":"OF","'13 정현":"IF","'14 이흥련":"C","'14 김태완":"2B,3B","'14 정형식":"CF,RF","'14 이영욱":"CF","'14 백상원":"2B,SS","'14 우동균":"LF,RF","'14 이상훈(타)":"OF","'15 정진호":"CF,RF","'15 로메로":"3B,1B","'15 최재훈":"C","'15 장민석":"CF","'15 고영민":"2B","'15 유민상":"1B","'15 루츠":"3B","'16 국해성":"RF,LF","'16 정진호":"CF,RF","'16 최재훈":"C","'16 이원석":"3B,1B","'17 서동욱":"2B,1B,LF","'17 고장혁":"IF","'17 신종길":"RF,CF","'17 김주형":"3B,SS","'17 김지성":"IF","'17 유재신":"CF","'17 백용환":"C","'18 최항":"2B,1B","'18 정진기":"CF,RF","'18 이성우":"C","'18 정의윤":"LF,RF","'18 박승욱":"SS,2B","'18 최승준":"1B","'18 윤정우":"OF","'19 정진호":"CF,RF","'19 백동훈":"OF","'19 신성현":"3B,1B","'19 장승현":"C","'19 이흥련":"C","'19 김인태":"RF,LF","'19 국해성":"RF,LF","'19 정병곤":"SS,2B","'20 지석훈":"SS,2B,3B","'20 이상호":"2B,SS","'20 이원재":"IF","'20 모창민":"1B,3B","'20 김찬형":"SS,2B","'20 김준완":"CF,LF","'20 박준영(타)":"SS,3B","'21 오윤석":"2B,1B","'21 신본기":"SS,2B,3B","'21 알몬테":"LF,RF","'21 김준태":"C","'21 문상철":"1B","'21 김태훈(타)":"OF","'21 김병희":"IF","'22 최경모":"SS,2B","'22 하재훈":"RF,LF","'22 라가레스":"CF,LF","'22 오준혁":"LF,RF","'22 이흥련":"C","'23 정주현":"2B","'23 손호영":"3B,2B,SS","'23 안익훈":"CF","'23 김범석":"IF","'24 이창진":"LF,CF","'24 홍종표":"2B,SS","'24 변우혁":"1B,3B","'24 고종욱":"LF","'24 윤도현":"SS,2B","'25 최원영":"CF,RF","'25 이주헌":"C","'25 이영빈":"SS,2B","'25 박관우":"RF","'25 김주성":"SS","'25 함창건":"OF","'10 박종윤":"1B","'10 이우민":"CF,RF","'10 황동채":"OF","'10 정보명":"RF,LF","'10 정훈":"2B","'10 박준서":"2B,3B","'10 양종민":"SS","'14 이성열":"LF,RF","'14 로티노":"LF,C","'14 김하성":"SS","'14 박헌도":"LF,RF","'14 안태영":"OF","'14 서동욱":"2B,LF,1B","'14 김지수":"SS,2B","'14 임태준":"C","'14 고종욱":"LF,RF","'94 김기태":"1B","브라이스 하퍼":"1B,RF","피트 알론소":"1B","카일 슈와버":"LF","마이클 해리스 2세":"CF","벤 라이스":"1B,C","브라이스 투랑":"2B,SS","라파엘 데버스":"3B,1B","스즈키 세이야":"RF","바비 위트 주니어":"SS","오타니 쇼헤이":"DH","헌터 굿맨":"C","쿠리하라 료야":"3B,LF","쿠레바야시 코타로":"SS","니시카와 미시오":"CF,RF","키요미야 코타로":"1B,3B","마키하라 타이세이":"2B,CF","사토 토시야":"C","야나기타 유키":"LF,RF","만나미 츄세이":"RF,LF","야마구치 코키":"OF","마사키 토모야":"LF","츠츠고 요시토모":"LF,1B","'08 고영민":"2B","'08 김민재":"SS,3B","'09 고영민":"2B","'09 가타오카 야스유키":"2B,SS","'09 이나바 아쓰노리":"RF,1B","'09 아베 신노스케":"C","'09 가와사키 무네노리":"SS","'09 이시하라 요시유키":"C","'09 가메이 요시유키":"RF,LF","'08 이용규":"CF,LF"};
@@ -3102,8 +3102,11 @@ function startPitch(opts){opts=opts||{};st._ai=null;st._aiT=0;NET.dec=false;cons
     zone:Math.abs(tx)<=0.257&&ty>=0.413&&ty<=1.087,knuckle:ptp.n==='너클볼',hbp,wp:!hbp&&!!(G.bases[0]||G.bases[1]||G.bases[2])&&R()<BAL.pWP,steal:!hbp&&!st.buntNext&&G.outs<3?stealPick():0};
   st.mode='windup';st.until=NOW+WIND;st.swung=false;st.whiff=false;st.ballAnim='pitch';st.camMode='pitch';
   $('#pinfo').style.opacity=0;updateHUD()}
-function pitchPos(p,t){const ax=p.tx-p.bx,ay=p.ty-p.by,tk=Math.pow(Math.max(t,0),p.k);
-  let x=lerp(p.rel[0],ax,t)+p.bx*tk-(p.rev?p.bx*p.rev*Math.sin(Math.PI*Math.min(t,1))*(1-t)*2:0),y=lerp(p.rel[1],ay,t)+p.by*tk+0.25*Math.sin(Math.PI*Math.min(t,1)),z=lerp(p.rel[2],0,t);
+function pitchPos(p,t){const ax=p.tx-p.bx,ay=p.ty-p.by,F=phyPitchProfile(p.name,PITCHES.find(x=>x.n===p.name)),tt=Math.max(t,0),e=(p.k||2)/2;
+  // v6.3 물리 엔진: 진행(항력 감속)·휘어짐(마그누스)·낙차(중력) 모양은 구종별 RK4, 크기는 게임 밸런스 값. 구종 고유 '꺾이는 시점'(k)은 지수로 유지
+  const mx=phyProf(F.mx,F.N,tt),my=phyProf(F.my,F.N,tt),tkx=Math.sign(mx)*Math.pow(Math.abs(mx),e),tky=Math.sign(my)*Math.pow(Math.abs(my),e),zf=phyProf(F.zs,F.N,tt);
+  const arc=phyProf(F.gy,F.N,Math.min(tt,1))*Math.pow(40.2*F.vr/Math.max(20,(p.velo||140)/3.6),2);
+  let x=lerp(p.rel[0],ax,t)+p.bx*tkx-(p.rev?p.bx*p.rev*Math.sin(Math.PI*Math.min(t,1))*(1-t)*2:0),y=lerp(p.rel[1],ay,t)+p.by*tky+arc,z=p.rel[2]*(1-zf);
   if(p.knuckle){x+=Math.sin(t*17)*0.045*t;y+=Math.cos(t*13)*0.03*t}return[x,y,z]}
 
 function doSwing(force,dtO){if(!G||G.halt||(!force&&anyOpen())||st.buntNext)return;if(!force&&!humanBat())return;
@@ -3142,6 +3145,67 @@ function nearest(land,keys){return keys.map(k=>({k,d:Math.hypot(FP[k][0]-land[0]
    타구 속도(EV)·발사각(LA)·방향(th)으로 비거리와 체공시간을 구하고,
    야수가 그 시간 안에 타구 지점까지 갈 수 있는지, 공을 잡아 베이스로 던지는 시간과
    타자가 각 베이스까지 뛰는 시간을 비교해 안타 종류를 정한다. */
+/* ===== v6.3 물리 엔진 (시뮬레이션 랩에서 이식): 중력 + 항력 Cd(S) + 마그누스 CL(S) + 스핀 감쇠, RK4 적분
+   공기역학 계수는 시뮬레이션 랩에서 강화학습(CEM 40세대)으로 Statcast 비거리·체공시간에 맞춘 값 ===== */
+const PHY={g:9.80665,rho:1.196,m:0.145,r:0.0366,aero:{cd0:0.3547,cdS:0.1214,cl1:1.1197,cl2:1.3073,tau:25}};
+PHY.A=Math.PI*PHY.r*PHY.r;PHY.k=0.5*PHY.rho*PHY.A/PHY.m;
+const phyCd=S=>PHY.aero.cd0+PHY.aero.cdS*S, phyCl=S=>PHY.aero.cl1*S/(1+PHY.aero.cl2*S);
+// 발사각별 대표 백스핀(rpm) — 낮은 발사각일수록 회전이 적다 (시뮬레이션 랩 spec.js)
+function spinForLA(la){const T=[[-10,600],[0,800],[10,1100],[20,1900],[28,2400],[35,2800],[50,3300]];if(la<=T[0][0])return T[0][1];
+  for(let i=1;i<T.length;i++)if(la<=T[i][0]){const[a,x]=T[i-1],[b,y]=T[i];return x+(y-x)*(la-a)/(b-a)}return T[T.length-1][1]}
+/* --- 타구: 수직면 2D(순수 백스핀) RK4. 타점 높이 0.9m → 지면 착지까지 --- */
+function phyFlight(v,laDeg){const lr=laDeg*D2R,w0=spinForLA(laDeg)*2*Math.PI/60,dt=1/240;
+  let x=0,y=0.9,vx=v*Math.cos(lr),vy=v*Math.sin(lr),t=0,w=w0,apex=y;const smp=[[0,x,y]];
+  const acc=(vx,vy,w)=>{const s=Math.hypot(vx,vy)||1e-9,S=PHY.r*w/s,cd=phyCd(S),cl=w>1e-6?phyCl(S):0,k=PHY.k;
+    return[-k*cd*s*vx+k*cl*s*(-vy),-PHY.g-k*cd*s*vy+k*cl*s*vx]};   // 마그누스: 진행 방향의 수직(위쪽)
+  while(t<12){const a1=acc(vx,vy,w),a2=acc(vx+a1[0]*dt/2,vy+a1[1]*dt/2,w),a3=acc(vx+a2[0]*dt/2,vy+a2[1]*dt/2,w),a4=acc(vx+a3[0]*dt,vy+a3[1]*dt,w);
+    const nx=x+dt/6*(vx+2*(vx+a1[0]*dt/2)+2*(vx+a2[0]*dt/2)+(vx+a3[0]*dt)),ny=y+dt/6*(vy+2*(vy+a1[1]*dt/2)+2*(vy+a2[1]*dt/2)+(vy+a3[1]*dt));
+    const nvx=vx+dt/6*(a1[0]+2*a2[0]+2*a3[0]+a4[0]),nvy=vy+dt/6*(a1[1]+2*a2[1]+2*a3[1]+a4[1]);w*=Math.exp(-dt/PHY.aero.tau);
+    if(ny<=0){const f=y/((y-ny)||1e-9);x+=(nx-x)*f;t+=dt*f;y=0;smp.push([t,x,0]);break}
+    x=nx;y=ny;vx=nvx;vy=nvy;t+=dt;apex=Math.max(apex,y);if(smp.length<2000&&(Math.round(t*240)%4===0))smp.push([t,x,y])}
+  return{dist:x,hang:t,apex,smp}}
+// 높이 보간: 수평 거리 X 지점의 공 높이(넘으면 0)
+function phyYAt(f,X){const s=f.smp;if(X>=f.dist)return 0;for(let i=1;i<s.length;i++)if(s[i][1]>=X){const a=s[i-1],b=s[i],u=(X-a[1])/((b[1]-a[1])||1e-9);return a[2]+(b[2]-a[2])*u}return 0}
+// 격자 캐시(속도 1m/s × 발사각 1°)와 쌍선형 보간 — 밸런스 점검처럼 타구를 대량으로 돌려도 빠르게
+const PHY_C=new Map();
+function phyCell(vi,li){const k=vi*1000+li;let f=PHY_C.get(k);if(!f){f=phyFlight(vi,li);PHY_C.set(k,f)}return f}
+function phyBat(v,la,fr){v=clamp(v,8,70);la=clamp(la,-15,80);const v0=Math.floor(v),l0=Math.floor(la),fv=v-v0,fl=la-l0;
+  const C=[[phyCell(v0,l0),(1-fv)*(1-fl)],[phyCell(v0+1,l0),fv*(1-fl)],[phyCell(v0,l0+1),(1-fv)*fl],[phyCell(v0+1,l0+1),fv*fl]];
+  const o={dist:0,hang:0,apex:0,yAt:0};C.forEach(([f,w])=>{o.dist+=f.dist*w;o.hang+=f.hang*w;o.apex+=f.apex*w;if(fr!=null)o.yAt+=phyYAt(f,fr)*w});
+  o.shape=C.reduce((a,b)=>b[1]>a[1]?b:a)[0];return o}
+// 타구 애니메이션용 모양: 시간 비율 u → [수평 진행 비율, 높이(m)] (항력 때문에 꼭짓점이 뒤로, 낙하가 가파름)
+function phyShapeAt(f,u){const s=f.smp,T=f.hang||1,t=clamp(u,0,1)*T;for(let i=1;i<s.length;i++)if(s[i][0]>=t){const a=s[i-1],b=s[i],w=(t-a[0])/((b[0]-a[0])||1e-9);return[(a[1]+(b[1]-a[1])*w)/(f.dist||1),a[2]+(b[2]-a[2])*w]}return[1,0]}
+
+/* --- 투구: 구종별 회전(rpm·회전효율·무브먼트 방향)으로 3D RK4 → 진행·휘어짐 모양을 정규화해 게임 궤적에 씌움
+   (탄착점과 무브먼트 크기는 게임 밸런스·특성 값을 그대로 쓰고, 시간에 따라 '어떻게' 휘는지만 물리로) --- */
+const PHY_PT={'포심':[1,2300,.92,16,7],'투심':[.97,2200,.9,9,15],'커터':[.93,2400,.48,9,-3],'싱커':[.96,2150,.9,6,16],'슬라이더':[.88,2450,.36,2,-6],'스위퍼':[.85,2600,.55,1,-15],
+  '커브':[.8,2550,.72,-10,-9],'너클커브':[.82,2500,.7,-9,-7],'체인지업':[.87,1750,.88,7,14],'스플리터':[.89,1400,.7,3,9],'포크':[.86,1100,.6,1,6],'서클체인지':[.85,1800,.85,5,16],
+  '슬러브':[.84,2450,.58,-5,-11],'너클볼':[.7,60,.5,0,0],'팜볼':[.76,1250,.6,2,7],'스크루볼':[.82,2050,.82,2,16],'슈트':[.95,2200,.9,9,13],'자이로볼':[.9,2400,.06,0,0]};
+function phyPitchSim(spec,dir,spin){const[vr]=spec,v=40.2*vr,rel=[-0.55,1.8,16.54],dt=1/600;
+  let p=rel.slice(),vv=[dir[0]*v,dir[1]*v,dir[2]*v],w=spin.slice(),t=0;const out=[[0,p[0],p[1],p[2]]];
+  const acc=(vv,w)=>{const s=Math.hypot(vv[0],vv[1],vv[2])||1e-9,wm=Math.hypot(w[0],w[1],w[2]),S=PHY.r*wm/s,cd=phyCd(S),cl=wm>1e-6?phyCl(S):0,k=PHY.k;
+    let a=[-k*cd*s*vv[0],-PHY.g-k*cd*s*vv[1],-k*cd*s*vv[2]];if(cl){const c=[w[1]*vv[2]-w[2]*vv[1],w[2]*vv[0]-w[0]*vv[2],w[0]*vv[1]-w[1]*vv[0]],cm=Math.hypot(c[0],c[1],c[2])||1e-9;a=a.map((x,i)=>x+k*cl*s*s*c[i]/cm)}return a};
+  while(p[2]>-0.3&&t<1.5){const a1=acc(vv,w),v2=vv.map((x,i)=>x+a1[i]*dt/2),a2=acc(v2,w),v3=vv.map((x,i)=>x+a2[i]*dt/2),a3=acc(v3,w),v4=vv.map((x,i)=>x+a3[i]*dt),a4=acc(v4,w);
+    p=p.map((x,i)=>x+dt/6*(vv[i]+2*v2[i]+2*v3[i]+v4[i]));vv=vv.map((x,i)=>x+dt/6*(a1[i]+2*a2[i]+2*a3[i]+a4[i]));t+=dt;out.push([t,p[0],p[1],p[2]])}
+  return out}
+function phySpinVec(dir,spec){const[,rpm,eff,ivb,hb]=spec,w=rpm*2*Math.PI/60,mag=Math.hypot(hb,ivb)||1,m=[-hb/mag,ivb/mag,0];
+  const d=dir,md=m[0]*d[0]+m[1]*d[1]+m[2]*d[2];let mp=[m[0]-d[0]*md,m[1]-d[1]*md,m[2]-d[2]*md];const ml=Math.hypot(...mp)||1;mp=mp.map(x=>x/ml);
+  const tr=[d[1]*mp[2]-d[2]*mp[1],d[2]*mp[0]-d[0]*mp[2],d[0]*mp[1]-d[1]*mp[0]].map(x=>x*w*eff),gy=d.map(x=>x*w*Math.sqrt(Math.max(0,1-eff*eff)));return tr.map((x,i)=>x+gy[i])}
+const PHY_PP={};
+function phyPitchProfile(name,ptp){if(PHY_PP[name])return PHY_PP[name];
+  let spec=PHY_PT[name];if(!spec){const by=ptp?ptp.by:0,bx=ptp?ptp.bx:0;spec=by<-0.3?PHY_PT['커브']:Math.abs(bx)>0.3?PHY_PT['슬라이더']:by<-0.15?PHY_PT['체인지업']:PHY_PT['포심']}
+  const rel=[-0.55,1.8,16.54],tgt=[0,0.8,0],dl=Math.hypot(tgt[0]-rel[0],tgt[1]-rel[1],tgt[2]-rel[2]),dir=[(tgt[0]-rel[0])/dl,(tgt[1]-rel[1])/dl,(tgt[2]-rel[2])/dl];
+  const A=phyPitchSim(spec,dir,phySpinVec(dir,spec)),B=phyPitchSim(spec,dir,[0,0,0]);   // 같은 초기속도: 회전 있음 vs 없음
+  const cross=S=>{for(let i=1;i<S.length;i++)if(S[i][3]<=0){const a=S[i-1],b=S[i],f=a[3]/((a[3]-b[3])||1e-9);return a.map((x,k)=>x+(b[k]-x)*f)}return S[S.length-1]};
+  const ca=cross(A),cb=cross(B),T=ca[0],N=40,at=(S,t)=>{for(let i=1;i<S.length;i++)if(S[i][0]>=t){const a=S[i-1],b=S[i],f=(t-a[0])/((b[0]-a[0])||1e-9);return a.map((x,k)=>x+(b[k]-x)*f)}return S[S.length-1]};
+  const dX=ca[1]-cb[1],dY=ca[2]-cb[2],zs=[],mx=[],my=[],gy=[];
+  for(let i=0;i<=N;i++){const t=T*i/N,a=at(A,t),b=at(B,t);zs.push(1-a[3]/rel[2]);
+    mx.push(Math.abs(dX)>0.02?(a[1]-b[1])/dX:Math.pow(i/N,2));my.push(Math.abs(dY)>0.02?(a[2]-b[2])/dY:Math.pow(i/N,2));
+    const u=i/N,lin=rel[1]+(cb[2]-rel[1])*u;gy.push(b[2]-lin)}   // 중력 포물선(직선 대비 위로 솟는 양)
+  const nx=mx[N]||1,ny=my[N]||1,g0=gy[N];for(let i=0;i<=N;i++){mx[i]/=nx;my[i]/=ny;gy[i]-=g0*i/N}   // 끝점(탄착점) 정확히 일치
+  return PHY_PP[name]={zs,mx,my,gy,N,T,vr:spec[0]}}
+function phyProf(arr,N,t){if(t<=1){const x=t*N,i=Math.min(N-1,Math.floor(x)),f=x-i;return arr[i]+(arr[i+1]-arr[i])*f}const d=(arr[N]-arr[N-1])*N;return arr[N]+d*(t-1)}
+
 function bipJudge(q,pw,ct,sf,K,R,N){
   const g=9.81;
   const th=Math.max(-44,Math.min(44,(R()*2-1)*44));
@@ -3176,13 +3240,13 @@ function bipJudge(q,pw,ct,sf,K,R,N){
     return{th,dist:roll,type:'gb',res:['','1B','2B','3B'][b],how:'GB',fielder:n.k,T:0.9+roll/45,h:0.8,ev,la}}
   // 뜬공·직선타
   const type=la<K.ldLA?'ld':'fb';
-  const vac=v*v*Math.sin(2*lr)/g;
-  let dist=Math.max(4,vac*K.dK*(1-K.dragV*v/50))*((PARK&&PARK.carry)||1);     // 공기저항: 빠른 공일수록 손실 비율 증가
-  const hang=2*v*Math.sin(lr)/g*K.tK;
-  const apex=Math.pow(v*Math.sin(lr),2)/(2*g)*K.tK;
-  const fr=fence(th),hw=wallH(th);
+  // v6.3 물리 엔진: 항력·마그누스(백스핀) RK4 비행 → 비거리·체공시간·꼭짓점·펜스 지점 높이
+  const fr=fence(th),hw=wallH(th),cy=(PARK&&PARK.carry)||1,PF=phyBat(v,Math.min(la,83),fr/(K.phyD*cy));
+  let dist=Math.max(4,PF.dist*K.phyD)*cy;
+  const hang=PF.hang*K.phyT;
+  const apex=PF.apex*K.phyA;
   // 홈런 판정: 그 구장·방향의 펜스 거리까지 날아가고, 펜스 지점에서 공 높이(타점 약 1m 포함)가 담장보다 높아야 함 — 낮으면 펜스 직격
-  const yAt=dist>fr?1+4*apex*(fr/dist)*(1-fr/dist):0,blk=dist>=fr+K.hrM&&yAt<hw+0.1;
+  const yAt=dist>fr?PF.yAt*K.phyA:0,blk=dist>=fr+K.hrM&&yAt<hw+0.1;
   if(dist>=fr+K.hrM&&!blk){ // 홈런: 펜스를 넘긴 비거리
     const n=nearest(P(fr,th),OF);
     if(dist<fr+2.5&&R()<(n.k==='CF'?(K.gcCF??0.15):(K['gc'+n.k]??0.10)))return{th,dist:fr-0.6,type,res:'OUT',how:'FO',fielder:n.k,great:true,T:hang,h:apex,ev,la};
@@ -3249,6 +3313,9 @@ function hitPos(h,u){const L=h.land;u=clamp(u,0,1);
     while(t0<1&&hh>0.02){const t1=Math.min(1,t0+Lg);if(u<=t1){const v=(u-t0)/(t1-t0);y+=4*hh*v*(1-v);break}t0=t1;hh*=0.45;Lg*=0.7}
     return[L[0]*sx,y,L[2]*sx]}
   // 공중: 공기저항으로 수평 감속(꼭짓점이 뒤로), 낙하가 더 가파름
+  if(h.ev&&h.la!=null){const sh=phyBat(h.ev/3.6,Math.min(h.la,83)).shape,[fx,fy]=phyShapeAt(sh,u);   // v6.3 RK4 궤적 모양(항력으로 꼭짓점이 뒤로)
+    const ye=h.how==='HR'?9:h.how==='FENCE'&&!h.hop?(h.mw?Math.max(1.8,wallH(h.th)*0.6):1.8):h.res==='OUT'?1.6:0.3;
+    return[L[0]*fx,Math.max(0.05,(fy-0.9*(1-u))*(h.h/Math.max(0.5,sh.apex))+lerp(1,ye,u)),L[2]*fx]}
   const k=h.type==='ld'?1.6:h.how==='HR'?1.0:1.25,sx=(1-Math.exp(-k*u))/(1-Math.exp(-k));
   const ye=h.how==='HR'?9:h.how==='FENCE'&&!h.hop?(h.mw?Math.max(1.8,wallH(h.th)*0.6):1.8):h.res==='OUT'?1.6:0.3,a=1,b=0.72,mx=Math.pow(a/(a+b),a)*Math.pow(b/(a+b),b);
   const y=lerp(1,ye,u)+h.h*Math.pow(u,a)*Math.pow(1-u,b)/mx;
@@ -3473,7 +3540,7 @@ function sndInit(){if(SND.ctx){if(SND.ctx.state==='suspended'&&!document.hidden)
   SND.master=c.createGain();SND.master.connect(comp);['bgm','sfx','crowd'].forEach(k=>{const g=c.createGain();g.connect(SND.master);SND.bus[k]=g});
   const mk=pink=>{const b=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=b.getChannelData(0);let b0=0,b1=0,b2=0;
     for(let i=0;i<d.length;i++){const w=Math.random()*2-1;if(!pink){d[i]=w;continue}b0=0.99765*b0+w*0.099046;b1=0.963*b1+w*0.2965164;b2=0.57*b2+w*1.0526913;d[i]=(b0+b1+b2+w*0.1848)*0.2}return b};
-  SND.white=mk(false);SND.pink=mk(true);sndApply();
+  SND.white=mk(false);SND.pink=mk(true);sndApply();try{staInit()}catch(e){}
   try{if('speechSynthesis' in window){speechSynthesis.getVoices();const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}}   // iOS: 첫 터치에서 음성 잠금 해제
 ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,sndInit,{capture:true}));
 document.addEventListener('visibilitychange',()=>{if(!SND.ctx)return;if(document.hidden){SND.ctx.suspend();try{speechSynthesis.cancel()}catch(e){}}else SND.ctx.resume()});
@@ -3504,19 +3571,82 @@ function sfxJingle(kind){if(!sndOK('sfx'))return;const t=SND.ctx.currentTime,m=n
   seq.forEach(([n,d])=>{sTone('sfx',t+d,m(n),kind==='end'?0.35:0.2,{type:kind==='organ'?'sine':'square',g:kind==='organ'?0.16:0.07,hold:0.08});if(kind==='organ')sTone('sfx',t+d,m(n+12),0.2,{g:0.06,hold:0.08})});
   if(kind==='end')[60,64,67,72].forEach(n=>sTone('sfx',t+0.72,m(n),1.2,{type:'triangle',g:0.07,hold:0.5}))}
 function sfxTick(){if(!sndOK('sfx'))return;sTone('sfx',SND.ctx.currentTime,1400,0.03,{type:'square',g:0.025})}
+/* --- v6.3 경기장 오디오 (시뮬레이션 랩 이식): 포먼트 합성 관중 목소리 + 박수·휘파람 + 경기장 잔향 + 홈런 팡파르 ---
+   시작 시 한 번 OfflineAudioContext로 미리 렌더 → 실시간은 버퍼 재생만 (모바일 부담 최소) */
+const STA={buf:null,busy:false,rev:null,send:null};
+const VOWELS={a:[800,1250,2600],eo:[620,1050,2500],o:[480,820,2550],u:[350,900,2350],i:[300,2250,2950],e:[520,1850,2550],eu:[380,1400,2400]},VK=Object.keys(VOWELS);
+function mulberry(s){return()=>{s|=0;s=(s+0x6d2b79f5)|0;let t=Math.imul(s^(s>>>15),1|s);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+async function renderVoices(sr,dur,o){const ctx=new OfflineAudioContext(2,Math.ceil(sr*dur),sr),R=mulberry(o.seed||1);
+  const bus=ctx.createGain();bus.gain.value=o.gain??0.5;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=o.lp??3800;lp.Q.value=0.5;
+  const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=110;bus.connect(hp);hp.connect(lp);lp.connect(ctx.destination);
+  for(let v=0;v<o.voices;v++){const f0=o.f0[0]+R()*(o.f0[1]-o.f0[0]),osc=ctx.createOscillator();osc.type='sawtooth';osc.frequency.value=f0;
+    const lfo=ctx.createOscillator();lfo.frequency.value=4.5+R()*2.5;const lg=ctx.createGain();lg.gain.value=f0*(o.vib??0.025);lfo.connect(lg);lg.connect(osc.frequency);
+    const pan=ctx.createStereoPanner?ctx.createStereoPanner():null,amp=ctx.createGain();amp.gain.value=0;
+    const fs=[0,1,2].map(i=>{const f=ctx.createBiquadFilter();f.type='bandpass';f.Q.value=[6,9,11][i];return f}),fg=[1,0.55,0.25].map(g=>{const n=ctx.createGain();n.gain.value=g;return n});
+    fs.forEach((f,i)=>{osc.connect(f);f.connect(fg[i]);fg[i].connect(amp)});if(pan){pan.pan.value=R()*1.6-0.8;amp.connect(pan);pan.connect(bus)}else amp.connect(bus);
+    let t=o.onset?o.onset(R):R()*0.3;const vol=(0.4+R()*0.6)/Math.sqrt(o.voices);
+    const setV=(tt,k)=>{const fm=VOWELS[k],sh=1+(f0-150)/900;fs.forEach((f,i)=>f.frequency.setTargetAtTime(fm[i]*sh,tt,0.025))};
+    while(t<dur){const k=o.vowel?o.vowel(R):VK[Math.floor(R()*VK.length)],len=o.syl?o.syl(R):0.12+R()*0.22,env=o.env?o.env(t/dur):1;
+      setV(t,k);amp.gain.setTargetAtTime(vol*env,t,0.02);if(o.glide)osc.frequency.setTargetAtTime(f0*o.glide(t/dur,R),t,0.15);
+      amp.gain.setTargetAtTime(vol*env*(o.legato??0.15),t+len,0.03);t+=len+(o.gap?o.gap(R):R()*0.18)}
+    amp.gain.setTargetAtTime(0,dur-0.05,0.02);osc.start(0);lfo.start(0);osc.stop(dur);lfo.stop(dur)}
+  return ctx.startRendering()}
+function addClaps(buf,{t0=0,dur,rate,gain=0.5,seed=3,env=()=>1}){const sr=buf.sampleRate,R=mulberry(seed),L=buf.getChannelData(0),Rr=buf.getChannelData(1);let t=t0;
+  while(t<t0+dur){const e=env((t-t0)/dur);t+=-Math.log(1-R())/Math.max(1,rate*e);const i0=Math.floor(t*sr);if(i0>=L.length)break;
+    const n=Math.floor(sr*(0.006+R()*0.012)),f=900+R()*1700,q=1.4+R()*1.2,w=2*Math.PI*f/sr,al=Math.sin(w)/(2*q),b0=al,a0=1+al,a1=-2*Math.cos(w),a2=1-al;
+    let x1=0,x2=0,y1=0,y2=0;const g=gain*e*(0.3+R()*0.7),pan=R();
+    for(let k=0;k<n+200&&i0+k<L.length;k++){const x=k<n?(R()*2-1)*Math.exp(-k/n*3):0,y=(b0*x-b0*x2-a1*y1-a2*y2)/a0;x2=x1;x1=x;y2=y1;y1=y;L[i0+k]+=y*g*(1-pan*0.6);Rr[i0+k]+=y*g*(0.4+pan*0.6)}}}
+function addWhistles(buf,{count,seed=9,gain=0.08,t0=0,dur}){const sr=buf.sampleRate,R=mulberry(seed),L=buf.getChannelData(0),Rr=buf.getChannelData(1);
+  for(let w=0;w<count;w++){const st0=t0+R()*dur*0.6,len=0.35+R()*0.9,f0=1900+R()*1200,pan=R();let ph=0;
+    for(let k=0,n=Math.floor(len*sr);k<n;k++){const u=k/n,i=Math.floor(st0*sr)+k;if(i>=L.length)break;const f=f0*(u<0.25?0.85+u*0.6:1-(u-0.25)*0.1)*(1+0.012*Math.sin(k/sr*2*Math.PI*6));
+      ph+=2*Math.PI*f/sr;const s=Math.sin(ph)*Math.sin(Math.PI*Math.min(1,u*4))*(1-u)*gain;L[i]+=s*(1-pan);Rr[i]+=s*pan}}}
+function sNorm(buf,peak=0.9){let m=0;for(let c=0;c<buf.numberOfChannels;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)m=Math.max(m,Math.abs(d[i]))}if(m>0)for(let c=0;c<buf.numberOfChannels;c++){const d=buf.getChannelData(c);for(let i=0;i<d.length;i++)d[i]*=peak/m}return buf}
+function makeLoop(ctx,buf,xf){const sr=buf.sampleRate,n=Math.floor(xf*sr),len=buf.length-n,out=ctx.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const s=buf.getChannelData(c),d=out.getChannelData(c);for(let i=0;i<len;i++)d[i]=s[i];for(let i=0;i<n;i++){const g=i/n;d[i]=s[len+i]*(1-g)+s[i]*g}}return out}
+function stadiumIR(ctx,sec=2.6){const sr=ctx.sampleRate,n=Math.floor(sec*sr),b=ctx.createBuffer(2,n,sr),R=mulberry(77);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let lp=0;for(let i=0;i<n;i++){const t=i/sr,x=(R()*2-1)*Math.exp(-t*2.6);lp+=(x-lp)*(0.35-0.25*Math.min(1,t/sec));d[i]=lp}
+    for(const[dt,g]of[[0.045,0.5],[0.083,0.35],[0.13,0.28],[0.21,0.2]])d[Math.floor((dt+c*0.007)*sr)]+=g}return b}
+function staInit(){const c=SND.ctx;if(!c||STA.busy||STA.buf)return;STA.busy=true;
+  try{STA.rev=c.createConvolver();STA.rev.buffer=stadiumIR(c);STA.send=c.createGain();STA.send.gain.value=0.32;STA.send.connect(STA.rev);STA.rev.connect(SND.master);
+    SND.bus.crowd.connect(STA.send);const ss=c.createGain();ss.gain.value=0.45;SND.bus.sfx.connect(ss);ss.connect(STA.send)}catch(e){}   // 관중석·지붕 잔향
+  const sr=22050;
+  Promise.all([renderVoices(sr,9,{voices:42,f0:[95,240],gain:0.9,seed:5,legato:0.25}),
+    renderVoices(sr,3.6,{voices:56,f0:[170,420],gain:1,seed:8,vowel:R=>R()<0.75?'a':R()<0.5?'o':'e',syl:R=>0.6+R()*1.4,gap:R=>R()*0.1,onset:R=>R()*0.25,env:u=>Math.min(1,u*6)*(1-u)**0.8,glide:u=>1+0.12*Math.sin(Math.PI*Math.min(1,u*1.5)),vib:0.03,legato:0.6}),
+    renderVoices(sr,7,{voices:96,f0:[180,480],gain:1,seed:13,vowel:R=>R()<0.8?'a':'o',syl:R=>0.8+R()*2,gap:R=>R()*0.08,onset:R=>R()*0.2,env:u=>Math.min(1,u*8)*(u<0.55?1:1-(u-0.55)/0.5),glide:u=>1+0.18*Math.sin(Math.PI*Math.min(1,u*1.3)),vib:0.035,legato:0.7}),
+    renderVoices(sr,2.2,{voices:40,f0:[140,320],gain:1,seed:21,vowel:()=>'o',syl:R=>0.9+R()*0.8,gap:()=>0.5,onset:R=>R()*0.15,env:u=>Math.min(1,u*5)*(1-u),glide:u=>1.15-0.3*u,legato:0.5}),
+    renderVoices(sr,2.4,{voices:36,f0:[100,190],gain:1,seed:33,vowel:R=>R()<0.7?'u':'o',syl:R=>1.2+R()*0.8,gap:()=>0.4,onset:R=>R()*0.2,env:u=>Math.min(1,u*4)*(1-u)**0.6,glide:u=>1-0.12*u,legato:0.6})   // 야유 "우~"
+  ]).then(([murmur,cheer,roar,ooh,boo])=>{
+    addClaps(cheer,{dur:3.4,rate:900,gain:0.35,seed:4,env:u=>Math.min(1,u*5)*(1-u)});addWhistles(cheer,{count:4,dur:3.2,gain:0.05});
+    addClaps(roar,{dur:6.8,rate:2200,gain:0.4,seed:6,env:u=>Math.min(1,u*4)*(u<0.6?1:1-(u-0.6)/0.45)});addWhistles(roar,{count:14,dur:6,gain:0.07,seed:12});
+    addClaps(murmur,{dur:9,rate:6,gain:0.25,seed:2});addWhistles(boo,{count:3,dur:2,gain:0.04,seed:40});
+    const B={murmur,cheer,roar,ooh,boo};for(const k in B)sNorm(B[k],k==='murmur'?0.6:0.95);B.murmur=makeLoop(c,B.murmur,1.0);
+    const ap=c.createBuffer(2,Math.floor(sr*3),sr);addClaps(ap,{dur:2.9,rate:1600,gain:0.5,seed:31,env:u=>Math.min(1,u*8)*(1-u)**1.5});B.applause=sNorm(ap,0.9);
+    STA.buf=B;STA.busy=false;if(SND.bed){const b=SND.bed;SND.bed=null;b.g.gain.setTargetAtTime(0,c.currentTime,0.3);setTimeout(()=>{try{b.s.stop();b.l&&b.l.stop()}catch(e){}},1500)}   // 노이즈 관중 → 목소리 관중으로 교체
+  }).catch(()=>{STA.busy=false})}
+function staPlay(k,g,at){const c=SND.ctx,b=STA.buf&&STA.buf[k];if(!b)return false;const s=c.createBufferSource();s.buffer=b;s.playbackRate.value=0.96+Math.random()*0.08;
+  const gg=c.createGain();gg.gain.value=g;s.connect(gg);gg.connect(SND.bus.crowd);s.start(c.currentTime+(at||0));return true}
+function sfxFanfare(){if(!sndOK('sfx'))return;const c=SND.ctx,t0=c.currentTime+0.25,out=SND.bus.sfx;let t=t0;   // 경기장 오르간+브라스(도-미-솔-도↑), 에어혼, 폭죽
+  const brass=(semi,at,dur,g)=>{[0,4,7].forEach((iv,k)=>{if(k&&dur<0.5)return;const o=c.createOscillator();o.type='sawtooth';o.frequency.value=261.6*Math.pow(2,(semi+(k?iv:0))/12);
+    const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(600,at);lp.frequency.linearRampToValueAtTime(2800,at+0.06);const gg=c.createGain();gg.gain.setValueAtTime(0,at);gg.gain.linearRampToValueAtTime(g,at+0.03);gg.gain.setTargetAtTime(0,at+dur,0.12);
+    o.connect(lp);lp.connect(gg);gg.connect(out);o.start(at);o.stop(at+dur+0.6)})};
+  for(const[s,d]of[[0,0.16],[4,0.16],[7,0.16],[12,0.9]]){brass(s,t,d,0.16);t+=d+0.02}
+  const hn=c.createOscillator();hn.type='square';hn.frequency.value=233;const hl=c.createBiquadFilter();hl.type='bandpass';hl.frequency.value=900;hl.Q.value=1.2;const hg=c.createGain();hg.gain.setValueAtTime(0,t);hg.gain.linearRampToValueAtTime(0.22,t+0.05);hg.gain.setTargetAtTime(0,t+1.1,0.15);hn.connect(hl);hl.connect(hg);hg.connect(out);hn.start(t);hn.stop(t+2);
+  for(let i=0;i<7;i++){const at=t+0.3+i*0.32+Math.random()*0.12,n=c.createBuffer(1,Math.floor(c.sampleRate*0.5),c.sampleRate),d=n.getChannelData(0);for(let k=0;k<d.length;k++)d[k]=(Math.random()*2-1)*Math.exp(-k/(c.sampleRate*0.08))*(Math.random()<0.3?1:0.3);
+    const s=c.createBufferSource();s.buffer=n;const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;const g=c.createGain();g.gain.value=0.5;s.connect(lp);lp.connect(g);g.connect(out);s.start(at)}}
 /* --- 관중 --- */
-function crowdBed(on){const c=SND.ctx;if(!c)return;if(on&&!SND.bed){const s=c.createBufferSource();s.buffer=SND.pink;s.loop=true;const f=c.createBiquadFilter();f.type='bandpass';f.frequency.value=650;f.Q.value=0.5;
+function crowdBed(on){const c=SND.ctx;if(!c)return;if(on&&!SND.bed){const s=c.createBufferSource();s.buffer=STA.buf?STA.buf.murmur:SND.pink;s.loop=true;const f=c.createBiquadFilter();f.type=STA.buf?'allpass':'bandpass';f.frequency.value=650;f.Q.value=0.5;
     const g=c.createGain();g.gain.value=0;const l=c.createOscillator(),lg=c.createGain();l.frequency.value=0.13;lg.gain.value=0.05;l.connect(lg);lg.connect(g.gain);
     s.connect(f);f.connect(g);g.connect(SND.bus.crowd);s.start();l.start();g.gain.setTargetAtTime(0.22,c.currentTime,1.2);SND.bed={s,g,l}}
   else if(!on&&SND.bed){const b=SND.bed;SND.bed=null;b.g.gain.setTargetAtTime(0,c.currentTime,0.4);setTimeout(()=>{try{b.s.stop();b.l.stop()}catch(e){}},2000)}}
 function crowdLevel(x){if(SND.bed)SND.bed.g.gain.setTargetAtTime(0.18+0.18*x,SND.ctx.currentTime,0.8)}
 function crowdCheer(lv,dur){if(!sndOK('crowd'))return;const c=SND.ctx,t=c.currentTime;dur=dur||2.5;
+  if(STA.buf){const big=lv>=0.8||dur>=4;staPlay(big?'roar':'cheer',0.25+lv*0.9);staPlay('applause',0.25*lv,big?2.2:0.8);SND.duckT=performance.now()+dur*900;return}   // v6.3 목소리 관중
   sNoise('crowd',t,dur,{f:1100,Q:0.5,g:0.9*lv,a:0.25,pink:true});sNoise('crowd',t,dur*0.8,{f:2400,Q:0.7,g:0.35*lv,a:0.3});
   for(let i=0;i<10;i++){const f0=220+Math.random()*260;sTone('crowd',t+Math.random()*0.15,f0,dur*(0.6+Math.random()*0.4),{type:'sawtooth',f2:f0*(1.05+Math.random()*0.1),g:0.025*lv,a:0.2,lp:1300})}   // "와아~" 목소리 층
   SND.duckT=performance.now()+dur*900}
-function crowdBoo(){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime;
+function crowdBoo(){if(!sndOK('crowd'))return;if(staPlay('boo',0.95))return;const t=SND.ctx.currentTime;
   for(let i=0;i<12;i++){const f0=110+Math.random()*70;sTone('crowd',t+Math.random()*0.2,f0,2.2,{type:'sawtooth',f2:f0*0.88,g:0.05,a:0.35,lp:520})}sNoise('crowd',t,2,{f:380,Q:2.5,g:0.3,a:0.3,pink:true})}
-function crowdMurmur(){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime;sNoise('crowd',t,1.4,{f:700,Q:1,g:0.35,a:0.15,pink:true});for(let i=0;i<6;i++){const f0=180+Math.random()*120;sTone('crowd',t+Math.random()*.2,f0,1.1,{type:'sawtooth',f2:f0*1.25,g:0.02,a:0.1,lp:900})}}
+function crowdMurmur(){if(!sndOK('crowd'))return;if(staPlay('ooh',0.6))return;const t=SND.ctx.currentTime;sNoise('crowd',t,1.4,{f:700,Q:1,g:0.35,a:0.15,pink:true});for(let i=0;i<6;i++){const f0=180+Math.random()*120;sTone('crowd',t+Math.random()*.2,f0,1.1,{type:'sawtooth',f2:f0*1.25,g:0.02,a:0.1,lp:900})}}
 function crowdChant(hot){if(!sndOK('crowd'))return;const t=SND.ctx.currentTime,clap=d=>{for(let k=0;k<7;k++)sNoise('crowd',t+d+Math.random()*0.03,0.06,{f:1300+Math.random()*900,Q:1.1,g:0.07*(hot?1.5:1)})},drum=d=>sTone('crowd',t+d,70,0.25,{f2:48,g:0.25*(hot?1.4:1)});
   [0,0.3].forEach(d=>{clap(d);drum(d)});[0.75,0.98,1.21].forEach(d=>{clap(d);drum(d)});   // 짝짝 짝짝짝 + 북
   if(hot){const m=n=>440*Math.pow(2,(n-69)/12);[[69,1.6],[69,1.85],[72,2.1],[74,2.35]].forEach(([n,d])=>{for(let k=0;k<5;k++)sTone('crowd',t+d,m(n-12)*(1+(Math.random()-.5)*0.02),0.22,{type:'sawtooth',g:0.03,lp:1100,a:0.03})})}}   // 득점권: 응원 구호
@@ -3540,8 +3670,8 @@ setInterval(()=>{try{if(!SND.ctx)return;bgmTick();const live=!!(G&&!G.over&&MODE
 /* --- 게임 이벤트 → 소리 --- */
 function sndBanner(t,cls){if(!SND.ctx)return;t=String(t||'');
   const hr=/홈런|스플래시/.test(t),err=/실책/.test(t);
-  if(hr){umpCall('홈런!');crowdCheer(1,5);SND.pend=0}
-  else{if(t==='STRIKE'||t==='헛스윙!')umpCall('스트라이크!');else if(t==='BALL'||/볼넷|고의사구/.test(t))umpCall('볼!');else if(t==='파울')umpCall('파울!');
+  if(hr){umpCall('홈런!');crowdCheer(1,5);sfxFanfare();SND.pend=0}
+  else{if(t==='STRIKE'||t==='헛스윙!')umpCall('스트라이크!');else if(t==='BALL'||/볼넷|고의사구/.test(t))umpCall('볼!');else if(t==='파울'){umpCall('파울!');if(sndOK('crowd'))staPlay('ooh',0.35)}
     else if(/삼진/.test(t)){umpCall('스트라이크! 아웃!');crowdCheer(0.3,1.2)}else if(cls==='out'||/아웃|병살|삼중살/.test(t))umpCall('아웃!');
     if(SND.pend>0){crowdCheer(Math.min(1,0.55+0.12*SND.pend),2.8+SND.pend*0.4);SND.pend=0}}
   if(err)crowdBoo();if(/몸에 맞는 공/.test(t))crowdMurmur();if(t==='CHANGE!')sfxJingle('change');if(t==='투수 교체')sfxJingle('organ');if(/끝내기/.test(t))crowdCheer(1,6)}
