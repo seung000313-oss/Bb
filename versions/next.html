@@ -285,7 +285,7 @@ table.pt{background:#8b8b8b!important;border:2px solid #000!important}
 <body>
 <div id="app">
   <header class="top">
-    <div class="logo">동네야구<span>3D</span><small class="ver">v6.4</small></div>
+    <div class="logo">동네야구<span>3D</span><small class="ver">v6.5</small></div>
     <nav>
       <button data-m="ars">편집</button>
       <button data-m="line0" id="navA">A팀</button>
@@ -2404,7 +2404,7 @@ const PITCHES=[
 const SLOW=1.4; // 체감 속도 보정 (낮을수록 빠름)
 const MOVE=1.8;  // 무브먼트 배율
 // ===== 밸런스 패치 v1.8 (타구 물리 판정·체공시간↓·코너 외야 범위↓, 선발6·필승조1·1·마무리1 이닝 기준, 홈런·2루타 +10%, 2026 KBO 리그 평균에 맞춘 값: 5000시즌 시뮬레이션 검증) =====
-const BAL={wallZ:30,wallP:0.9,grdZ:35,grdEv:135,grdP:0.22,lineTh:37,lineV:18,lineD:0.6,ldLine:0.3,ifDive:0.05,ffP:0.03,ffC:0.75,ballL:0.25,win:0.6813,wF:4,strikeBase:0.15,cntB:0.04,tkK:0.8,tk0:0.62,strikeC:0.003,hbpBase:0.001156,hbpC:5.29e-05,magK:1.3,magR:0.05,
+const BAL={wallZ:30,wallP:0.9,grdZ:35,grdEv:135,grdP:0.22,lineTh:37,lineV:18,lineD:0.6,ldLine:0.3,ifDive:0.05,ffP:0.03,ffC:0.75,ballL:0.25,win:0.6813,wF:4,fcB:0.90,fcX:0.65,fcC:0.004,fcS:0.004,fcBrk:0.10,strikeBase:0.15,cntB:0.04,tkK:0.8,tk0:0.62,strikeC:0.003,hbpBase:0.001156,hbpC:5.29e-05,magK:1.3,magR:0.05,
   gbBase:0.4651,ldCut:0.6801,gbOut:0.8817,ifFly:0.8775,ifLD:0.629,ofRangeFB:31.8201,ofRangeLD:16.1843,ofExtra:0.04,
   ldDist:45.5,ofXB:104.1577,ofGap:42.4224,hrOver:21.411,wall3:0.02,sc2:0.65,f13:0.33,d1:0.5,pE:0.035,pWP:3.04e-05,qF:0.65,
   evB:105,evQ:45,evP:30,evS:16,evV:0.18,evSd:9,laB:8,laP:10,laSd:24,gbLA:8,ldLA:22,dK:0.725,dragV:0.15,tK:0.78,phyD:0.98,phyT:0.75,phyA:0.83,hopR:2,hrM:0,ifV:3.7425,ofV:7.6,ifReact:0.25,ofReact:0.35,rangeIF:1,rangeOF:1.1772,catchS:3,thrV:13.7134,run1:4.35,runB:3.6,safe:0.6,safe3:0.5,rollK:0.3,cornerR:0.85,ifThr:19.5};
@@ -3129,7 +3129,10 @@ function doSwing(force,dtO){if(!G||G.halt||(!force&&anyOpen())||st.buntNext)retu
   const w=BAL.win*(0.10+effC(b)*0.0012)*(1.1-effS(pit)*0.002),wF=w*BAL.wF,ad=Math.abs(dt);
   const near=Math.abs(p.tx)<=0.38&&p.ty>=0.29&&p.ty<=1.21;
   if(ad<w&&(p.zone||(near&&R()<.7))){let q=1-ad/w;if(!p.zone)q*=.7;const o=hitOutcome(q,b,pit,{ball:!p.zone});if(o.foul)return doFoul();startHit(o)}
-  else if(ad<wF&&near)doFoul();
+  else if(ad<wF&&near){   // 빗맞힘 구간: 타이밍이 어긋날수록·구위가 좋고 변화가 클수록 헛스윙, 컨택이 좋을수록 파울(커트)
+    const x=(ad-w)/(wF-w),brk=!FASTB.includes(p.name)&&!/포심|투심|싱커|커터/.test(p.name);
+    const pf=clamp(BAL.fcB-BAL.fcX*x+(effC(b)-60)*BAL.fcC-(effS(pit)-60)*BAL.fcS-(brk?BAL.fcBrk:0),0.05,0.95);
+    if(R()<pf)doFoul();else st.whiff=true}
   else if(G.strikes>=2&&near&&hasTrait(b,'용규놀이')&&R()<0.30){st.wpNote=(st.wpNote?st.wpNote+' · ':'')+'용규놀이 커트';doFoul()}
   else st.whiff=true}
 function doPitch(){if(!G||G.halt||anyOpen()||st.mode!=='ready')return;
